@@ -31,6 +31,7 @@ namespace SetBrightness
         {
             this.btnSet = new System.Windows.Forms.Button();
             this.tbValue = new System.Windows.Forms.TextBox();
+            this.tbLux = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btnSet
@@ -50,11 +51,19 @@ namespace SetBrightness
             this.tbValue.Size = new System.Drawing.Size(100, 23);
             this.tbValue.TabIndex = 1;
             // 
+            // tbLux
+            // 
+            this.tbLux.Location = new System.Drawing.Point(92, 78);
+            this.tbLux.Name = "tbLux";
+            this.tbLux.Size = new System.Drawing.Size(100, 23);
+            this.tbLux.TabIndex = 2;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.tbLux);
             this.Controls.Add(this.tbValue);
             this.Controls.Add(this.btnSet);
             this.Name = "Form1";
@@ -68,6 +77,7 @@ namespace SetBrightness
 
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.TextBox tbValue;
+        private System.Windows.Forms.TextBox tbLux;
     }
 }
 

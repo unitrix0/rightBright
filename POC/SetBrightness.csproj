@@ -15,4 +15,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Yoctopuce.YoctoLib" Version="1.10.44175" />
+  </ItemGroup>
+
 </Project>

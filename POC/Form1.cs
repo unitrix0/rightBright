@@ -16,7 +16,12 @@ namespace SetBrightness
         public Form1()
         {
             InitializeComponent();
+            var err = "";
+            YAPI.RegisterHub("USB", ref err);
+            YAPI.UpdateDeviceList(ref err);
+            var sensor = YSensor.FirstSensor();
             
+            tbLux.Text = sensor.get_advertisedValue();
         }
 
         private void btnSet_Click(object sender, EventArgs e)
