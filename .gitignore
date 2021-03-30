@@ -1,0 +1,10 @@
+.vscode
+bin
+obj
+*.db
+*.lock
+*.suo
+.suo
+.vs
+/BeepBackend/BeepBackend/wwwroot
+appsettings.Development.json
