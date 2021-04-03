@@ -6,4 +6,47 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Yoctopuce.YoctoLib" Version="1.10.44175" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi-armhf.so" Link="YapiLibraries\libyapi-armhf.so" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi-i386.so" Link="YapiLibraries\libyapi-i386.so" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi.dylib" Link="YapiLibraries\libyapi.dylib" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi-aarch64.so" Link="YapiLibraries\libyapi-aarch64.so" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\yapi.dll" Link="YapiLibraries\yapi.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi-amd64.so" Link="YapiLibraries\libyapi-amd64.so" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi32.dylib" Link="YapiLibraries\libyapi32.dylib" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi-i386.so" />
+    <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi-aarch64.so" />
+    <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi-amd64.so" />
+    <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi-armhf.so" />
+    <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi-i386.so" />
+    <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi.dylib" />
+    <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi32.dylib" />
+    <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\yapi.dll" />
+  </ItemGroup>
+
 </Project>
