@@ -4,10 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:unitrix0.rightbright"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid Background="#121212">
+        Title="MainWindow" Height="450" Width="800"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+
+    <Grid Background="#1E2042">
         <Grid.RowDefinitions>
+            <RowDefinition Height="27"></RowDefinition>
             <RowDefinition Height="50"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
@@ -16,16 +22,50 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Border BorderBrush="#FF444444" BorderThickness="0,0,1,0"></Border>
-        <Label Grid.Column="0" Grid.Row="0" Margin="5,0,5,0"
+        <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="0,0,1,0"></Border>
+        <Label Grid.Column="0" Grid.Row="1" Margin="5,0,5,0"
                VerticalAlignment="Center" 
-               FontSize="18" Foreground="#FF666666">Bildschirme</Label>
+               FontSize="18" Foreground="White" FontFamily="Montserrat">Bildschirme</Label>
 
-        <Border Grid.Row="1" Grid.Column="0" BorderBrush="#FF444444" BorderThickness="0,0,1,0"></Border>
-        <DockPanel Grid.Row="0" Grid.Column="1" Margin="20,0,20,0">
-            <Label DockPanel.Dock="Top" FontSize="14" Foreground="#FF666666">Sensor</Label>
+        <Border Grid.Row="2" Grid.Column="0" BorderBrush="LightGray"  BorderThickness="0,0,1,0"></Border>
+        <DockPanel Grid.Row="1" Grid.Column="1" Margin="20,0,20,0">
+            <Label DockPanel.Dock="Top" FontSize="14" Foreground="White" FontFamily="Montserrat"
+                   Padding="-5,0,0,0" Margin="0,5,5,2">Sensor</Label>
             <ComboBox ></ComboBox>
         </DockPanel>
+
+        <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Vertical">
+            <ItemsControl>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button FontSize="28" HorizontalContentAlignment="Stretch">
+                            <Grid DockPanel.Dock="Left">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="20"></ColumnDefinition>
+                                    <ColumnDefinition Width="40"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+
+                                <CheckBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
+                                <fa:ImageAwesome Grid.Row="0" Grid.Column="1"
+                                                 VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                 Icon="Desktop" Margin="5"/>
+                                <DockPanel Grid.Row="0" Grid.Column="2">
+                                    <Label DockPanel.Dock="Top" FontSize="10" FontWeight="Bold"
+                                           Padding="5,5,5,2">HP Compaq LA2405wg</Label>
+                                    <Label DockPanel.Dock="Bottom" FontSize="10"
+                                           Padding="5,0,5,5">1920 x 1200</Label>
+                                </DockPanel>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
+        </StackPanel>
 
 
     </Grid>
