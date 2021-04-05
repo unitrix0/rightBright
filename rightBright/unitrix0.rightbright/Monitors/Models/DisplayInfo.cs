@@ -9,8 +9,10 @@ namespace unitrix0.rightbright.Monitors.Models
     public class DisplayInfo
     {
         public bool IsPrimaryMonitor { get; set; }
-        public string ScreenHeight { get; set; }
-        public string ScreenWidth { get; set; }
+        public int ScreenHeight { get; set; }
+        public int ScreenWidth { get; set; }
+
+        public string Resolution => $"{ScreenWidth}x{ScreenHeight}";
         public RectStruct MonitorArea { get; set; }
         public RectStruct WorkArea { get; set; }
         public string DeviceName { get; set; }
@@ -19,7 +21,7 @@ namespace unitrix0.rightbright.Monitors.Models
 
         public override string ToString()
         {
-            return $"{ScreenWidth} * {ScreenHeight}";
+            return $"{DeviceName} {Resolution}";
         }
     }
 }

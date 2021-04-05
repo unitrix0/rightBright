@@ -12,7 +12,7 @@ namespace SetBrightness
     /// for the display monitor.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    internal struct MonitorInfoEx
+    public struct MonitorInfoEx
     {
         // size of a device name string
         private const int CCHDEVICENAME = 32;

@@ -14,6 +14,9 @@ namespace unitrix0.rightbright.Monitors.MonitorAPI
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfoEx lpmi);
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern bool EnumDisplayDevices(string lpDevice, uint iDevNum, ref DISPLAY_DEVICE lpDisplayDevice, uint dwFlags);
+
         private delegate bool EnumMonitorsDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RectStruct lprcMonitor, IntPtr dwData);
 
 
@@ -30,16 +33,27 @@ namespace unitrix0.rightbright.Monitors.MonitorAPI
                 var mi = new MonitorInfoEx();
                 mi.Size = Marshal.SizeOf(mi);
                 var success = GetMonitorInfo(hMonitor, ref mi);
-                if (!success) return false;
+                if (!success)
+                {
+                    var err = Marshal.GetLastWin32Error();
+                    return false;
+                }
+                
+                var dev = new DISPLAY_DEVICE();
+                dev.cb = Marshal.SizeOf(dev);
+                if (!EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
+                {
+                    var err = Marshal.GetLastWin32Error();
+                }
 
                 var di = new DisplayInfo
                 {
-                    ScreenWidth = (mi.Monitor.Right - mi.Monitor.Left).ToString(),
-                    ScreenHeight = (mi.Monitor.Bottom - mi.Monitor.Top).ToString(),
+                    ScreenWidth = mi.Monitor.Right - mi.Monitor.Left,
+                    ScreenHeight = mi.Monitor.Bottom - mi.Monitor.Top,
                     MonitorArea = mi.Monitor,
                     WorkArea = mi.WorkArea,
                     IsPrimaryMonitor = Convert.ToBoolean(mi.Flags),
-                    DeviceName = mi.DeviceName,
+                    DeviceName = dev.DeviceString,
                     Handle = hMonitor
                 };
                 col.Add(di);
