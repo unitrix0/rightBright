@@ -5,11 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:unitrix0.rightbright"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:viewModel="clr-namespace:unitrix0.rightbright.Windows.ViewModel"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         WindowStyle="None"
-        ResizeMode="NoResize"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+        ResizeMode="NoResize">
+    <Window.DataContext>
+        <viewModel:MainWindowViewModel/>
+    </Window.DataContext>
 
     <Grid Background="#1E2042">
         <Grid.RowDefinitions>
@@ -35,7 +38,7 @@
         </DockPanel>
 
         <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Vertical">
-            <ItemsControl>
+            <ItemsControl ItemsSource="{Binding Monitors}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button FontSize="28" HorizontalContentAlignment="Stretch">
@@ -55,9 +58,9 @@
                                                  Icon="Desktop" Margin="5"/>
                                 <DockPanel Grid.Row="0" Grid.Column="2">
                                     <Label DockPanel.Dock="Top" FontSize="10" FontWeight="Bold"
-                                           Padding="5,5,5,2">HP Compaq LA2405wg</Label>
+                                           Padding="5,5,5,2" Content="{Binding DeviceName}"/>
                                     <Label DockPanel.Dock="Bottom" FontSize="10"
-                                           Padding="5,0,5,5">1920 x 1200</Label>
+                                           Padding="5,0,5,5" Content="{Binding Resolution}"/>
                                 </DockPanel>
                             </Grid>
                         </Button>

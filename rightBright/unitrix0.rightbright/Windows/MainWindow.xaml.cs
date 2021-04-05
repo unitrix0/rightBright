@@ -8,7 +8,6 @@ namespace unitrix0.rightbright.Windows
     /// </summary>
     public partial class MainWindow : Window
     {
-        public FontAwesomeIcon FontAwesomeIcon => FontAwesomeIcon.Desktop;
         public MainWindow()
         {
             InitializeComponent();
