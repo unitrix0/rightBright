@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace unitrix0.rightbright.Monitors.MonitorAPI
+namespace unitrix0.rightbright.Services.MonitorAPI.Flags
 {
     [Flags]
     public enum DisplayDeviceStateFlags : int

@@ -6,13 +6,14 @@
         xmlns:local="clr-namespace:unitrix0.rightbright"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:viewModel="clr-namespace:unitrix0.rightbright.Windows.ViewModel"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         WindowStyle="None"
-        ResizeMode="NoResize">
-    <Window.DataContext>
-        <viewModel:MainWindowViewModel/>
-    </Window.DataContext>
+        ResizeMode="NoResize"
+        d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel, IsDesignTimeCreatable=True}">
 
     <Grid Background="#1E2042">
         <Grid.RowDefinitions>
@@ -52,7 +53,8 @@
                                     <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
 
-                                <CheckBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
+                                <CheckBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"
+                                          IsChecked="{Binding Path=Active}"/>
                                 <fa:ImageAwesome Grid.Row="0" Grid.Column="1"
                                                  VerticalAlignment="Center" HorizontalAlignment="Center"
                                                  Icon="Desktop" Margin="5"/>

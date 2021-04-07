@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 // ReSharper disable InconsistentNaming
 
-namespace unitrix0.rightbright.Monitors.MonitorAPI
+namespace unitrix0.rightbright.Services.MonitorAPI.Structs
 {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     public struct PHYSICAL_MONITOR

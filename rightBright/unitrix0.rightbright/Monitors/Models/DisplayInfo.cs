@@ -1,5 +1,5 @@
 ﻿using System;
-using SetBrightness;
+using unitrix0.rightbright.Services.MonitorAPI.Structs;
 
 namespace unitrix0.rightbright.Monitors.Models
 {
@@ -18,6 +18,8 @@ namespace unitrix0.rightbright.Monitors.Models
         public string DeviceName { get; set; }
 
         public IntPtr Handle { get; set; }
+        public string DeviceId { get; set; }
+        public bool Active { get; set; }
 
         public override string ToString()
         {

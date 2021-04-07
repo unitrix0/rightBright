@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using SetBrightness;
 using unitrix0.rightbright.Monitors.Models;
+using unitrix0.rightbright.Services.MonitorAPI.Structs;
 
-namespace unitrix0.rightbright.Monitors.MonitorAPI
+namespace unitrix0.rightbright.Services.MonitorAPI
 {
-    public class MonitorEnummerationService
+    public class MonitorEnummerationService : IMonitorEnummerationService
     {
         [DllImport("user32.dll")]
         private static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, EnumMonitorsDelegate lpfnEnum, IntPtr dwData);
@@ -54,7 +54,9 @@ namespace unitrix0.rightbright.Monitors.MonitorAPI
                     WorkArea = mi.WorkArea,
                     IsPrimaryMonitor = Convert.ToBoolean(mi.Flags),
                     DeviceName = dev.DeviceString,
-                    Handle = hMonitor
+                    DeviceId =dev.DeviceID,
+                    Handle = hMonitor,
+                    Active = true
                 };
                 col.Add(di);
                 return true;

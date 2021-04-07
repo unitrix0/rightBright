@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace SetBrightness
+namespace unitrix0.rightbright.Services.MonitorAPI.Structs
 {
     /// <summary>
     /// The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.

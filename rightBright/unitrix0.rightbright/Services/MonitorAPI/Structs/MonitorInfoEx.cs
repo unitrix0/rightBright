@@ -1,7 +1,8 @@
 ﻿using System.Runtime.InteropServices;
+
 // ReSharper disable InconsistentNaming
 
-namespace SetBrightness
+namespace unitrix0.rightbright.Services.MonitorAPI.Structs
 {
    
 

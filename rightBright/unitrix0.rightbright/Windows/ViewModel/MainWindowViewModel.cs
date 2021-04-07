@@ -1,33 +1,24 @@
 ﻿using System.Collections.Generic;
+using Prism.Mvvm;
+using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Monitors.Models;
-using unitrix0.rightbright.Monitors.MonitorAPI;
 
 namespace unitrix0.rightbright.Windows.ViewModel
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel : BindableBase
     {
-        public List<DisplayInfo> Monitors { get; }
+        private readonly IMonitorService _monitorService;
+        public List<DisplayInfo> Monitors => _monitorService?.Monitors ?? new List<DisplayInfo>();
 
         public MainWindowViewModel()
         {
-            var moniEnum = new MonitorEnummerationService();
-            Monitors = moniEnum.GetDisplays();
+            
+        }
 
-            //Monitors = new List<DisplayInfo>()
-            //{
-            //    new DisplayInfo()
-            //    {
-            //        DeviceName = "LG Ultragear",
-            //        ScreenHeight = 1440,
-            //        ScreenWidth = 2560
-            //    },
-            //    new DisplayInfo()
-            //    {
-            //        DeviceName = "HP Compaq LA2405wg",
-            //        ScreenHeight = 1600,
-            //        ScreenWidth = 1200
-            //    }
-            //};
+        public MainWindowViewModel(IMonitorService monitorService)
+        {
+            _monitorService = monitorService;
+            _monitorService.UpdateList();
         }
     }
 }

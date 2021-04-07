@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using SetBrightness;
+using unitrix0.rightbright.Services.MonitorAPI.Structs;
 
-namespace unitrix0.rightbright.Monitors.MonitorAPI
+namespace unitrix0.rightbright.Services.Brightness
 {
-    public class BrightnessService : IDisposable
+    public class SetBrightnessService : IDisposable, ISetBrightnessService
     {
         [DllImport("user32.dll", EntryPoint = "MonitorFromWindow")]
         private static extern IntPtr MonitorFromWindow([In] IntPtr hwnd, uint dwFlags);
@@ -38,7 +38,7 @@ namespace unitrix0.rightbright.Monitors.MonitorAPI
 
         public uint CurrentBrightness => _currentValue;
 
-        public BrightnessService()
+        public SetBrightnessService()
         {
         }
 
