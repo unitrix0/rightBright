@@ -20,6 +20,8 @@ namespace unitrix0.rightbright.Monitors.Models
         public IntPtr Handle { get; set; }
         public string DeviceId { get; set; }
         public bool Active { get; set; }
+        public int MinBrightness { get; set; }
+        public int LastBrightnessSet { get; set; }
 
         public override string ToString()
         {

@@ -24,8 +24,10 @@ namespace unitrix0.rightbright.Sensors
             YAPI.RegisterHub("USB", ref _error);
             YAPI.UpdateDeviceList(ref _error);
             
-            _sensor = (YLightSensor)YSensor.FindSensor("LIGHTMK3-17AE3E"); // TODO Parameter
+            _sensor = YLightSensor.FindLightSensor("LIGHTMK3-17AE3E"); // TODO Parameter
             _sensor.registerTimedReportCallback(TimedReport);
+
+            if(_sensor != null) _handleYapiEventsTimer.Start();
         }
 
         private void TimedReport(YLightSensor func, YMeasure measure)

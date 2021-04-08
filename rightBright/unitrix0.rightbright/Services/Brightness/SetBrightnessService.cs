@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using unitrix0.rightbright.Services.MonitorAPI.Structs;
@@ -32,8 +33,8 @@ namespace unitrix0.rightbright.Services.Brightness
 
         private PHYSICAL_MONITOR[] _physicalMonitorArray;
 
-        private readonly uint _minValue = 0;
-        private readonly uint _maxValue = 0;
+        private uint _minValue = 0;
+        private uint _maxValue = 0;
         private uint _currentValue = 0;
 
         public uint CurrentBrightness => _currentValue;
@@ -45,11 +46,16 @@ namespace unitrix0.rightbright.Services.Brightness
         public void SetBrightness(IntPtr monitorHandle, int newValue)
         {
             newValue = Math.Min(newValue, Math.Max(0, newValue));
-            _currentValue = (_maxValue - _minValue) * (uint)newValue / 100u + _minValue;
-            var monitors = GetPhysicalMonitors(monitorHandle);
+            //_currentValue = (_maxValue - _minValue) * (uint)newValue / 100u + _minValue;
+            //if (!GetMonitorBrightness(monitorHandle, ref _minValue, ref _currentValue, ref _maxValue))
+            //{
+            //    var ex = new Win32Exception(Marshal.GetLastWin32Error());
+            //    Debug.Print($"{nameof(GetMonitorBrightness)} Error: {ex.HResult} {ex.Message}");
+            //}
 
+            var monitors = GetPhysicalMonitors(monitorHandle);
             var result = SetMonitorBrightness(monitors[0].hPhysicalMonitor, (uint)newValue);
-            Debug.Print($"{nameof(SetBrightness)} success: {result}");
+            Debug.Print($"{nameof(SetBrightness)} FROM:{_currentValue} TO: {newValue} => success: {result}");
         }
 
 
@@ -57,7 +63,7 @@ namespace unitrix0.rightbright.Services.Brightness
         {
             var physicalMonitorCount = GetPhysicalMonitorCount(ptr);
             var monitors = new PHYSICAL_MONITOR[physicalMonitorCount];
-            
+
             if (GetPhysicalMonitorsFromHMONITOR(ptr, physicalMonitorCount, monitors)) return monitors;
 
             var error = Marshal.GetLastWin32Error();

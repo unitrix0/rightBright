@@ -3,6 +3,7 @@ using Prism.Unity;
 using System;
 using System.Windows;
 using Prism.Mvvm;
+using unitrix0.rightbright.Brightness;
 using unitrix0.rightbright.Brightness.Calculators;
 using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Sensors;
@@ -20,7 +21,10 @@ namespace unitrix0.rightbright
     {
         protected override Window CreateShell()
         {
-            var x = Container.Resolve<IMonitorService>();
+            var x = new BrightnessController(Container.Resolve<ISensorService>(),
+                Container.Resolve<ISetBrightnessService>(),
+                Container.Resolve<IMonitorService>(),
+                Container.Resolve<IBrightnessCalculator>());
             return Container.Resolve<MainWindow>();
         }
 
