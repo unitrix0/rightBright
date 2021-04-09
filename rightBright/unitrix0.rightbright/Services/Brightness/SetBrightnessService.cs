@@ -45,7 +45,8 @@ namespace unitrix0.rightbright.Services.Brightness
 
         public void SetBrightness(IntPtr monitorHandle, int newValue)
         {
-            newValue = Math.Min(newValue, Math.Max(0, newValue));
+            newValue = newValue > 100 ? 100 : newValue;
+            newValue = newValue < 1 ? 1 : newValue;
             //_currentValue = (_maxValue - _minValue) * (uint)newValue / 100u + _minValue;
             //if (!GetMonitorBrightness(monitorHandle, ref _minValue, ref _currentValue, ref _maxValue))
             //{

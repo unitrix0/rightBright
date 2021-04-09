@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:unitrix0.rightbright"
              xmlns:prism="http://prismlibrary.com/">
     <Application.Resources>
-         
+       <Style TargetType="Label">
+           <Setter Property="FontFamily" Value="Century Gothic"/>
+       </Style>
+       <Style TargetType="Button">
+           <Setter Property="FontFamily" Value="Century Gothic"/>
+       </Style>
     </Application.Resources>
 </prism:PrismApplication>

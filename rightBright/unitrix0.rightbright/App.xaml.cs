@@ -1,6 +1,7 @@
 ﻿using Prism.Ioc;
 using Prism.Unity;
 using System;
+using System.Configuration;
 using System.Windows;
 using Prism.Mvvm;
 using unitrix0.rightbright.Brightness;
@@ -25,6 +26,7 @@ namespace unitrix0.rightbright
                 Container.Resolve<ISetBrightnessService>(),
                 Container.Resolve<IMonitorService>(),
                 Container.Resolve<IBrightnessCalculator>());
+
             return Container.Resolve<MainWindow>();
         }
 

@@ -6,43 +6,66 @@
         xmlns:local="clr-namespace:unitrix0.rightbright"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:viewModel="clr-namespace:unitrix0.rightbright.Windows.ViewModel"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
-        WindowStyle="None"
-        ResizeMode="NoResize"
-        d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel, IsDesignTimeCreatable=True}">
+        Title="MainWindow" Height="520" Width="950"
+        d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel, IsDesignTimeCreatable=True}"
+        Background="#160B2F">
 
-    <Grid Background="#1E2042">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="27"></RowDefinition>
-            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="80"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="230"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="0,0,1,0"></Border>
-        <Label Grid.Column="0" Grid.Row="1" Margin="5,0,5,0"
-               VerticalAlignment="Center" 
-               FontSize="18" Foreground="White" FontFamily="Montserrat">Bildschirme</Label>
+        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,5,10" VerticalAlignment="Center">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="2" Grid.Column="0" BorderBrush="LightGray"  BorderThickness="0,0,1,0"></Border>
-        <DockPanel Grid.Row="1" Grid.Column="1" Margin="20,0,20,0">
-            <Label DockPanel.Dock="Top" FontSize="14" Foreground="White" FontFamily="Montserrat"
-                   Padding="-5,0,0,0" Margin="0,5,5,2">Sensor</Label>
-            <ComboBox ></ComboBox>
-        </DockPanel>
+                <Label Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" FontSize="14" Foreground="White" FontFamily="Montserrat"
+                       Padding="-5,0,0,0" Margin="0,5,5,2">Sensor</Label>
+                <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,5,0" Height="30" Background="#0048b8" Foreground="Red"
+                          ItemsSource="{Binding Sensors}"
+                          SelectedItem="{Binding SelectedSensor}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding FriendlyName}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <ComboBox.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#0048b8" />
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Red" />
+                    </ComboBox.Resources>
+                    <!--<ComboBox.Style>
+                        <Style TargetType="ComboBox">
+                            <Setter Property="Background" Value="#0048b8"/>
+                        </Style>
+                    </ComboBox.Style>-->
+                </ComboBox>
+                <Button Grid.Row="1" Grid.Column="1"  Content="Verbinden" Padding="10,3,10,3" HorizontalAlignment="Right"/>
 
-        <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Vertical">
+            </Grid>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
+            <Label Margin="5,0,5,0" FontSize="18" Foreground="White">Bildschirme</Label>
             <ItemsControl ItemsSource="{Binding Monitors}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button FontSize="28" HorizontalContentAlignment="Stretch">
+                        <Button FontSize="28" HorizontalContentAlignment="Stretch" Background="Transparent" BorderBrush="Transparent">
                             <Grid DockPanel.Dock="Left">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="20"></ColumnDefinition>
@@ -55,13 +78,13 @@
 
                                 <CheckBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"
                                           IsChecked="{Binding Path=Active}"/>
-                                <fa:ImageAwesome Grid.Row="0" Grid.Column="1"
+                                <fa:ImageAwesome Grid.Row="0" Grid.Column="1" Foreground="#0084B8"
                                                  VerticalAlignment="Center" HorizontalAlignment="Center"
                                                  Icon="Desktop" Margin="5"/>
                                 <DockPanel Grid.Row="0" Grid.Column="2">
-                                    <Label DockPanel.Dock="Top" FontSize="10" FontWeight="Bold"
+                                    <Label DockPanel.Dock="Top" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"
                                            Padding="5,5,5,2" Content="{Binding DeviceName}"/>
-                                    <Label DockPanel.Dock="Bottom" FontSize="10"
+                                    <Label DockPanel.Dock="Bottom" FontSize="10" Foreground="#FFFFFF"
                                            Padding="5,0,5,5" Content="{Binding Resolution}"/>
                                 </DockPanel>
                             </Grid>
@@ -69,11 +92,9 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            
         </StackPanel>
-
-
+        <DockPanel Grid.Row="1" Grid.Column="1" Background="#DFDFDF"></DockPanel>
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="#FFFFFF" BorderThickness="1,0,0,0"/>
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="#FFFFFF" BorderThickness="0,1,0,0"/>
     </Grid>
-
-
 </Window>

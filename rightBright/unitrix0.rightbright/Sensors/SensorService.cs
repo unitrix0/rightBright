@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Timers;
+using unitrix0.rightbright.Sensors.Model;
 
 namespace unitrix0.rightbright.Sensors
 {
@@ -28,6 +30,31 @@ namespace unitrix0.rightbright.Sensors
             _sensor.registerTimedReportCallback(TimedReport);
 
             if(_sensor != null) _handleYapiEventsTimer.Start();
+        }
+
+
+        public List<AmbientLightSensor> GetSensors()
+        {
+            var result = new List<AmbientLightSensor>();
+            var sensor = YLightSensor.FirstSensor();
+            do
+            {
+                
+                if (sensor.get_functionId() == "lightSensor")
+                {
+                    result.Add(new AmbientLightSensor()
+                    {
+                        FriendlyName = sensor.FriendlyName,
+                        SerialNumber = sensor.get_serialNumber(),
+                        IsReady = sensor.isSensorReady(),
+                        IsOnline = sensor.isOnline()
+                    });
+                }
+
+                sensor = sensor.nextSensor();
+            } while (sensor != null);
+            
+            return result;
         }
 
         private void TimedReport(YLightSensor func, YMeasure measure)
