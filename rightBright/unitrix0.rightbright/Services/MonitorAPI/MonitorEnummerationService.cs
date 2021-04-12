@@ -56,8 +56,8 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                     DeviceName = dev.DeviceString,
                     DeviceId = dev.DeviceID,
                     Handle = hMonitor,
-                    Active = true,
-                    MinBrightness = dev.DeviceString.StartsWith("HP") ? 35 : 10
+                    MinBrightness = dev.DeviceString.StartsWith("HP") ? 35 : 10,
+                    Active = true
                 };
                 col.Add(di);
                 return true;

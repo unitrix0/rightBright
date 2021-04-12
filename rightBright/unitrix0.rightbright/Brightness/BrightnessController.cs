@@ -10,17 +10,23 @@ namespace unitrix0.rightbright.Brightness
 {
     public class BrightnessController
     {
+        private readonly ISensorService _sensor;
         private readonly ISetBrightnessService _brightnessService;
         private readonly IMonitorService _monitorService;
         private readonly IBrightnessCalculator _brightnessCalculator;
 
         public BrightnessController(ISensorService sensor, ISetBrightnessService brightnessService, IMonitorService monitorService, IBrightnessCalculator brightnessCalculator)
         {
+            _sensor = sensor;
             _brightnessService = brightnessService;
             _monitorService = monitorService;
             _brightnessCalculator = brightnessCalculator;
 
             sensor.Update += SensorOnUpdate;
+        }
+
+        public void Run()
+        {
         }
 
         private void SensorOnUpdate(object sender, double e)

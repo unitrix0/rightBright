@@ -8,5 +8,6 @@ namespace unitrix0.rightbright.Sensors
     {
         event EventHandler<double> Update;
         List<AmbientLightSensor> GetSensors();
+        bool ConnectToSensor(string sensorFriendlyName);
     }
 }

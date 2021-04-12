@@ -6,5 +6,6 @@
         public string SerialNumber { get; set; }
         public bool IsOnline { get; set; }
         public bool IsReady { get; set; }
+        public double CurrentValue { get; set; }
     }
 }

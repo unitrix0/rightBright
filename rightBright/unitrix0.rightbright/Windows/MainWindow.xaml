@@ -9,10 +9,9 @@
         xmlns:prism="http://prismlibrary.com/"
         prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="MainWindow" Height="520" Width="950"
+        Title="MainWindow" Height="580" Width="950"
         d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel, IsDesignTimeCreatable=True}"
         Background="#160B2F">
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="80"></RowDefinition>
@@ -34,7 +33,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" FontSize="14" Foreground="White" FontFamily="Montserrat"
+                <Label Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" FontSize="14" Foreground="#FCF7F8" FontFamily="Montserrat"
                        Padding="-5,0,0,0" Margin="0,5,5,2">Sensor</Label>
                 <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,5,0" Height="30" Background="#0048b8" Foreground="Red"
                           ItemsSource="{Binding Sensors}"
@@ -54,47 +53,101 @@
                         </Style>
                     </ComboBox.Style>-->
                 </ComboBox>
-                <Button Grid.Row="1" Grid.Column="1"  Content="Verbinden" Padding="10,3,10,3" HorizontalAlignment="Right"/>
+                <Button Grid.Row="1" Grid.Column="1"  Content="Verbinden" Padding="10,3,10,3" HorizontalAlignment="Right"
+                        Command="{Binding ConnectSensorCmd}"/>
 
             </Grid>
 
         </StackPanel>
 
         <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
-            <Label Margin="5,0,5,0" FontSize="18" Foreground="White">Bildschirme</Label>
-            <ItemsControl ItemsSource="{Binding Monitors}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button FontSize="28" HorizontalContentAlignment="Stretch" Background="Transparent" BorderBrush="Transparent">
-                            <Grid DockPanel.Dock="Left">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="20"></ColumnDefinition>
-                                    <ColumnDefinition Width="40"></ColumnDefinition>
-                                    <ColumnDefinition Width="*"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"></RowDefinition>
-                                </Grid.RowDefinitions>
+            <StackPanel Orientation="Vertical">
+                <Label Margin="5,0,5,0" FontSize="18" Foreground="#FCF7F8">Bildschirme</Label>
+                <ItemsControl ItemsSource="{Binding Monitors}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button FontSize="28" HorizontalContentAlignment="Stretch" Background="Transparent" BorderBrush="Transparent">
+                                <Grid DockPanel.Dock="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                    </Grid.RowDefinitions>
 
-                                <CheckBox Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"
-                                          IsChecked="{Binding Path=Active}"/>
-                                <fa:ImageAwesome Grid.Row="0" Grid.Column="1" Foreground="#0084B8"
+                                    <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#068AB2"
                                                  VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                 Icon="Desktop" Margin="5"/>
-                                <DockPanel Grid.Row="0" Grid.Column="2">
-                                    <Label DockPanel.Dock="Top" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"
+                                                 Icon="Desktop" Margin="5">
+                                        <fa:ImageAwesome.Style>
+                                            <Style>
+                                                <Setter Property="Control.Visibility" Value="Hidden"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Active}" Value="true">
+                                                        <Setter Property="Control.Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </fa:ImageAwesome.Style>
+                                    </fa:ImageAwesome>
+                                    <DockPanel Grid.Row="0" Grid.Column="1">
+                                        <Label DockPanel.Dock="Top" FontSize="12" FontWeight="Bold" Foreground="#FCF7F8"
                                            Padding="5,5,5,2" Content="{Binding DeviceName}"/>
-                                    <Label DockPanel.Dock="Bottom" FontSize="10" Foreground="#FFFFFF"
+                                        <Label DockPanel.Dock="Bottom" FontSize="10" Foreground="#FCF7F8"
                                            Padding="5,0,5,5" Content="{Binding Resolution}"/>
-                                </DockPanel>
-                            </Grid>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                    </DockPanel>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+            <Border BorderBrush="#5d6c83" BorderThickness="0,1,0,0" Margin="0,15,0,5">
+                <Border.Style>
+                    <Style>
+                        <Setter Property="Control.Visibility" Value="Hidden"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSensorSelected}" Value="true">
+                                <Setter Property="Control.Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+            <Button FontSize="28" HorizontalContentAlignment="Stretch" Background="Transparent" BorderBrush="Transparent">
+                <Button.Style>
+                    <Style>
+                        <Setter Property="Control.Visibility" Value="Hidden"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSensorSelected}" Value="true">
+                                <Setter Property="Control.Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#bfb48f"
+                                     VerticalAlignment="Center" HorizontalAlignment="Center"
+                                     Icon="Microchip" Margin="5"/>
+                    <DockPanel Grid.Row="0" Grid.Column="1">
+                        <Label DockPanel.Dock="Top" FontSize="12" FontWeight="Bold" Foreground="#FCF7F8"
+                               Padding="5,5,5,2" Content="Sensor"/>
+                        <Label DockPanel.Dock="Bottom" FontSize="10" Foreground="#FCF7F8"
+                               Padding="5,0,5,5" Content="{Binding SelectedSensor.FriendlyName}"/>
+                    </DockPanel>
+                </Grid>
+            </Button>
         </StackPanel>
-        <DockPanel Grid.Row="1" Grid.Column="1" Background="#DFDFDF"></DockPanel>
-        <Border Grid.Row="1" Grid.Column="1" BorderBrush="#FFFFFF" BorderThickness="1,0,0,0"/>
-        <Border Grid.Row="1" Grid.Column="1" BorderBrush="#FFFFFF" BorderThickness="0,1,0,0"/>
+
+
+        <DockPanel Grid.Row="1" Grid.Column="1" Background="#FCF7F8"></DockPanel>
     </Grid>
 </Window>

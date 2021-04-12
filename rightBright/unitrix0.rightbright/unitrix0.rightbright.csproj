@@ -38,6 +38,10 @@
 
   <ItemGroup>
     <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi32.dylib" Link="YapiLibraries\libyapi32.dylib" />
+    <None Update="Settings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +53,14 @@
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi.dylib" />
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi32.dylib" />
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\yapi.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

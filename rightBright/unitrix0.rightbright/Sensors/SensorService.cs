@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Mime;
 using System.Timers;
+using System.Windows;
 using unitrix0.rightbright.Sensors.Model;
 
 namespace unitrix0.rightbright.Sensors
 {
     public class SensorService : ISensorService
     {
-        private readonly YLightSensor _sensor;
+        private YLightSensor _sensor;
         private string _error = "";
         private readonly Timer _handleYapiEventsTimer = new Timer();
 
@@ -20,18 +22,26 @@ namespace unitrix0.rightbright.Sensors
 
         public SensorService()
         {
-            _handleYapiEventsTimer.Interval = 5000; // TODO Parameter
             _handleYapiEventsTimer.Elapsed += HandleYapiEventsTimerOnElapsed;
 
-            YAPI.RegisterHub("USB", ref _error);
+            YAPI.RegisterHub(Settings.Default.HUBUrl, ref _error);
             YAPI.UpdateDeviceList(ref _error);
-            
-            _sensor = YLightSensor.FindLightSensor("LIGHTMK3-17AE3E"); // TODO Parameter
-            _sensor.registerTimedReportCallback(TimedReport);
-
-            if(_sensor != null) _handleYapiEventsTimer.Start();
         }
 
+
+
+        public bool ConnectToSensor(string sensorFriendlyName)
+        {
+            _sensor = YLightSensor.FindLightSensor(sensorFriendlyName);
+            if (!_sensor.isSensorReady() || !_sensor.isOnline()) return false;
+
+            _sensor.registerTimedReportCallback(TimedReport);
+
+            _handleYapiEventsTimer.Interval = Settings.Default.YapiEventsTimerInterval;
+            _handleYapiEventsTimer.Start();
+
+            return true;
+        }
 
         public List<AmbientLightSensor> GetSensors()
         {
