@@ -1,30 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Mime;
 using System.Timers;
-using System.Windows;
 using unitrix0.rightbright.Sensors.Model;
+using unitrix0.rightbright.Settings;
 
 namespace unitrix0.rightbright.Sensors
 {
     public class SensorService : ISensorService
     {
-        private YLightSensor _sensor;
+        private readonly ISettings _settings;
+        private YLightSensor _sensorDevice;
         private string _error = "";
-        private readonly Timer _handleYapiEventsTimer = new Timer();
+        private readonly Timer _handleYapiEventsTimer = new();
 
         public event EventHandler<double> Update;
 
         public string Error => _error;
-        public string FriendlyName => _sensor?.FriendlyName ?? "";
-        public string Unit => _sensor?.get_unit() ?? "";
-        public bool IsReady => _sensor?.isSensorReady() ?? false;
+        public string FriendlyName => _sensorDevice?.FriendlyName ?? "";
+        public string Unit => _sensorDevice?.get_unit() ?? "";
+        public bool IsReady => _sensorDevice?.isSensorReady() ?? false;
 
-        public SensorService()
+        public SensorService(ISettings settings)
         {
+            _settings = settings;
             _handleYapiEventsTimer.Elapsed += HandleYapiEventsTimerOnElapsed;
 
-            YAPI.RegisterHub(Settings.Default.HUBUrl, ref _error);
+            YAPI.RegisterHub(_settings.HubUrl, ref _error);
             YAPI.UpdateDeviceList(ref _error);
         }
 
@@ -32,12 +33,12 @@ namespace unitrix0.rightbright.Sensors
 
         public bool ConnectToSensor(string sensorFriendlyName)
         {
-            _sensor = YLightSensor.FindLightSensor(sensorFriendlyName);
-            if (!_sensor.isSensorReady() || !_sensor.isOnline()) return false;
+            _sensorDevice = YLightSensor.FindLightSensor(sensorFriendlyName);
+            if (!_sensorDevice.isSensorReady() || !_sensorDevice.isOnline()) return false;
 
-            _sensor.registerTimedReportCallback(TimedReport);
+            _sensorDevice.registerTimedReportCallback(TimedReport);
 
-            _handleYapiEventsTimer.Interval = Settings.Default.YapiEventsTimerInterval;
+            _handleYapiEventsTimer.Interval = _settings.YapiEventsTimerInterval;
             _handleYapiEventsTimer.Start();
 
             return true;

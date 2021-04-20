@@ -36,7 +36,7 @@ namespace unitrix0.rightbright.Brightness
 
             foreach (var monitor in monitors)
             {
-                var newBrightness = _brightnessCalculator.Calculate(e, 2.105d, monitor.MinBrightness);
+                var newBrightness = (int)Math.Round(_brightnessCalculator.Calculate(e, monitor.CalculationParameters.Progression, monitor.CalculationParameters.Curve, monitor.CalculationParameters.MinBrightness));
                 if (newBrightness == monitor.LastBrightnessSet) continue;
 
                 Debug.Print($"{DateTime.Now.TimeOfDay}\t Updating Brightness on {monitor.DeviceName} to: {newBrightness}");

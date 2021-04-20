@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Prism.Common;
 using unitrix0.rightbright.Monitors.Models;
 
 namespace unitrix0.rightbright.Services.MonitorAPI

@@ -6,9 +6,9 @@ namespace unitrix0.rightbright.Brightness.Calculators
     public class ProgressiveBrightnessCalculator : IBrightnessCalculator
     {
 
-        public int Calculate(double lux, double progression, int lowestBrightness)
+        public double Calculate(double lux, double progression, int curve, int lowestBrightness)
         {
-            return (int)Math.Round(Math.Pow(lux / 100, progression) + lowestBrightness);
+            return Math.Round(Math.Pow(lux / curve, progression) + lowestBrightness, 1);
         }
     }
 }

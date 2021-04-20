@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using unitrix0.rightbright.Monitors.Models;
 using unitrix0.rightbright.Services.MonitorAPI;
 
@@ -8,7 +9,7 @@ namespace unitrix0.rightbright.Monitors
     {
         private readonly IMonitorEnummerationService _monitorEnummerationService;
 
-        public List<DisplayInfo> Monitors { get; set; } = new List<DisplayInfo>();
+        public ObservableCollection<DisplayInfo> Monitors { get; set; } = new ObservableCollection<DisplayInfo>();
         public MonitorService(IMonitorEnummerationService monitorEnummerationService)
         {
             _monitorEnummerationService = monitorEnummerationService;
@@ -16,7 +17,7 @@ namespace unitrix0.rightbright.Monitors
 
         public void UpdateList()
         {
-            Monitors = _monitorEnummerationService.GetDisplays();
+            Monitors = new ObservableCollection<DisplayInfo>(_monitorEnummerationService.GetDisplays());
         }
     }
 }

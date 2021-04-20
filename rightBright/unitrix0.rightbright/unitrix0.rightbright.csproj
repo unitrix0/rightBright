@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />
+    <PackageReference Include="LiveCharts.Wpf.Core" Version="0.9.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Prism.Unity" Version="8.0.0.1909" />
     <PackageReference Include="Yoctopuce.YoctoLib" Version="1.10.44175" />
   </ItemGroup>
@@ -38,10 +40,6 @@
 
   <ItemGroup>
     <None Update="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\build\libyapi32.dylib" Link="YapiLibraries\libyapi32.dylib" />
-    <None Update="Settings.settings">
-      <Generator>PublicSettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -53,14 +51,6 @@
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi.dylib" />
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi32.dylib" />
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\yapi.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
   </ItemGroup>
 
 </Project>

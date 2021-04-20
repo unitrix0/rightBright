@@ -1,13 +1,14 @@
 ﻿using System;
+using Microsoft.VisualBasic;
+using Prism.Mvvm;
 using unitrix0.rightbright.Services.MonitorAPI.Structs;
 
 namespace unitrix0.rightbright.Monitors.Models
 {
-    /// <summary>
-    /// The struct that contains the display information
-    /// </summary>
-    public class DisplayInfo
+    public class DisplayInfo : BindableBase
     {
+        private bool _active;
+        private int _lastBrightnessSet;
         public bool IsPrimaryMonitor { get; set; }
         public int ScreenHeight { get; set; }
         public int ScreenWidth { get; set; }
@@ -19,9 +20,26 @@ namespace unitrix0.rightbright.Monitors.Models
 
         public IntPtr Handle { get; set; }
         public string DeviceId { get; set; }
-        public bool Active { get; set; }
-        public int MinBrightness { get; set; }
-        public int LastBrightnessSet { get; set; }
+
+        public bool Active
+        {
+            get => _active;
+            set => SetProperty(ref _active, value);
+        }
+
+        public int LastBrightnessSet
+        {
+            get => _lastBrightnessSet;
+            set => SetProperty(ref _lastBrightnessSet, value);
+        }
+
+        public BrightnessCalculationParameters CalculationParameters { get; set; }
+
+        public DisplayInfo()
+        {
+            CalculationParameters = new BrightnessCalculationParameters();
+            _lastBrightnessSet = -1;
+        }
 
         public override string ToString()
         {

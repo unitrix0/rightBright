@@ -6,7 +6,7 @@ namespace unitrix0.rightbright.Monitors
 {
     public interface IMonitorService
     {
-        List<DisplayInfo> Monitors { get; set; }
+        ObservableCollection<DisplayInfo> Monitors { get; set; }
         void UpdateList();
     }
 }

@@ -7,9 +7,10 @@
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:viewModel="clr-namespace:unitrix0.rightbright.Windows.ViewModel"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:charts="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="MainWindow" Height="580" Width="950"
+        Title="bRightRight" Height="620" Width="1000"
         d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel, IsDesignTimeCreatable=True}"
         Background="#160B2F">
     <Grid>
@@ -57,50 +58,84 @@
                         Command="{Binding ConnectSensorCmd}"/>
 
             </Grid>
-
         </StackPanel>
 
         <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
             <StackPanel Orientation="Vertical">
                 <Label Margin="5,0,5,0" FontSize="18" Foreground="#FCF7F8">Bildschirme</Label>
-                <ItemsControl ItemsSource="{Binding Monitors}">
-                    <ItemsControl.ItemTemplate>
+                <ListView x:Name="MonitorListView" Background="Transparent" BorderBrush="Transparent" Margin="0,0,1,0"
+                          SelectedItem="{Binding SelectedMonitor}"
+                          ItemsSource="{Binding Monitors}">
+                    <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Button FontSize="28" HorizontalContentAlignment="Stretch" Background="Transparent" BorderBrush="Transparent">
-                                <Grid DockPanel.Dock="Left">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="40"></ColumnDefinition>
-                                        <ColumnDefinition Width="*"></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"></RowDefinition>
-                                    </Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
 
-                                    <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#068AB2"
+                                <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#068AB2"
                                                  VerticalAlignment="Center" HorizontalAlignment="Center"
                                                  Icon="Desktop" Margin="5">
-                                        <fa:ImageAwesome.Style>
-                                            <Style>
-                                                <Setter Property="Control.Visibility" Value="Hidden"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Active}" Value="true">
-                                                        <Setter Property="Control.Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </fa:ImageAwesome.Style>
-                                    </fa:ImageAwesome>
-                                    <DockPanel Grid.Row="0" Grid.Column="1">
-                                        <Label DockPanel.Dock="Top" FontSize="12" FontWeight="Bold" Foreground="#FCF7F8"
+                                    <fa:ImageAwesome.Style>
+                                        <Style>
+                                            <Setter Property="Control.Visibility" Value="Hidden"/>
+
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Active}" Value="true">
+                                                    <Setter Property="Control.Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </fa:ImageAwesome.Style>
+                                </fa:ImageAwesome>
+
+                                <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#A31621"
+                                                 VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                 Icon="Desktop" Margin="5">
+                                    <fa:ImageAwesome.Style>
+                                        <Style>
+                                            <Setter Property="Control.Visibility" Value="Hidden"/>
+
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Active}" Value="false">
+                                                    <Setter Property="Control.Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </fa:ImageAwesome.Style>
+                                </fa:ImageAwesome>
+
+                                <DockPanel Grid.Row="0" Grid.Column="1">
+                                    <Label DockPanel.Dock="Top" FontSize="13" FontWeight="Bold" Foreground="#FCF7F8"
                                            Padding="5,5,5,2" Content="{Binding DeviceName}"/>
-                                        <Label DockPanel.Dock="Bottom" FontSize="10" Foreground="#FCF7F8"
-                                           Padding="5,0,5,5" Content="{Binding Resolution}"/>
-                                    </DockPanel>
-                                </Grid>
-                            </Button>
+                                    <Grid DockPanel.Dock="Bottom">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0" FontSize="11" Foreground="#FCF7F8"
+                                                   Padding="5,0,5,5" Content="{Binding Resolution}"/>
+
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                            <fa:ImageAwesome Icon="SunOutline" Foreground="#FCF7F8"
+                                                                 VerticalAlignment="Top" HorizontalAlignment="Center"
+                                                                 Width="11" Margin="5,1,0,0"/>
+                                            <Label Foreground="#FCF7F8" FontSize="11" Padding="5,0,0,5"
+                                                       Content="{Binding LastBrightnessSet}"/>
+                                            <Label Foreground="#FCF7F8" FontSize="11" Padding="2,0,5,5"
+                                                       Content="%"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DockPanel>
+                            </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListView.ItemTemplate>
+                </ListView>
+
             </StackPanel>
             <Border BorderBrush="#5d6c83" BorderThickness="0,1,0,0" Margin="0,15,0,5">
                 <Border.Style>
@@ -136,18 +171,116 @@
 
                     <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#bfb48f"
                                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                                     Icon="Microchip" Margin="5"/>
-                    <DockPanel Grid.Row="0" Grid.Column="1">
-                        <Label DockPanel.Dock="Top" FontSize="12" FontWeight="Bold" Foreground="#FCF7F8"
-                               Padding="5,5,5,2" Content="Sensor"/>
-                        <Label DockPanel.Dock="Bottom" FontSize="10" Foreground="#FCF7F8"
-                               Padding="5,0,5,5" Content="{Binding SelectedSensor.FriendlyName}"/>
+                                     Icon="Microchip" Margin="7"/>
+
+                    <DockPanel Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
+                            <Label FontSize="13" FontWeight="Bold" Foreground="#FCF7F8"
+                                   Padding="5,5,0,0" Content="Sensor:"/>
+                            <Label FontSize="13" Foreground="#FCF7F8"
+                                   Padding="5,5,0,0" Content="{Binding SelectedSensor.FriendlyName}"/>
+                        </StackPanel>
+                        <Grid DockPanel.Dock="Bottom" Margin="0,2,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label Grid.Column="0" FontSize="11" Foreground="#FCF7F8"
+                                   Padding="5,0,5,5" Content="Min:"/>
+                            <Label Grid.Column="1" FontSize="11" Foreground="#FCF7F8"
+                                   Padding="5,0,0,0" Content="{Binding SelectedSensor.MinValue}"/>
+                            <Label Grid.Column="2" FontSize="11" Foreground="#FCF7F8"
+                                   Padding="5,0,0,0" Content="Current:"/>
+                            <Label Grid.Column="3" FontSize="11" Foreground="#FCF7F8"
+                                   Padding="5,0,0,0" Content="{Binding SelectedSensor.CurrentValue}"/>
+                            <Label Grid.Column="4" FontSize="11" Foreground="#FCF7F8"
+                                   Padding="5,0,0,0" Content="Max:"/>
+                            <Label Grid.Column="5" FontSize="11" Foreground="#FCF7F8"
+                                   Padding="5,0,0,0" Content="{Binding SelectedSensor.MaxValue}"/>
+                        </Grid>
+
                     </DockPanel>
                 </Grid>
             </Button>
         </StackPanel>
 
+        <Canvas Grid.Row="1" Grid.Column="1" Background="#FCF7F8"/>
+        <Grid Grid.Row="1" Grid.Column="1" Background="#FCF7F8" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="170"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="1" Grid.Column="1" Background="#FCF7F8"></DockPanel>
+            <Grid.Style>
+                <Style>
+                    <Setter Property="Control.Visibility" Value="Hidden" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowMonitorSettings}" Value="True">
+                            <Setter Property="Control.Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+
+            <Label Grid.Row="0" Grid.Column="0" FontSize="18"
+                   Content="{Binding SelectedMonitor.DeviceName}" />
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" FlowDirection="RightToLeft" Margin="0,5,13,0">
+                <Button Padding="10,4,10,4" fa:Awesome.Content="Times" TextElement.FontSize="12" 
+                        BorderBrush="#C3DAD5" Background="Transparent" 
+                        Command="{Binding CloseDisplaySettings}"/>
+            </StackPanel>
+
+
+            <charts:CartesianChart Grid.Row="1" Grid.Column="0">
+                <charts:CartesianChart.Series>
+                    <charts:LineSeries Values="{Binding CurrentCurve}"
+                                       LineSmoothness="1" Stroke="#A3A3A3" Fill="#6BE0E0E0"
+                                       PointGeometry="{x:Static charts:DefaultGeometries.None}"
+                                       Title="Aktuelle Kurve" />
+                    <charts:LineSeries Values="{Binding NewCurve}"
+                                       LineSmoothness="1" 
+                                       PointGeometry="{x:Static charts:DefaultGeometries.None}"
+                                       Title="Neue Kurve" />
+                </charts:CartesianChart.Series>
+                <charts:CartesianChart.AxisX>
+                    <charts:Axis Title="Hellikeit (lx)" FontSize="12"/>
+                </charts:CartesianChart.AxisX>
+                <charts:CartesianChart.AxisY>
+                    <charts:Axis Title="Bildschirm Hellikeitsstufe (%)" FontSize="12" MaxValue="100" MinValue="0">
+                    </charts:Axis>
+                </charts:CartesianChart.AxisY>
+
+            </charts:CartesianChart>
+
+            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,13,0">
+                <Label Content="Minimum Helligkeit" Padding="0,7,0,3"/>
+                <TextBox Padding="0,3"
+                    Text="{Binding NewCalculationParameters.MinBrightness}"/>
+
+                <Label Content="Abflachung" Margin="0,15,0,0" Padding="0,0,0,3"/>
+                <TextBox Padding="0,3"
+                         Text="{Binding NewCalculationParameters.Curve}"/>
+                <Label Content="Progression" Padding="0,7,0,3"/>
+                <TextBox Padding="0,3"
+                         Text="{Binding NewCalculationParameters.Progression}"/>
+
+                <Button Content="Übernehmen" Margin="0,15,0,0" Padding="0,4"
+                        Command="{Binding ApplyNewCurve}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Margin="13,0,0,5" VerticalAlignment="Center">
+                <CheckBox Content="Aktiv" IsChecked="{Binding SelectedMonitor.Active}"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

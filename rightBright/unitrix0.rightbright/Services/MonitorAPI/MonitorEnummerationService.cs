@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Prism.Common;
 using unitrix0.rightbright.Monitors.Models;
 using unitrix0.rightbright.Services.MonitorAPI.Structs;
 
@@ -56,7 +57,12 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                     DeviceName = dev.DeviceString,
                     DeviceId = dev.DeviceID,
                     Handle = hMonitor,
-                    MinBrightness = dev.DeviceString.StartsWith("HP") ? 35 : 10,
+                    CalculationParameters =
+                    {
+                        MinBrightness = dev.DeviceString.StartsWith("HP") ? 35 : 0,
+                        Curve = dev.DeviceString.StartsWith("HP") ? 80 : 25,
+                        Progression = dev.DeviceString.StartsWith("HP") ? 2.105 : 1.315
+                    },
                     Active = true
                 };
                 col.Add(di);

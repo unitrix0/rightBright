@@ -2,6 +2,6 @@
 {
     public interface IBrightnessCalculator
     {
-        int Calculate(double lux, double progression, int lowestBrightness);
+        double Calculate(double lux, double progression, int curve, int lowestBrightness);
     }
 }
