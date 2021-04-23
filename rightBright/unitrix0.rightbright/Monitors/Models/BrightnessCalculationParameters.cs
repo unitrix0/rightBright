@@ -2,21 +2,17 @@
 
 namespace unitrix0.rightbright.Monitors.Models
 {
-    public class BrightnessCalculationParameters :  BindableBase
+    public class BrightnessCalculationParameters : BindableBase
     {
         private int _minBrightness;
         private int _curve = 80;
         private double _progression = 2.105;
+        private bool _active;
 
-        public BrightnessCalculationParameters()
+        public bool Active
         {
-        }
-
-        public BrightnessCalculationParameters(BrightnessCalculationParameters source)
-        {
-            _minBrightness = source.MinBrightness;
-            _curve = source.Curve;
-            _progression = source.Progression;
+            get => _active;
+            set => SetProperty(ref _active, value);
         }
 
         public int Curve
@@ -36,5 +32,24 @@ namespace unitrix0.rightbright.Monitors.Models
             get => _minBrightness;
             set => SetProperty(ref _minBrightness, value);
         }
+
+        public BrightnessCalculationParameters()
+        {
+        }
+
+        public BrightnessCalculationParameters(BrightnessCalculationParameters source)
+        {
+            MapFrom(source);
+        }
+
+        public void MapFrom(BrightnessCalculationParameters source)
+        {
+            MinBrightness = source.MinBrightness;
+            Curve = source.Curve;
+            Progression = source.Progression;
+            Active = source.Active;
+        }
+
+
     }
 }

@@ -36,7 +36,7 @@
 
                 <Label Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" FontSize="14" Foreground="#FCF7F8" FontFamily="Montserrat"
                        Padding="-5,0,0,0" Margin="0,5,5,2">Sensor</Label>
-                <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,5,0" Height="30" Background="#0048b8" Foreground="Red"
+                <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,5,0" Height="30"
                           ItemsSource="{Binding Sensors}"
                           SelectedItem="{Binding SelectedSensor}">
                     <ComboBox.ItemTemplate>
@@ -44,15 +44,6 @@
                             <Label Content="{Binding FriendlyName}"/>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
-                    <ComboBox.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#0048b8" />
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Red" />
-                    </ComboBox.Resources>
-                    <!--<ComboBox.Style>
-                        <Style TargetType="ComboBox">
-                            <Setter Property="Background" Value="#0048b8"/>
-                        </Style>
-                    </ComboBox.Style>-->
                 </ComboBox>
                 <Button Grid.Row="1" Grid.Column="1"  Content="Verbinden" Padding="10,3,10,3" HorizontalAlignment="Right"
                         Command="{Binding ConnectSensorCmd}"/>
@@ -85,7 +76,7 @@
                                             <Setter Property="Control.Visibility" Value="Hidden"/>
 
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Active}" Value="true">
+                                                <DataTrigger Binding="{Binding CalculationParameters.Active}" Value="true">
                                                     <Setter Property="Control.Visibility" Value="Visible"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -101,7 +92,7 @@
                                             <Setter Property="Control.Visibility" Value="Hidden"/>
 
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Active}" Value="false">
+                                                <DataTrigger Binding="{Binding CalculationParameters.Active}" Value="false">
                                                     <Setter Property="Control.Visibility" Value="Visible"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -162,7 +153,7 @@
                 </Button.Style>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="40"></ColumnDefinition>
+                        <ColumnDefinition Width="45"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -171,7 +162,7 @@
 
                     <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#bfb48f"
                                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                                     Icon="Microchip" Margin="7"/>
+                                     Icon="Microchip" Margin="10,0,8,0"/>
 
                     <DockPanel Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
@@ -195,7 +186,7 @@
                             <Label Grid.Column="1" FontSize="11" Foreground="#FCF7F8"
                                    Padding="5,0,0,0" Content="{Binding SelectedSensor.MinValue}"/>
                             <Label Grid.Column="2" FontSize="11" Foreground="#FCF7F8"
-                                   Padding="5,0,0,0" Content="Current:"/>
+                                   Padding="5,0,0,0" Content="Current:" FontWeight="Bold"/>
                             <Label Grid.Column="3" FontSize="11" Foreground="#FCF7F8"
                                    Padding="5,0,0,0" Content="{Binding SelectedSensor.CurrentValue}"/>
                             <Label Grid.Column="4" FontSize="11" Foreground="#FCF7F8"
@@ -210,6 +201,20 @@
         </StackPanel>
 
         <Canvas Grid.Row="1" Grid.Column="1" Background="#FCF7F8"/>
+        <Grid Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Grid.Style>
+                <Style>
+                    <Setter Property="Control.Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowMonitorSettings}" Value="True">
+                            <Setter Property="Control.Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Label Content="Kein Bildschirm ausgewählt" FontSize="16"
+                   Foreground="#5D6C83"/>
+        </Grid>
         <Grid Grid.Row="1" Grid.Column="1" Background="#FCF7F8" Margin="0,0,0,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -279,7 +284,7 @@
             </StackPanel>
 
             <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Margin="13,0,0,5" VerticalAlignment="Center">
-                <CheckBox Content="Aktiv" IsChecked="{Binding SelectedMonitor.Active}"/>
+                <CheckBox Content="Aktiv" IsChecked="{Binding NewCalculationParameters.Active}"/>
             </StackPanel>
         </Grid>
     </Grid>

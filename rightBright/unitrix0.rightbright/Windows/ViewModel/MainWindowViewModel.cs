@@ -99,7 +99,7 @@ namespace unitrix0.rightbright.Windows.ViewModel
         {
             ConnectSensorCmd = new DelegateCommand(ConnectSensor, () => IsSensorSelected && !IsSensorConnected);
             CloseDisplaySettings = new DelegateCommand(DeSelectMonitor, () => true);
-            ApplyNewCurve = new DelegateCommand(SaveNewCalculationSettings, CanSaveNewCalculationSettings);
+            ApplyNewCurve = new DelegateCommand(SaveNewMonitorSettings, CanSaveNewMonitorSettings);
 
             _monitorService = monitorService;
             _sensorService = sensorService;
@@ -111,9 +111,9 @@ namespace unitrix0.rightbright.Windows.ViewModel
             _sensorService.Update += SensorServiceOnUpdate;
 
             TryConnectLastUsedSensor();
+            SaveSettingsOfNewMonitors();
+            LoadMonitorSettings();
         }
-
-
 
         private void DeSelectMonitor()
         {
@@ -156,15 +156,18 @@ namespace unitrix0.rightbright.Windows.ViewModel
             NewCurve = _curveCalculator.Calculate(NewCalculationParameters, SelectedSensor.MaxValue);
         }
 
-        private void SaveNewCalculationSettings()
+        private void SaveNewMonitorSettings()
         {
-            SelectedMonitor.CalculationParameters = new BrightnessCalculationParameters(NewCalculationParameters);
+            SelectedMonitor.CalculationParameters.MapFrom(NewCalculationParameters);
             EditSelectedMonitor();
+            _settings.BrightnessCalculationParameters[SelectedMonitor.DeviceName] = SelectedMonitor.CalculationParameters;
+            _settings.Save();
         }
-        private bool CanSaveNewCalculationSettings()
+
+        private bool CanSaveNewMonitorSettings()
         {
             //TODO More Validation
-            return NewCurve?.Count > 0;
+            return NewCurve?.Count > 0 || NewCalculationParameters?.Active != SelectedMonitor?.CalculationParameters.Active;
         }
 
         private void ConnectSensor()
@@ -172,6 +175,33 @@ namespace unitrix0.rightbright.Windows.ViewModel
             // TODO In BrightnessController verschieben
             IsSensorConnected = _sensorService.ConnectToSensor(SelectedSensor.FriendlyName);
             if (IsSensorConnected) _settings.LastUsedSensor = SelectedSensor;
+        }
+
+        private void SaveSettingsOfNewMonitors()
+        {
+            foreach (var monitor in Monitors)
+            {
+                if (_settings.BrightnessCalculationParameters.ContainsKey(monitor.DeviceName)) continue;
+
+                _settings.BrightnessCalculationParameters[monitor.DeviceName] = monitor.CalculationParameters;
+            }
+
+            _settings.Save();
+        }
+
+        private void LoadMonitorSettings()
+        {
+            foreach (var monitor in Monitors)
+            {
+                if (!_settings.BrightnessCalculationParameters.ContainsKey(monitor.DeviceName)) continue;
+
+                //TODO "Active" setting
+                var savedSettings = _settings.BrightnessCalculationParameters[monitor.DeviceName];
+                monitor.CalculationParameters.Progression = savedSettings.Progression;
+                monitor.CalculationParameters.MinBrightness = savedSettings.MinBrightness;
+                monitor.CalculationParameters.Curve = savedSettings.Curve;
+                monitor.CalculationParameters.Active = savedSettings.Active;
+            }
         }
     }
 }

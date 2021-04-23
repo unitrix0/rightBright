@@ -7,7 +7,6 @@ namespace unitrix0.rightbright.Monitors.Models
 {
     public class DisplayInfo : BindableBase
     {
-        private bool _active;
         private int _lastBrightnessSet;
         public bool IsPrimaryMonitor { get; set; }
         public int ScreenHeight { get; set; }
@@ -21,19 +20,13 @@ namespace unitrix0.rightbright.Monitors.Models
         public IntPtr Handle { get; set; }
         public string DeviceId { get; set; }
 
-        public bool Active
-        {
-            get => _active;
-            set => SetProperty(ref _active, value);
-        }
+        public BrightnessCalculationParameters CalculationParameters { get; set; }
 
         public int LastBrightnessSet
         {
             get => _lastBrightnessSet;
             set => SetProperty(ref _lastBrightnessSet, value);
         }
-
-        public BrightnessCalculationParameters CalculationParameters { get; set; }
 
         public DisplayInfo()
         {

@@ -32,7 +32,7 @@ namespace unitrix0.rightbright.Brightness
         private void SensorOnUpdate(object sender, double e)
         {
             Debug.Print($"****** Sensor Update: {e} lux ******");
-            var monitors = _monitorService.Monitors.Where(m => m.Active);
+            var monitors = _monitorService.Monitors.Where(m => m.CalculationParameters.Active);
 
             foreach (var monitor in monitors)
             {

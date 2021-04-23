@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>noun_bright_256.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

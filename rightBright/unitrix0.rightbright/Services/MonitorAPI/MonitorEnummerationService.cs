@@ -36,6 +36,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                 var success = GetMonitorInfo(hMonitor, ref mi);
                 if (!success)
                 {
+                    //TODO Error Handling
                     var err = Marshal.GetLastWin32Error();
                     return false;
                 }
@@ -44,6 +45,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                 dev.cb = Marshal.SizeOf(dev);
                 if (!EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
                 {
+                    //TODO Error Handling
                     var err = Marshal.GetLastWin32Error();
                 }
 
@@ -56,15 +58,9 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                     IsPrimaryMonitor = Convert.ToBoolean(mi.Flags),
                     DeviceName = dev.DeviceString,
                     DeviceId = dev.DeviceID,
-                    Handle = hMonitor,
-                    CalculationParameters =
-                    {
-                        MinBrightness = dev.DeviceString.StartsWith("HP") ? 35 : 0,
-                        Curve = dev.DeviceString.StartsWith("HP") ? 80 : 25,
-                        Progression = dev.DeviceString.StartsWith("HP") ? 2.105 : 1.315
-                    },
-                    Active = true
+                    Handle = hMonitor
                 };
+
                 col.Add(di);
                 return true;
             }
