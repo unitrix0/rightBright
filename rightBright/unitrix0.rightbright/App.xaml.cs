@@ -3,6 +3,7 @@ using Prism.Unity;
 using System;
 using System.Configuration;
 using System.Windows;
+using Hardcodet.Wpf.TaskbarNotification;
 using Prism.Mvvm;
 using unitrix0.rightbright.Brightness;
 using unitrix0.rightbright.Brightness.Calculators;
@@ -22,6 +23,8 @@ namespace unitrix0.rightbright
     /// </summary>
     public partial class App : PrismApplication
     {
+        private TaskbarIcon _notifyIcon;
+
         protected override Window CreateShell()
         {
             var x = new BrightnessController(Container.Resolve<ISensorService>(),
@@ -29,6 +32,7 @@ namespace unitrix0.rightbright
                 Container.Resolve<IMonitorService>(),
                 Container.Resolve<IBrightnessCalculator>());
 
+            _notifyIcon = (TaskbarIcon) FindResource("NotifyIcon");
             return Container.Resolve<MainWindow>();
         }
 

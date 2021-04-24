@@ -34,7 +34,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" FontSize="14" Foreground="#FCF7F8" FontFamily="Montserrat"
+                <Label Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" FontSize="14" Foreground="#FCF7F8"
                        Padding="-5,0,0,0" Margin="0,5,5,2">Sensor</Label>
                 <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,5,0" Height="30"
                           ItemsSource="{Binding Sensors}"
