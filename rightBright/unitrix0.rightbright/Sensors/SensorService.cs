@@ -18,7 +18,7 @@ namespace unitrix0.rightbright.Sensors
         public string Error => _error;
         public string FriendlyName => _sensorDevice?.FriendlyName ?? "";
         public string Unit => _sensorDevice?.get_unit() ?? "";
-        public bool IsReady => _sensorDevice?.isSensorReady() ?? false;
+        public bool Connected => _sensorDevice.isSensorReady() && _sensorDevice.isOnline();
 
         public SensorService(ISettings settings)
         {
@@ -35,11 +35,10 @@ namespace unitrix0.rightbright.Sensors
         {
             _sensorDevice = YLightSensor.FindLightSensor(sensorFriendlyName);
             if (!_sensorDevice.isSensorReady() || !_sensorDevice.isOnline()) return false;
-
+            
             _sensorDevice.registerTimedReportCallback(TimedReport);
 
             _handleYapiEventsTimer.Interval = _settings.YapiEventsTimerInterval;
-            _handleYapiEventsTimer.Start();
 
             return true;
         }
@@ -66,6 +65,12 @@ namespace unitrix0.rightbright.Sensors
             } while (sensor != null);
             
             return result;
+        }
+
+        public void StartPollTimer()
+        {
+            YAPI.HandleEvents(ref _error);
+            _handleYapiEventsTimer.Start();
         }
 
         private void TimedReport(YLightSensor func, YMeasure measure)

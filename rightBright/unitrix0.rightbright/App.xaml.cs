@@ -2,6 +2,7 @@
 using Prism.Unity;
 using System;
 using System.Configuration;
+using System.Diagnostics;
 using System.Windows;
 using Hardcodet.Wpf.TaskbarNotification;
 using Prism.Mvvm;
@@ -24,16 +25,14 @@ namespace unitrix0.rightbright
     public partial class App : PrismApplication
     {
         private TaskbarIcon _notifyIcon;
+        private IBrightnessController _brightnessController;
 
         protected override Window CreateShell()
         {
-            var x = new BrightnessController(Container.Resolve<ISensorService>(),
-                Container.Resolve<ISetBrightnessService>(),
-                Container.Resolve<IMonitorService>(),
-                Container.Resolve<IBrightnessCalculator>());
-
             _notifyIcon = (TaskbarIcon) FindResource("NotifyIcon");
-            return Container.Resolve<MainWindow>();
+            _brightnessController = Container.Resolve<IBrightnessController>();
+            _brightnessController.Run();
+            return null;
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -42,6 +41,7 @@ namespace unitrix0.rightbright
             containerRegistry.RegisterSingleton<IMonitorEnummerationService, MonitorEnummerationService>();
             containerRegistry.RegisterSingleton<IMonitorService, MonitorService>();
             containerRegistry.RegisterSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();
+            containerRegistry.RegisterSingleton<IBrightnessController, BrightnessController>();
             containerRegistry.RegisterSingleton<ISensorService, SensorService>();
             containerRegistry.RegisterSingleton<ISetBrightnessService, SetBrightnessService>();
             containerRegistry.RegisterSingleton<ISettings>(Settings.Settings.Load);
@@ -58,6 +58,7 @@ namespace unitrix0.rightbright
         {
             var settings = Container.Resolve<ISettings>();
             settings.Save();
+            _notifyIcon.Dispose();
         }
     }
 }

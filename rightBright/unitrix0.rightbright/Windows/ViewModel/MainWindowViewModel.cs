@@ -85,28 +85,29 @@ namespace unitrix0.rightbright.Windows.ViewModel
         public DelegateCommand ApplyNewCurve { get; }
 
 
+        // ReSharper disable once UnusedMember.Global
         public MainWindowViewModel()
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         public MainWindowViewModel(IMonitorService monitorService, ISensorService sensorService, ISettings settings, ICurveCalculationService curveCalculator)
         {
             ConnectSensorCmd = new DelegateCommand(ConnectSensor, () => IsSensorSelected && !IsSensorConnected);
             CloseDisplaySettings = new DelegateCommand(DeSelectMonitor, () => true);
             ApplyNewCurve = new DelegateCommand(SaveNewMonitorSettings, CanSaveNewMonitorSettings);
-
+            
             _monitorService = monitorService;
             _sensorService = sensorService;
             _settings = settings;
             _curveCalculator = curveCalculator;
-            _monitorService.UpdateList();
 
             Sensors = _sensorService.GetSensors();
+            SelectedSensor = Sensors.FirstOrDefault(s => s.FriendlyName == _sensorService.FriendlyName);
+            IsSensorConnected = _sensorService.Connected;
             _sensorService.Update += SensorServiceOnUpdate;
 
-            TryConnectLastUsedSensor();
             SaveSettingsOfNewMonitors();
-            LoadMonitorSettings();
         }
 
         private void DeSelectMonitor()
@@ -115,18 +116,6 @@ namespace unitrix0.rightbright.Windows.ViewModel
             NewCalculationParameters = null;
             CurrentCurve = null;
             NewCurve = null;
-        }
-
-        private void TryConnectLastUsedSensor()
-        {
-            if (_settings.LastUsedSensor == null) return;
-
-            SelectedSensor = Sensors.FirstOrDefault(s => s.FriendlyName == _settings.LastUsedSensor.FriendlyName);
-            if (SelectedSensor == null) return;
-
-            SelectedSensor.MaxValue = _settings.LastUsedSensor.MaxValue;
-            SelectedSensor.MinValue = _settings.LastUsedSensor.MinValue;
-            ConnectSensor();
         }
 
         private void SensorServiceOnUpdate(object sender, double e)
@@ -166,7 +155,6 @@ namespace unitrix0.rightbright.Windows.ViewModel
 
         private void ConnectSensor()
         {
-            // TODO In BrightnessController verschieben
             IsSensorConnected = _sensorService.ConnectToSensor(SelectedSensor.FriendlyName);
             if (IsSensorConnected) _settings.LastUsedSensor = SelectedSensor;
         }
@@ -181,21 +169,6 @@ namespace unitrix0.rightbright.Windows.ViewModel
             }
 
             _settings.Save();
-        }
-
-        private void LoadMonitorSettings()
-        {
-            foreach (var monitor in Monitors)
-            {
-                if (!_settings.BrightnessCalculationParameters.ContainsKey(monitor.DeviceName)) continue;
-
-                //TODO "Active" setting
-                var savedSettings = _settings.BrightnessCalculationParameters[monitor.DeviceName];
-                monitor.CalculationParameters.Progression = savedSettings.Progression;
-                monitor.CalculationParameters.MinBrightness = savedSettings.MinBrightness;
-                monitor.CalculationParameters.Curve = savedSettings.Curve;
-                monitor.CalculationParameters.Active = savedSettings.Active;
-            }
         }
     }
 }

@@ -1,14 +1,15 @@
 ﻿using Prism.Commands;
-using Prism.Mvvm;
 using System.Windows;
+using unitrix0.rightbright.Windows;
 
 namespace unitrix0.rightbright.TrayIcon
 {
-    public class TrayIconViewModel : BindableBase
+    public class TrayIconViewModel
     {
         public DelegateCommand ShowWindowCommand => new DelegateCommand(ShowWindowCmd, () => Application.Current != null);
 
         public DelegateCommand ExitApplicationCommand => new DelegateCommand(ExitApplicationCmd);
+        
 
         private void ExitApplicationCmd()
         {
@@ -17,7 +18,11 @@ namespace unitrix0.rightbright.TrayIcon
 
         private void ShowWindowCmd()
         {
-            Application.Current.MainWindow?.Show();
+             if (Application.Current.MainWindow == null || 
+                 Application.Current.MainWindow.GetType() != typeof(MainWindow))
+                 Application.Current.MainWindow = new MainWindow();
+
+             Application.Current.MainWindow?.Show();
         }
     }
 }
