@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using Prism.Ioc;
+using unitrix0.rightbright.Brightness;
+using unitrix0.rightbright.Brightness.Calculators;
 using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Monitors.Models;
 using unitrix0.rightbright.Sensors;
@@ -17,8 +20,8 @@ namespace unitrix0.rightbright.Windows.ViewModel
 {
     public class MainWindowViewModel : BindableBase
     {
+        private readonly IBrightnessController _brightnessController;
         private readonly IMonitorService _monitorService;
-        private readonly ISensorService _sensorService;
         private readonly ISettings _settings;
         private readonly ICurveCalculationService _curveCalculator;
         private AmbientLightSensor _selectedSensor;
@@ -91,21 +94,21 @@ namespace unitrix0.rightbright.Windows.ViewModel
         }
 
         // ReSharper disable once UnusedMember.Global
-        public MainWindowViewModel(IMonitorService monitorService, ISensorService sensorService, ISettings settings, ICurveCalculationService curveCalculator)
+        public MainWindowViewModel(IBrightnessController brightnessController, IMonitorService monitorService, ISensorRepo sensorRepo, ISettings settings, ICurveCalculationService curveCalculator)
         {
             ConnectSensorCmd = new DelegateCommand(ConnectSensor, () => IsSensorSelected && !IsSensorConnected);
             CloseDisplaySettings = new DelegateCommand(DeSelectMonitor, () => true);
             ApplyNewCurve = new DelegateCommand(SaveNewMonitorSettings, CanSaveNewMonitorSettings);
-            
+
+            _brightnessController = brightnessController;
             _monitorService = monitorService;
-            _sensorService = sensorService;
             _settings = settings;
             _curveCalculator = curveCalculator;
 
-            Sensors = _sensorService.GetSensors();
-            SelectedSensor = Sensors.FirstOrDefault(s => s.FriendlyName == _sensorService.FriendlyName);
-            IsSensorConnected = _sensorService.Connected;
-            _sensorService.Update += SensorServiceOnUpdate;
+            Sensors = sensorRepo.GetSensors();
+            SelectedSensor = _brightnessController.ConnectedSensor;
+
+            IsSensorConnected = _brightnessController.ConnectedSensor != null;
 
             SaveSettingsOfNewMonitors();
         }
@@ -118,10 +121,6 @@ namespace unitrix0.rightbright.Windows.ViewModel
             NewCurve = null;
         }
 
-        private void SensorServiceOnUpdate(object sender, double e)
-        {
-            _selectedSensor.CurrentValue = (int)Math.Round(e);
-        }
 
         private void EditSelectedMonitor()
         {
@@ -155,7 +154,7 @@ namespace unitrix0.rightbright.Windows.ViewModel
 
         private void ConnectSensor()
         {
-            IsSensorConnected = _sensorService.ConnectToSensor(SelectedSensor.FriendlyName);
+            IsSensorConnected = _brightnessController.ConnectSensor(SelectedSensor);
             if (IsSensorConnected) _settings.LastUsedSensor = SelectedSensor;
         }
 

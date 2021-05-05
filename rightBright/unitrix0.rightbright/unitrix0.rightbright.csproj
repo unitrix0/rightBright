@@ -5,7 +5,8 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
 	<Nullable>disable</Nullable>
-    <ApplicationIcon>noun_bright_256.ico</ApplicationIcon>
+    <ApplicationIcon>_Resources\AppIcon.ico</ApplicationIcon>
+    <AssemblyName>unitrix0.rightbright</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -54,11 +55,13 @@
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi.dylib" />
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi32.dylib" />
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\yapi.dll" />
-    <None Remove="_Resources\noun_bright_256.ico" />
+    <None Remove="_Resources\AppIcon.ico" />
+    <None Remove="_Resources\AppIcon2.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="_Resources\noun_bright_256.ico" />
+    <Resource Include="_Resources\AppIcon.ico" />
+    <Resource Include="_Resources\AppIcon2.ico" />
   </ItemGroup>
 
 </Project>

@@ -11,7 +11,8 @@ namespace unitrix0.rightbright.Sensors
         string Error { get; }
         string FriendlyName { get; }
         string Unit { get; }
-        List<AmbientLightSensor> GetSensors();
+        Queue<double> ValueHistory { get; }
+        public List<AmbientLightSensor> GetSensors();
         bool ConnectToSensor(string sensorFriendlyName);
         void StartPollTimer();
     }

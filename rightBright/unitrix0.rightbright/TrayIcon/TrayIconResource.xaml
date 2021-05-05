@@ -8,6 +8,8 @@
             <trayIcon:TrayIconViewModel/>
         </ContextMenu.DataContext>
         <MenuItem Header="Öffnen" Command="{Binding ShowWindowCommand}" />
+        <MenuItem Header="{Binding PauseLabel}"
+                  Command="{Binding PauseCommand}"/>
         <Separator />
         <MenuItem Header="Exit" Command="{Binding ExitApplicationCommand}" />
     </ContextMenu>
@@ -16,12 +18,12 @@
     <!-- the application's NotifyIcon - started from App.xaml.cs. Declares its own view model. -->
     <!--ToolTipText="Double-click for window, right-click for menu"-->
     <tb:TaskbarIcon x:Key="NotifyIcon"
-                    IconSource="/_Resources/noun_bright_256.ico"
+                    IconSource="/_Resources/AppIcon2.ico"
                     DoubleClickCommand="{Binding ShowWindowCommand}"
                     ContextMenu="{StaticResource SysTrayMenu}">
 
         <!-- self-assign a data context (could also be done programmatically) -->
-        <tb:TaskbarIcon.DataContext>
+        <tb:TaskbarIcon.DataContext> 
             <trayIcon:TrayIconViewModel />
         </tb:TaskbarIcon.DataContext>
     </tb:TaskbarIcon>

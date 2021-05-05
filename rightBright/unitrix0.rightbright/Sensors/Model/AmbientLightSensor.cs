@@ -23,7 +23,7 @@ namespace unitrix0.rightbright.Sensors.Model
             {
                 SetProperty(ref _currentValue, value);
                 if (value > MaxValue) SetProperty(ref _maxValue, value, nameof(MaxValue));
-                if (value < MinValue || MinValue == 0) SetProperty(ref _minValue, value, nameof(MinValue));
+                if (value < MinValue) SetProperty(ref _minValue, value, nameof(MinValue));
             }
         }
 

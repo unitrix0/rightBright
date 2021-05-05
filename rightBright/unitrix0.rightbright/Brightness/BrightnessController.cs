@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using Prism.Mvvm;
 using unitrix0.rightbright.Brightness.Calculators;
 using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Sensors;
@@ -10,15 +11,24 @@ using unitrix0.rightbright.Settings;
 
 namespace unitrix0.rightbright.Brightness
 {
-    public class BrightnessController : IBrightnessController
+    public class BrightnessController : BindableBase, IBrightnessController
     {
         private readonly ISensorService _sensorService;
         private readonly ISetBrightnessService _brightnessService;
         private readonly IMonitorService _monitorService;
         private readonly IBrightnessCalculator _brightnessCalculator;
         private readonly ISettings _settings;
+        private AmbientLightSensor _connectedSensor;
 
-        public BrightnessController(ISensorService sensorService, ISetBrightnessService brightnessService, 
+        public bool PauseSettingBrightness { get; set; }
+
+        public AmbientLightSensor ConnectedSensor
+        {
+            get => _connectedSensor;
+            private set => SetProperty(ref _connectedSensor, value);
+        }
+
+        public BrightnessController(ISensorService sensorService, ISetBrightnessService brightnessService,
             IMonitorService monitorService, IBrightnessCalculator brightnessCalculator, ISettings settings)
         {
             _sensorService = sensorService;
@@ -32,11 +42,19 @@ namespace unitrix0.rightbright.Brightness
 
         public void Run()
         {
-            if (!TryConnectLastUsedSensor()) return;
             _monitorService.UpdateList();
             LoadMonitorSettings();
+            if (!TryConnectLastUsedSensor()) return;
 
             _sensorService.StartPollTimer();
+        }
+
+        public bool ConnectSensor(AmbientLightSensor sensor)
+        {
+            if (!_sensorService.ConnectToSensor(sensor.FriendlyName)) return false;
+
+            ConnectedSensor = sensor;
+            return true;
         }
 
         private bool TryConnectLastUsedSensor()
@@ -46,8 +64,11 @@ namespace unitrix0.rightbright.Brightness
             var sensors = _sensorService.GetSensors();
             var lastUsedSensor = sensors.FirstOrDefault(s => s.FriendlyName == _settings.LastUsedSensor.FriendlyName);
             if (lastUsedSensor == null) return false;
-            
-            return _sensorService.ConnectToSensor(lastUsedSensor.FriendlyName);
+
+            lastUsedSensor.MaxValue = _settings.LastUsedSensor.MaxValue;
+            lastUsedSensor.MinValue = _settings.LastUsedSensor.MinValue;
+
+            return ConnectSensor(lastUsedSensor);
         }
 
         private void LoadMonitorSettings()
@@ -55,7 +76,7 @@ namespace unitrix0.rightbright.Brightness
             foreach (var monitor in _monitorService.Monitors)
             {
                 if (!_settings.BrightnessCalculationParameters.ContainsKey(monitor.DeviceName)) continue;
-                
+
                 var savedSettings = _settings.BrightnessCalculationParameters[monitor.DeviceName];
                 monitor.CalculationParameters.Progression = savedSettings.Progression;
                 monitor.CalculationParameters.MinBrightness = savedSettings.MinBrightness;
@@ -66,12 +87,17 @@ namespace unitrix0.rightbright.Brightness
 
         private void OnSensorUpdate(object sender, double e)
         {
-            Debug.Print($"****** Sensor Update: {e} lux ******");
-            var monitors = _monitorService.Monitors.Where(m => m.CalculationParameters.Active);
+            Debug.Print($"****** Sensor Update: {e} lx ******");
 
+            ConnectedSensor.CurrentValue = (int)Math.Round(e);
+            if (PauseSettingBrightness) return;
+
+            var monitors = _monitorService.Monitors.Where(m => m.CalculationParameters.Active);
             foreach (var monitor in monitors)
             {
                 var newBrightness = (int)Math.Round(_brightnessCalculator.Calculate(e, monitor.CalculationParameters.Progression, monitor.CalculationParameters.Curve, monitor.CalculationParameters.MinBrightness));
+                newBrightness = newBrightness > 100 ? 100 : newBrightness;
+
                 if (newBrightness == monitor.LastBrightnessSet) continue;
 
                 Debug.Print($"{DateTime.Now.TimeOfDay}\t Updating Brightness on {monitor.DeviceName} to: {newBrightness}");
