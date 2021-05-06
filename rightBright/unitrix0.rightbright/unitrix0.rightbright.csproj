@@ -55,13 +55,11 @@
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi.dylib" />
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\libyapi32.dylib" />
     <None Remove="C:\Users\mr\.nuget\packages\yoctopuce.yoctolib\1.10.44175\contentFiles\any\netstandard2.0\yapi.dll" />
-    <None Remove="_Resources\AppIcon.ico" />
-    <None Remove="_Resources\AppIcon2.ico" />
+    <None Remove="_Resources\AppIcon 16 white.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="_Resources\AppIcon.ico" />
-    <Resource Include="_Resources\AppIcon2.ico" />
+    <Resource Include="_Resources\AppIcon 16 white.ico" />
   </ItemGroup>
 
 </Project>

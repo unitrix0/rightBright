@@ -18,7 +18,7 @@
     <!-- the application's NotifyIcon - started from App.xaml.cs. Declares its own view model. -->
     <!--ToolTipText="Double-click for window, right-click for menu"-->
     <tb:TaskbarIcon x:Key="NotifyIcon"
-                    IconSource="/_Resources/AppIcon2.ico"
+                    IconSource="/_Resources/AppIcon 16 white.ico"
                     DoubleClickCommand="{Binding ShowWindowCommand}"
                     ContextMenu="{StaticResource SysTrayMenu}">
 

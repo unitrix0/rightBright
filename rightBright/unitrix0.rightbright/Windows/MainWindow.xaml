@@ -68,7 +68,7 @@
                                     <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
 
-                                <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#068AB2"
+                                <fa:ImageAwesome Grid.Row="0" Grid.Column="0" Foreground="#46725A"
                                                  VerticalAlignment="Center" HorizontalAlignment="Center"
                                                  Icon="Desktop" Margin="5">
                                     <fa:ImageAwesome.Style>
