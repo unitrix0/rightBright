@@ -28,31 +28,14 @@ namespace unitrix0.rightbright
     {
         private TaskbarIcon _notifyIcon;
         private IBrightnessController _brightnessController;
-        private TrayIconViewModel _notifyIconViewModel;
 
         protected override Window CreateShell()
         {
-            InitTasbarIcon();
+            _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
 
             _brightnessController = Container.Resolve<IBrightnessController>();
             _brightnessController.Run();
             return null;
-        }
-
-        private void InitTasbarIcon()
-        {
-            _notifyIcon = (TaskbarIcon) FindResource("NotifyIcon");
-            if(_notifyIcon == null) return;
-            
-            _notifyIconViewModel = (TrayIconViewModel) _notifyIcon.DataContext;
-            
-            _notifyIcon.TrayContextMenuOpen += (sender, args) =>
-                Debug.Print(((unitrix0.rightbright.TrayIcon.TrayIconViewModel)((System.Windows.FrameworkElement)sender).DataContext).PauseLabel);
-            //_notifyIconViewModel.PauseAction = () =>
-            //{
-            //    _brightnessController.PauseSettingBrightness = !_brightnessController.PauseSettingBrightness;
-            //    _notifyIconViewModel.PauseLabel = _brightnessController.PauseSettingBrightness ? "Fortsetzen" : "Pause";
-            //};
         }
 
 
@@ -78,6 +61,9 @@ namespace unitrix0.rightbright
         protected override void OnExit(ExitEventArgs e)
         {
             var settings = Container.Resolve<ISettings>();
+            settings.LastUsedSensor.MaxValue = _brightnessController.ConnectedSensor.MaxValue;
+            settings.LastUsedSensor.MinValue = _brightnessController.ConnectedSensor.MinValue;
+
             settings.Save();
             _notifyIcon.Dispose();
         }
