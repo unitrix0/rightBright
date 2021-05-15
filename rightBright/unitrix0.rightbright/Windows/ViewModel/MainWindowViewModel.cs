@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using LiveCharts.Defaults;
 using Prism.Ioc;
 using unitrix0.rightbright.Brightness;
 using unitrix0.rightbright.Brightness.Calculators;
@@ -129,13 +131,14 @@ namespace unitrix0.rightbright.Windows.ViewModel
             NewCalculationParameters = new BrightnessCalculationParameters(SelectedMonitor.CalculationParameters);
             NewCalculationParameters.PropertyChanged += CreateCurveForNewSettings;
 
-            NewCurve = new ChartValues<Double>();
+            NewCurve = new ChartValues<ObservablePoint>();
             CurrentCurve = _curveCalculator.Calculate(SelectedMonitor.CalculationParameters, SelectedSensor.MaxValue);
         }
 
         private void CreateCurveForNewSettings(object sender, PropertyChangedEventArgs e)
         {
             NewCurve = _curveCalculator.Calculate(NewCalculationParameters, SelectedSensor.MaxValue);
+            Debug.Print(NewCurve.Count.ToString());
         }
 
         private void SaveNewMonitorSettings()

@@ -246,7 +246,7 @@
             </StackPanel>
 
 
-            <charts:CartesianChart Grid.Row="1" Grid.Column="0">
+            <charts:CartesianChart Grid.Row="1" Grid.Column="0" Margin="10,15,0,0">
                 <charts:CartesianChart.Series>
                     <charts:LineSeries Values="{Binding CurrentCurve}"
                                        LineSmoothness="1" Stroke="#A3A3A3" Fill="#6BE0E0E0"
@@ -255,14 +255,15 @@
                     <charts:LineSeries Values="{Binding NewCurve}"
                                        LineSmoothness="1" 
                                        PointGeometry="{x:Static charts:DefaultGeometries.None}"
-                                       Title="Neue Kurve" />
+                                       Title="Neue Kurve">
+                    </charts:LineSeries>
                 </charts:CartesianChart.Series>
                 <charts:CartesianChart.AxisX>
-                    <charts:Axis Title="Hellikeit (lx)" FontSize="12"/>
+                    <charts:Axis Title="Hellikeit (lx)" FontSize="12"
+                                 MaxValue="{Binding SelectedSensor.MaxValue}"/>
                 </charts:CartesianChart.AxisX>
                 <charts:CartesianChart.AxisY>
-                    <charts:Axis Title="Bildschirm Hellikeitsstufe (%)" FontSize="12" MaxValue="100" MinValue="0">
-                    </charts:Axis>
+                    <charts:Axis Title="Bildschirm Hellikeitsstufe (%)" FontSize="12" MaxValue="105" MinValue="0"/>
                 </charts:CartesianChart.AxisY>
 
             </charts:CartesianChart>
