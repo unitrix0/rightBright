@@ -7,13 +7,14 @@ using unitrix0.rightbright.Settings;
 
 namespace unitrix0.rightbright.Sensors
 {
-    public class SensorService : ISensorService, ISensorRepo
+    public class SensorService : ISensorService
     {
         private readonly ISettings _settings;
         private YLightSensor _sensorDevice;
         private string _error = "";
         private readonly Timer _handleYapiEventsTimer = new();
         private readonly Queue<Double> _valueHistory;
+        private readonly ISensorRepo _sensorRepo;
 
         public event EventHandler<double> Update;
 
@@ -24,8 +25,9 @@ namespace unitrix0.rightbright.Sensors
 
         public Queue<double> ValueHistory => _valueHistory;
 
-        public SensorService(ISettings settings)
+        public SensorService(ISensorRepo sensorRepo, ISettings settings)
         {
+            _sensorRepo = sensorRepo;
             _settings = settings;
             _handleYapiEventsTimer.Elapsed += HandleYapiEventsTimerOnElapsed;
             _valueHistory = new Queue<double>(17280);
@@ -48,29 +50,9 @@ namespace unitrix0.rightbright.Sensors
             return true;
         }
 
-        public List<AmbientLightSensor> GetSensors()
+        public List<AmbientLightSensor> GetSensors(bool forceUpdate = false)
         {
-            var result = new List<AmbientLightSensor>();
-            var sensor = YLightSensor.FirstSensor();
-            
-            while (sensor != null)
-            {
-
-                if (sensor.get_functionId() == "lightSensor")
-                {
-                    result.Add(new AmbientLightSensor()
-                    {
-                        FriendlyName = sensor.FriendlyName,
-                        SerialNumber = sensor.get_serialNumber(),
-                        IsReady = sensor.isSensorReady(),
-                        IsOnline = sensor.isOnline()
-                    });
-                }
-
-                sensor = sensor.nextSensor();
-            } 
-
-            return result;
+            return _sensorRepo.GetSensors(forceUpdate);
         }
 
         public void StartPollTimer()
