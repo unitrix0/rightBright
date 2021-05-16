@@ -57,8 +57,8 @@ namespace unitrix0.rightbright.Sensors
 
         public void StartPollTimer()
         {
-            YAPI.HandleEvents(ref _error);
             _handleYapiEventsTimer.Start();
+            Update?.Invoke(this, _sensorDevice.get_currentValue());
         }
 
         private void TimedReport(YLightSensor func, YMeasure measure)
