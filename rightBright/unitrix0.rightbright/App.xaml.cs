@@ -11,6 +11,7 @@ using unitrix0.rightbright.Brightness;
 using unitrix0.rightbright.Brightness.Calculators;
 using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Sensors;
+using unitrix0.rightbright.Sensors.Model;
 using unitrix0.rightbright.Services.Brightness;
 using unitrix0.rightbright.Services.CurveCalculation;
 using unitrix0.rightbright.Services.MonitorAPI;
@@ -46,7 +47,7 @@ namespace unitrix0.rightbright
             containerRegistry.RegisterSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();
             containerRegistry.RegisterSingleton<IBrightnessController, BrightnessController>();
             containerRegistry.RegisterSingleton<ISensorService, SensorService>();
-            containerRegistry.RegisterSingleton<ISensorRepo, SensorService>();
+            containerRegistry.RegisterSingleton<ISensorRepo, SensorRepo>();
             containerRegistry.RegisterSingleton<ISetBrightnessService, SetBrightnessService>();
             containerRegistry.RegisterSingleton<ISettings>(Settings.Settings.Load);
             containerRegistry.RegisterSingleton<ICurveCalculationService, CurveCalculationService>();

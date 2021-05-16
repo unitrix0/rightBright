@@ -6,15 +6,15 @@ namespace unitrix0.rightbright.Sensors.Model
 {
     public class AmbientLightSensor : BindableBase
     {
+        private readonly YSensor _sensor;
         private int _currentValue;
         private int _maxValue;
         private int _minValue;
         public string FriendlyName { get; set; }
         public string SerialNumber { get; set; }
-        [JsonIgnore]
-        public bool IsOnline { get; set; }
-        [JsonIgnore]
-        public bool IsReady { get; set; }
+        [JsonIgnore] public bool IsOnline => _sensor.isOnline();
+        [JsonIgnore] public bool IsReady => _sensor.isSensorReady();
+
         [JsonIgnore]
         public int CurrentValue
         {
@@ -37,6 +37,17 @@ namespace unitrix0.rightbright.Sensors.Model
         {
             get => _minValue;
             set => _minValue = value;
+        }
+
+        public AmbientLightSensor()
+        {
+        }
+
+        public AmbientLightSensor(YSensor sensor)
+        {
+            _sensor = sensor;
+            FriendlyName = sensor.FriendlyName;
+            SerialNumber = sensor.get_serialNumber();
         }
     }
 }

@@ -5,6 +5,6 @@ namespace unitrix0.rightbright.Sensors
 {
     public interface ISensorRepo
     {
-        List<AmbientLightSensor> GetSensors();
+        List<AmbientLightSensor> GetSensors(bool forceUpdate = false);
     }
 }
