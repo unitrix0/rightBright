@@ -17,7 +17,18 @@ namespace unitrix0.rightbright.Monitors
 
         public void UpdateList()
         {
-            Monitors = new ObservableCollection<DisplayInfo>(_monitorEnummerationService.GetDisplays());
+            Monitors.Clear();
+            Monitors.AddRange(_monitorEnummerationService.GetDisplays());
+        }
+
+        public void Clear()
+        {
+            Monitors.Clear();
+        }
+
+        public void Add()
+        {
+            Monitors.AddRange(_monitorEnummerationService.GetDisplays());
         }
     }
 }

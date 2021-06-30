@@ -6,15 +6,9 @@ using unitrix0.rightbright.Services.MonitorAPI.Structs;
 
 namespace unitrix0.rightbright.Services.Brightness
 {
-    public class SetBrightnessService : IDisposable, ISetBrightnessService
+    public class SetBrightnessService : ISetBrightnessService
     {
-        [DllImport("user32.dll", EntryPoint = "MonitorFromWindow")]
-        private static extern IntPtr MonitorFromWindow([In] IntPtr hwnd, uint dwFlags);
-
-        [DllImport("dxva2.dll", EntryPoint = "DestroyPhysicalMonitors")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool DestroyPhysicalMonitors(uint dwPhysicalMonitorArraySize, ref PHYSICAL_MONITOR[] pPhysicalMonitorArray);
-
+        
         [DllImport("dxva2.dll", EntryPoint = "GetNumberOfPhysicalMonitorsFromHMONITOR")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetNumberOfPhysicalMonitorsFromHMONITOR(IntPtr hMonitor, ref uint pdwNumberOfPhysicalMonitors);
@@ -30,31 +24,29 @@ namespace unitrix0.rightbright.Services.Brightness
         [DllImport("dxva2.dll", EntryPoint = "SetMonitorBrightness")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetMonitorBrightness(IntPtr handle, uint newBrightness);
+        
 
-        private PHYSICAL_MONITOR[] _physicalMonitorArray;
-
-        private uint _minValue = 0;
-        private uint _maxValue = 0;
-        private uint _currentValue = 0;
+        private uint _minValue;
+        private uint _maxValue;
+        private uint _currentValue;
 
         public uint CurrentBrightness => _currentValue;
 
-        public SetBrightnessService()
-        {
-        }
 
         public void SetBrightness(IntPtr monitorHandle, int newValue)
         {
             newValue = newValue > 100 ? 100 : newValue;
             newValue = newValue < 1 ? 1 : newValue;
-            //_currentValue = (_maxValue - _minValue) * (uint)newValue / 100u + _minValue;
-            //if (!GetMonitorBrightness(monitorHandle, ref _minValue, ref _currentValue, ref _maxValue))
-            //{
-            //    var ex = new Win32Exception(Marshal.GetLastWin32Error());
-            //    Debug.Print($"{nameof(GetMonitorBrightness)} Error: {ex.HResult} {ex.Message}");
-            //}
-
+            _currentValue = (_maxValue - _minValue) * (uint)newValue / 100u + _minValue;
             var monitors = GetPhysicalMonitors(monitorHandle);
+
+            var getMonBrightness = GetMonitorBrightness(monitors[0].hPhysicalMonitor, ref _minValue, ref _currentValue, ref _maxValue);
+            if (!getMonBrightness)
+            {
+                var lastWin32Error = Marshal.GetLastWin32Error();
+                var ex = new Win32Exception(lastWin32Error);
+                Debug.Print($"\t\t *** {nameof(GetMonitorBrightness)} ({lastWin32Error}) Error: 0x{ex.HResult:X} {ex.Message}");
+            }
             var result = SetMonitorBrightness(monitors[0].hPhysicalMonitor, (uint)newValue);
             Debug.Print($"{nameof(SetBrightness)} FROM:{_currentValue} TO: {newValue} => success: {result}");
         }
@@ -80,22 +72,6 @@ namespace unitrix0.rightbright.Services.Brightness
             var error = Marshal.GetLastWin32Error();
             throw new Exception($"Cannot get monitor count! ({error})");
 
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing) return;
-
-            if (_physicalMonitorArray.Length > 0)
-            {
-                DestroyPhysicalMonitors((uint)_physicalMonitorArray.Length, ref _physicalMonitorArray);
-            }
         }
     }
 }

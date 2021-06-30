@@ -8,5 +8,7 @@ namespace unitrix0.rightbright.Monitors
     {
         ObservableCollection<DisplayInfo> Monitors { get; set; }
         void UpdateList();
+        void Clear();
+        void Add();
     }
 }

@@ -1,16 +1,13 @@
 ﻿using LiveCharts;
+using LiveCharts.Defaults;
 using Prism.Commands;
 using Prism.Mvvm;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using LiveCharts.Defaults;
-using Prism.Ioc;
 using unitrix0.rightbright.Brightness;
-using unitrix0.rightbright.Brightness.Calculators;
 using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Monitors.Models;
 using unitrix0.rightbright.Sensors;
@@ -89,7 +86,6 @@ namespace unitrix0.rightbright.Windows.ViewModel
 
         public DelegateCommand ApplyNewCurve { get; }
 
-
         // ReSharper disable once UnusedMember.Global
         public MainWindowViewModel()
         {
@@ -163,7 +159,7 @@ namespace unitrix0.rightbright.Windows.ViewModel
 
         private void SaveSettingsOfNewMonitors()
         {
-            foreach (var monitor in Monitors)
+            foreach (var monitor in Monitors.Where(m => m.CalculationParameters.Active))
             {
                 if (_settings.BrightnessCalculationParameters.ContainsKey(monitor.DeviceName)) continue;
 

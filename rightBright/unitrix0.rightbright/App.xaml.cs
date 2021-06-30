@@ -40,17 +40,19 @@ namespace unitrix0.rightbright
         }
 
 
-        protected override void RegisterTypes(IContainerRegistry containerRegistry)
+        protected override void RegisterTypes(IContainerRegistry container)
         {
-            containerRegistry.RegisterSingleton<IMonitorEnummerationService, MonitorEnummerationService>();
-            containerRegistry.RegisterSingleton<IMonitorService, MonitorService>();
-            containerRegistry.RegisterSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();
-            containerRegistry.RegisterSingleton<IBrightnessController, BrightnessController>();
-            containerRegistry.RegisterSingleton<ISensorService, SensorService>();
-            containerRegistry.RegisterSingleton<ISensorRepo, SensorRepo>();
-            containerRegistry.RegisterSingleton<ISetBrightnessService, SetBrightnessService>();
-            containerRegistry.RegisterSingleton<ISettings>(Settings.Settings.Load);
-            containerRegistry.RegisterSingleton<ICurveCalculationService, CurveCalculationService>();
+            container.RegisterSingleton<IMonitorEnummerationService, MonitorEnummerationService>();
+            container.RegisterSingleton<IMonitorService, MonitorService>();
+            container.RegisterSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();
+            container.RegisterSingleton<IBrightnessController, BrightnessController>();
+            container.RegisterSingleton<ISensorService, SensorService>();
+            container.RegisterSingleton<ISensorRepo, SensorRepo>();
+            container.RegisterSingleton<ISetBrightnessService, SetBrightnessService>();
+            container.RegisterSingleton<ISettings>(Settings.Settings.Load);
+            container.RegisterSingleton<ICurveCalculationService, CurveCalculationService>();
+            container.RegisterSingleton<IDeviceChangedNotificationService, DeviceChangedNotificationService>();
+            container.RegisterSingleton<IPowerNotificationService, PowerNotificationService>();
         }
 
         protected override void ConfigureViewModelLocator()

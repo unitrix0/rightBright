@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Timers;
 using unitrix0.rightbright.Sensors.Model;
 using unitrix0.rightbright.Settings;
@@ -10,18 +9,18 @@ namespace unitrix0.rightbright.Sensors
     public class SensorService : ISensorService
     {
         private readonly ISettings _settings;
-        private YLightSensor _sensorDevice;
+        private YLightSensor? _sensorDevice;
         private string _error = "";
         private readonly Timer _handleYapiEventsTimer = new();
         private readonly Queue<Double> _valueHistory;
         private readonly ISensorRepo _sensorRepo;
 
-        public event EventHandler<double> Update;
+        public event EventHandler<double>? Update;
 
         public string Error => _error;
         public string FriendlyName => _sensorDevice?.FriendlyName ?? "";
         public string Unit => _sensorDevice?.get_unit() ?? "";
-        public bool Connected => _sensorDevice.isSensorReady() && _sensorDevice.isOnline();
+        public bool Connected => _sensorDevice != null && _sensorDevice.isSensorReady() && _sensorDevice.isOnline();
 
         public Queue<double> ValueHistory => _valueHistory;
 
@@ -57,8 +56,16 @@ namespace unitrix0.rightbright.Sensors
 
         public void StartPollTimer()
         {
+            if (_sensorDevice == null || !Connected)
+                throw new InvalidOperationException("Sensor not set or not connected");
+
             _handleYapiEventsTimer.Start();
             Update?.Invoke(this, _sensorDevice.get_currentValue());
+        }
+
+        public void StopPollTimer()
+        {
+            _handleYapiEventsTimer.Stop();
         }
 
         private void TimedReport(YLightSensor func, YMeasure measure)

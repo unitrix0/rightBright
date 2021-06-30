@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Configuration;
 using System.Windows;
+using System.Windows.Interop;
 using FontAwesome.WPF;
 
 namespace unitrix0.rightbright.Windows
@@ -13,5 +15,6 @@ namespace unitrix0.rightbright.Windows
         {
             InitializeComponent();
         }
+
     }
 }

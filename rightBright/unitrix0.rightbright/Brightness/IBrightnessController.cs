@@ -6,7 +6,7 @@ namespace unitrix0.rightbright.Brightness
     {
         void Run();
         bool PauseSettingBrightness { get; set; }
-        AmbientLightSensor ConnectedSensor { get; }
+        AmbientLightSensor? ConnectedSensor { get; }
         bool ConnectSensor(AmbientLightSensor sensor);
     }
 }

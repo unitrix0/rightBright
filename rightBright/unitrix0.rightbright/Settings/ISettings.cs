@@ -8,7 +8,7 @@ namespace unitrix0.rightbright.Settings
     {
         string HubUrl { get; set; }
         int YapiEventsTimerInterval { get; set; }
-        AmbientLightSensor LastUsedSensor { get; set; }
+        AmbientLightSensor? LastUsedSensor { get; set; }
         Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; }
         void Save();
     }

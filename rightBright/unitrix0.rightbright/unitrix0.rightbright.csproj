@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-	<Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <ApplicationIcon>_Resources\AppIcon.ico</ApplicationIcon>
     <AssemblyName>unitrix0.rightbright</AssemblyName>
   </PropertyGroup>

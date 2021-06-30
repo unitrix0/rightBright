@@ -53,7 +53,7 @@ namespace unitrix0.rightbright.TrayIcon
             if (Application.Current.MainWindow == null ||
                 Application.Current.MainWindow.GetType() != typeof(MainWindow))
                 Application.Current.MainWindow = new MainWindow();
-            
+
             Application.Current.MainWindow?.Show();
             Application.Current.MainWindow.Activate();
         }

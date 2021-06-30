@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Prism.Common;
 using unitrix0.rightbright.Monitors.Models;
 using unitrix0.rightbright.Services.MonitorAPI.Structs;
 
@@ -20,7 +20,6 @@ namespace unitrix0.rightbright.Services.MonitorAPI
 
         private delegate bool EnumMonitorsDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RectStruct lprcMonitor, IntPtr dwData);
 
-
         /// <summary>
         /// Returns informations about the connect Mointors
         /// </summary>
@@ -28,12 +27,12 @@ namespace unitrix0.rightbright.Services.MonitorAPI
         public List<DisplayInfo> GetDisplays()
         {
             var col = new List<DisplayInfo>();
-
             bool Result(IntPtr hMonitor, IntPtr hdcMonitor, ref RectStruct lprcMonitor, IntPtr dwData)
             {
                 var mi = new MonitorInfoEx();
                 mi.Size = Marshal.SizeOf(mi);
-                var success = GetMonitorInfo(hMonitor, ref mi);
+
+               var success = GetMonitorInfo(hMonitor, ref mi);
                 if (!success)
                 {
                     //TODO Error Handling
@@ -61,6 +60,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                     Handle = hMonitor
                 };
 
+                Debug.Print($"Display Found: {di.DeviceName}");
                 col.Add(di);
                 return true;
             }
