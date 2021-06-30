@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Timers;
+using System.Windows;
 using Prism.Mvvm;
 using unitrix0.rightbright.Brightness.Calculators;
 using unitrix0.rightbright.Monitors;
@@ -10,6 +11,7 @@ using unitrix0.rightbright.Sensors.Model;
 using unitrix0.rightbright.Services.Brightness;
 using unitrix0.rightbright.Services.MonitorAPI;
 using unitrix0.rightbright.Settings;
+using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
 
 namespace unitrix0.rightbright.Brightness
 {
@@ -132,7 +134,7 @@ namespace unitrix0.rightbright.Brightness
         {
             Debug.Print("******** Restarting ********");
             _stopUpdating = false;
-            Run();
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(Run));
         }
 
         private void OnDeviceChangedMessage(object? sender, EventArgs e)
