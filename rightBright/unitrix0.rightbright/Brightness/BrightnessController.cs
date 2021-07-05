@@ -53,7 +53,7 @@ namespace unitrix0.rightbright.Brightness
             _brightnessCalculator = brightnessCalculator;
             _settings = settings;
 
-            _restartTimer = new Timer() { Interval = 3000, AutoReset = false };
+            _restartTimer = new Timer() { Interval = 1500, AutoReset = false };
             _restartTimer.Elapsed += OnRestartTimerElapsed;
 
             sensorService.Update += OnSensorUpdate;
