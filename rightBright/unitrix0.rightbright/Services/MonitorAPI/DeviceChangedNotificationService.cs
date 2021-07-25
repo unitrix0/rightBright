@@ -10,6 +10,8 @@ namespace unitrix0.rightbright.Services.MonitorAPI
     public class DeviceChangedNotificationService : NotificationServiceBase, IDeviceChangedNotificationService
     {
         public event EventHandler? DeviceChangedMessage;
+        public event EventHandler? UsbDeviceConnectedMessage;
+        public event EventHandler? UsbDeviceDisconnectedMessage;
 
         public DeviceChangedNotificationService()
         {
@@ -17,29 +19,46 @@ namespace unitrix0.rightbright.Services.MonitorAPI
 
             RegisterClass(nameof(DeviceChangedNotificationService));
             var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(DeviceChangedNotificationService), "", 0, 0, 0, 0, 0, HwinConstants.HWND_MESSAGE, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
-            DeviceNotificationHelper.RegisterMonitorDeviceNotification(msgWinHandel);
+
+            DeviceChangeMessageHelper.RegisterMonitorDeviceNotification(msgWinHandel);
+            DeviceChangeMessageHelper.RegisterUsbDeviceNotification(msgWinHandel);
+
         }
 
         protected override IntPtr WindowProc(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam)
         {
             Debug.Print($"Window Message: {(WindowMessages)message} params: 0x{wParam:X}");
-            
-            switch ((WindowMessages)message)
+
+            if ((WindowMessages)message != WindowMessages.DEVICECHANGE)
+                return WindowMessageApiImports.DefWindowProc(hWnd, message, wParam, lParam);
+
+
+            var isUsbDev = DeviceChangeMessageHelper.IsUsbDevice(lParam);
+            Debug.Print($"\t\tDeviceChange USB:{isUsbDev}");
+
+            if (isUsbDev)
             {
-                case WindowMessages.DEVICECHANGE:
-                    Debug.Print($"\t\tDeviceChange");
-                    DeviceChangedMessage?.Invoke(this, EventArgs.Empty);
-                    return new IntPtr(1);
-                default:
-                    return WindowMessageApiImports.DefWindowProc(hWnd, message, wParam, lParam);
+                HandleUsbDeviceChange((DeviceChangeEventTypes)wParam);
+                return new IntPtr(1);
             }
 
-            
+            DeviceChangedMessage?.Invoke(this, EventArgs.Empty);
+            return new IntPtr(1);
+        }
+
+        private void HandleUsbDeviceChange(DeviceChangeEventTypes eventType)
+        {
+            if (eventType == DeviceChangeEventTypes.DBT_DEVICEARRIVAL)
+                UsbDeviceConnectedMessage?.Invoke(this, EventArgs.Empty);
+            else
+                UsbDeviceDisconnectedMessage?.Invoke(this, EventArgs.Empty);
+
         }
 
         public override void Dispose()
         {
-            DeviceNotificationHelper.UnRegisterMonitorDeviceNotification();
+            DeviceChangeMessageHelper.UnRegisterMonitorDeviceNotification();
+            DeviceChangeMessageHelper.UnRegisterUsbDeviceNotification();
         }
     }
 }

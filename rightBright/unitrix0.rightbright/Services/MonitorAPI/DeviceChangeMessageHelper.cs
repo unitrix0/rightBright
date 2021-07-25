@@ -6,7 +6,7 @@ using unitrix0.rightbright.Services.MonitorAPI.Structs;
 
 namespace unitrix0.rightbright.Services.MonitorAPI
 {
-    public static class DeviceNotificationHelper
+    public static class DeviceChangeMessageHelper
     {
         /// <summary>System detected a new device</summary>
         public const int DbtDeviceArrival = 0x8000;

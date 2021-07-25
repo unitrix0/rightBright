@@ -64,4 +64,8 @@
     <Resource Include="_Resources\AppIcon.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\NewFolder\" />
+  </ItemGroup>
+
 </Project>

@@ -13,9 +13,7 @@ namespace unitrix0.rightbright.TrayIcon
     {
         private const string PauseLabelConst = "Pause";
         private const string ContinueLabelConst = "Fortsetzen";
-
-        private string _pauseLabel;
-        private readonly IBrightnessController _brigthnessController;
+        private string _pauseLabel = PauseLabelConst;
 
         public string PauseLabel
         {
@@ -33,13 +31,11 @@ namespace unitrix0.rightbright.TrayIcon
         public TrayIconViewModel()
         {
             PauseLabel = PauseLabelConst;
-            var app = (PrismApplication)Application.Current;
-            _brigthnessController = app.Container.Resolve<IBrightnessController>();
         }
 
         private void PauseBrightnessAdjustment()
         {
-            _brigthnessController.PauseSettingBrightness = !_brigthnessController.PauseSettingBrightness;
+            //_brigthnessController.PauseSettingBrightness = !_brigthnessController.PauseSettingBrightness;
             PauseLabel = PauseLabel == PauseLabelConst ? ContinueLabelConst : PauseLabelConst;
         }
 
@@ -53,9 +49,9 @@ namespace unitrix0.rightbright.TrayIcon
             if (Application.Current.MainWindow == null ||
                 Application.Current.MainWindow.GetType() != typeof(MainWindow))
                 Application.Current.MainWindow = new MainWindow();
-
+            
             Application.Current.MainWindow?.Show();
-            Application.Current.MainWindow.Activate();
+            Application.Current.MainWindow?.Activate();
         }
     }
 }

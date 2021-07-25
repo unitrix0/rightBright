@@ -23,7 +23,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
             SystemEvents.PowerModeChanged += OnPowerModeChanged;
             RegisterClass(nameof(PowerNotificationService));
             var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(PowerNotificationService), "", 0, 0, 0, 0, 0, HwinConstants.HWND_MESSAGE, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
-            DeviceNotificationHelper.RegisterPowerSettingNotification(msgWinHandel);
+            DeviceChangeMessageHelper.RegisterPowerSettingNotification(msgWinHandel);
         }
 
         protected override IntPtr WindowProc(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam)
@@ -78,7 +78,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
 
         public override void Dispose()
         {
-            DeviceNotificationHelper.UnregisterPowerSettingNotification();
+            DeviceChangeMessageHelper.UnregisterPowerSettingNotification();
         }
     }
 }

@@ -211,8 +211,30 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <Label Content="Kein Bildschirm ausgewählt" FontSize="16"
-                   Foreground="#5D6C83"/>
+            <Label Content="Kein Bildschirm ausgewählt" FontSize="16" Foreground="#5D6C83">
+                <Label.Style>
+                    <Style>
+                        <Setter Property="Control.Visibility" Value="Hidden"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSensorConnected}" Value="True">
+                                <Setter Property="Control.Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+            <Label Content="Kein Sensor Verbunden" FontSize="16" Foreground="#5D6C83">
+                <Label.Style>
+                    <Style>
+                        <Setter Property="Control.Visibility" Value="Hidden"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSensorConnected}" Value="False">
+                                <Setter Property="Control.Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="1" Background="#FCF7F8" Margin="0,0,0,5">
             <Grid.ColumnDefinitions>

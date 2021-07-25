@@ -1,24 +1,21 @@
-﻿using Prism.Ioc;
+﻿using Hardcodet.Wpf.TaskbarNotification;
+using Prism.Ioc;
+using Prism.Mvvm;
 using Prism.Unity;
 using System;
-using System.Configuration;
-using System.Diagnostics;
 using System.Windows;
-using Hardcodet.Wpf.TaskbarNotification;
-using Prism.Commands;
-using Prism.Mvvm;
 using unitrix0.rightbright.Brightness;
 using unitrix0.rightbright.Brightness.Calculators;
 using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Sensors;
-using unitrix0.rightbright.Sensors.Model;
 using unitrix0.rightbright.Services.Brightness;
 using unitrix0.rightbright.Services.CurveCalculation;
 using unitrix0.rightbright.Services.MonitorAPI;
+using unitrix0.rightbright.Services.TrayIcon;
 using unitrix0.rightbright.Settings;
-using unitrix0.rightbright.TrayIcon;
 using unitrix0.rightbright.Windows;
 using unitrix0.rightbright.Windows.ViewModel;
+
 
 namespace unitrix0.rightbright
 {
@@ -27,16 +24,16 @@ namespace unitrix0.rightbright
     /// </summary>
     public partial class App : PrismApplication
     {
-        private TaskbarIcon _notifyIcon;
-        private IBrightnessController _brightnessController;
+        private TaskbarIcon? _notifyIcon;
+        private IBrightnessController? _brightnessController;
 
         protected override Window CreateShell()
         {
-            _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
-
+            _notifyIcon = (TaskbarIcon?)FindResource("NotifyIcon");
+            
             _brightnessController = Container.Resolve<IBrightnessController>();
             _brightnessController.Run();
-            return null;
+            return null!;
         }
 
 
@@ -53,6 +50,7 @@ namespace unitrix0.rightbright
             container.RegisterSingleton<ICurveCalculationService, CurveCalculationService>();
             container.RegisterSingleton<IDeviceChangedNotificationService, DeviceChangedNotificationService>();
             container.RegisterSingleton<IPowerNotificationService, PowerNotificationService>();
+            container.Register<ITrayIcon>(() => new TrayIconService(_notifyIcon!));
         }
 
         protected override void ConfigureViewModelLocator()
@@ -64,11 +62,32 @@ namespace unitrix0.rightbright
         protected override void OnExit(ExitEventArgs e)
         {
             var settings = Container.Resolve<ISettings>();
-            settings.LastUsedSensor.MaxValue = _brightnessController.ConnectedSensor.MaxValue;
-            settings.LastUsedSensor.MinValue = _brightnessController.ConnectedSensor.MinValue;
+            if (_brightnessController?.ConnectedSensor != null && settings != null)
+            {
+                settings.LastUsedSensor.MaxValue = _brightnessController.ConnectedSensor.MaxValue;
+                settings.LastUsedSensor.MinValue = _brightnessController.ConnectedSensor.MinValue;
+                TrySaveSettings(settings);
+            }
 
-            settings.Save();
-            _notifyIcon.Dispose();
+            _notifyIcon?.Dispose();
+        }
+
+        private void TrySaveSettings(ISettings settings)
+        {
+            try
+            {
+                settings.Save();
+                //throw new Exception("test", new Exception("Test sub"));
+            }
+            catch (Exception ex)
+            {
+                _notifyIcon?.ShowBalloonTip("Error", "Settings konnten nicht gespeicher werden. Prüfen Sie die Ereignisanzeige für Details", BalloonIcon.Error);
+                //using (var eventlog = new EventLog("Application"))
+                //{
+                //    eventlog.Source = nameof(rightbright);
+                //    eventlog.WriteEntry(ex.ToString(), EventLogEntryType.Error);
+                //}
+            }
         }
     }
 }

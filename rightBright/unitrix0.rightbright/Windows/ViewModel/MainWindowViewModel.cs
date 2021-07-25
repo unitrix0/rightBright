@@ -23,22 +23,22 @@ namespace unitrix0.rightbright.Windows.ViewModel
         private readonly IMonitorService _monitorService;
         private readonly ISettings _settings;
         private readonly ICurveCalculationService _curveCalculator;
-        private AmbientLightSensor _selectedSensor;
-        private bool _isSensorConnected;
-        private BrightnessCalculationParameters _newCalculationParameters;
-        private DisplayInfo _selectedMonitor;
-        private IChartValues _currentCurve;
-        private IChartValues _newCurve;
+        private readonly bool _isSensorConnected;
+        private AmbientLightSensor? _selectedSensor;
+        private BrightnessCalculationParameters? _newCalculationParameters;
+        private DisplayInfo? _selectedMonitor;
+        private IChartValues? _currentCurve;
+        private IChartValues? _newCurve;
 
-        public ObservableCollection<DisplayInfo> Monitors => _monitorService?.Monitors ?? new ObservableCollection<DisplayInfo>();
+        public ObservableCollection<DisplayInfo> Monitors => _monitorService.Monitors;
 
-        public DisplayInfo SelectedMonitor
+        public DisplayInfo? SelectedMonitor
         {
             get => _selectedMonitor;
             set => SetProperty(ref _selectedMonitor, value, EditSelectedMonitor);
         }
 
-        public BrightnessCalculationParameters NewCalculationParameters
+        public BrightnessCalculationParameters? NewCalculationParameters
         {
             get => _newCalculationParameters;
             set
@@ -47,10 +47,10 @@ namespace unitrix0.rightbright.Windows.ViewModel
                 RaisePropertyChanged(nameof(ShowMonitorSettings));
             }
         }
-        public bool ShowMonitorSettings => NewCalculationParameters != null;
+        public bool ShowMonitorSettings => SelectedMonitor != null;
 
-        public List<AmbientLightSensor> Sensors { get; }
-        public AmbientLightSensor SelectedSensor
+        public List<AmbientLightSensor> Sensors { get; } = new();
+        public AmbientLightSensor? SelectedSensor
         {
             get => _selectedSensor;
             set
@@ -64,16 +64,16 @@ namespace unitrix0.rightbright.Windows.ViewModel
         public bool IsSensorConnected
         {
             get => _isSensorConnected;
-            private set => SetProperty(ref _isSensorConnected, value, ConnectSensorCmd.RaiseCanExecuteChanged);
+            private init => SetProperty(ref _isSensorConnected, value, ConnectSensorCmd.RaiseCanExecuteChanged);
         }
 
-        public IChartValues CurrentCurve
+        public IChartValues? CurrentCurve
         {
             get => _currentCurve;
             set => SetProperty(ref _currentCurve, value);
         }
 
-        public IChartValues NewCurve
+        public IChartValues? NewCurve
         {
             get => _newCurve;
             set => SetProperty(ref _newCurve, value, ApplyNewCurve.RaiseCanExecuteChanged);
@@ -122,24 +122,25 @@ namespace unitrix0.rightbright.Windows.ViewModel
 
         private void EditSelectedMonitor()
         {
-            if (SelectedMonitor == null) return;
+            if (SelectedMonitor == null || SelectedSensor == null) return;
 
             NewCalculationParameters = new BrightnessCalculationParameters(SelectedMonitor.CalculationParameters);
             NewCalculationParameters.PropertyChanged += CreateCurveForNewSettings;
 
             NewCurve = new ChartValues<ObservablePoint>();
-            CurrentCurve = _curveCalculator.Calculate(SelectedMonitor.CalculationParameters, SelectedSensor.MaxValue);
+            CurrentCurve =
+                _curveCalculator.Calculate(SelectedMonitor.CalculationParameters, SelectedSensor.MaxValue);
         }
 
-        private void CreateCurveForNewSettings(object sender, PropertyChangedEventArgs e)
+        private void CreateCurveForNewSettings(object? sender, PropertyChangedEventArgs e)
         {
-            NewCurve = _curveCalculator.Calculate(NewCalculationParameters, SelectedSensor.MaxValue);
+            NewCurve = _curveCalculator.Calculate(NewCalculationParameters!, SelectedSensor!.MaxValue);
             Debug.Print(NewCurve.Count.ToString());
         }
 
         private void SaveNewMonitorSettings()
         {
-            SelectedMonitor.CalculationParameters.MapFrom(NewCalculationParameters);
+            SelectedMonitor!.CalculationParameters.MapFrom(NewCalculationParameters!);
             EditSelectedMonitor();
             _settings.BrightnessCalculationParameters[SelectedMonitor.DeviceName] = SelectedMonitor.CalculationParameters;
             _settings.Save();
@@ -148,13 +149,15 @@ namespace unitrix0.rightbright.Windows.ViewModel
         private bool CanSaveNewMonitorSettings()
         {
             //TODO More Validation
-            return NewCurve?.Count > 0 || NewCalculationParameters?.Active != SelectedMonitor?.CalculationParameters.Active;
+            return SelectedMonitor!=null && (NewCurve?.Count > 0 ||
+                                             NewCalculationParameters?.Active !=
+                                             SelectedMonitor.CalculationParameters.Active);
         }
 
         private void ConnectSensor()
         {
-            IsSensorConnected = _brightnessController.ConnectSensor(SelectedSensor);
-            if (IsSensorConnected) _settings.LastUsedSensor = SelectedSensor;
+            if (!_brightnessController.Run(SelectedSensor!)) return; //TODO Messagebox?
+            _settings.LastUsedSensor = SelectedSensor;
         }
 
         private void SaveSettingsOfNewMonitors()

@@ -20,7 +20,8 @@
     <tb:TaskbarIcon x:Key="NotifyIcon"
                     IconSource="/_Resources/AppIcon 16 white.ico"
                     DoubleClickCommand="{Binding ShowWindowCommand}"
-                    ContextMenu="{StaticResource SysTrayMenu}">
+                    ContextMenu="{StaticResource SysTrayMenu}"
+                    ToolTipText="rightBright">
 
         <!-- self-assign a data context (could also be done programmatically) -->
         <tb:TaskbarIcon.DataContext> 
