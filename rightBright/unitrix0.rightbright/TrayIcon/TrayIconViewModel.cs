@@ -2,9 +2,10 @@
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Unity;
+using System;
 using System.Windows;
-using System.Windows.Interop;
 using unitrix0.rightbright.Brightness;
+using unitrix0.rightbright.Settings;
 using unitrix0.rightbright.Windows;
 
 namespace unitrix0.rightbright.TrayIcon
@@ -41,7 +42,31 @@ namespace unitrix0.rightbright.TrayIcon
 
         private void ExitApplicationCmd()
         {
+            TrySaveSensorData();
             Application.Current.Shutdown();
+        }
+
+        private void TrySaveSensorData()
+        {
+            var application = Application.Current as PrismApplication;
+            var brightnessController = application?.Container.Resolve<IBrightnessController>();
+            var settings = application?.Container.Resolve<ISettings>();
+
+            if (brightnessController?.ConnectedSensor == null || settings == null) return;
+
+            settings.LastUsedSensor.MaxValue = brightnessController.ConnectedSensor.MaxValue;
+            settings.LastUsedSensor.MinValue = brightnessController.ConnectedSensor.MinValue;
+            try
+            {
+                settings.Save();
+            }
+            catch (Exception ex)
+            {
+                ShowWindowCmd();
+                MessageBox.Show(Application.Current.MainWindow!,
+                     $"Settings konnten nicht gespeicher werden: {ex.Message}",
+                     "rightBright", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
         }
 
         private void ShowWindowCmd()
@@ -49,9 +74,9 @@ namespace unitrix0.rightbright.TrayIcon
             if (Application.Current.MainWindow == null ||
                 Application.Current.MainWindow.GetType() != typeof(MainWindow))
                 Application.Current.MainWindow = new MainWindow();
-            
-            Application.Current.MainWindow?.Show();
-            Application.Current.MainWindow?.Activate();
+
+            Application.Current.MainWindow.Show();
+            Application.Current.MainWindow.Activate();
         }
     }
 }

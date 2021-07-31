@@ -2,7 +2,6 @@
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Unity;
-using System;
 using System.Windows;
 using unitrix0.rightbright.Brightness;
 using unitrix0.rightbright.Brightness.Calculators;
@@ -61,33 +60,7 @@ namespace unitrix0.rightbright
 
         protected override void OnExit(ExitEventArgs e)
         {
-            var settings = Container.Resolve<ISettings>();
-            if (_brightnessController?.ConnectedSensor != null && settings != null)
-            {
-                settings.LastUsedSensor.MaxValue = _brightnessController.ConnectedSensor.MaxValue;
-                settings.LastUsedSensor.MinValue = _brightnessController.ConnectedSensor.MinValue;
-                TrySaveSettings(settings);
-            }
-
             _notifyIcon?.Dispose();
-        }
-
-        private void TrySaveSettings(ISettings settings)
-        {
-            try
-            {
-                settings.Save();
-                //throw new Exception("test", new Exception("Test sub"));
-            }
-            catch (Exception ex)
-            {
-                _notifyIcon?.ShowBalloonTip("Error", "Settings konnten nicht gespeicher werden. Prüfen Sie die Ereignisanzeige für Details", BalloonIcon.Error);
-                //using (var eventlog = new EventLog("Application"))
-                //{
-                //    eventlog.Source = nameof(rightbright);
-                //    eventlog.WriteEntry(ex.ToString(), EventLogEntryType.Error);
-                //}
-            }
         }
     }
 }
