@@ -28,6 +28,8 @@ namespace unitrix0.rightbright.Settings
         }
         public void Save()
         {
+            if (!Directory.Exists(SettingsFolder)) Directory.CreateDirectory(SettingsFolder);
+
             var settingsJson = JsonConvert.SerializeObject(this, Formatting.Indented);
             if (string.IsNullOrEmpty(settingsJson)) return;
 
@@ -50,18 +52,19 @@ namespace unitrix0.rightbright.Settings
             }
         }
 
-        private string EvalBackupFileName()
+        private string EvalBackupFileName(bool secondRun = false)
         {
             var i = 0;
-            while (File.Exists($"{SettingsFolder}\\settings_{i}.json") || i < 5)
+            while (File.Exists($"{SettingsFolder}\\settings_{i}.json") && i < 5)
             {
                 i++;
             }
 
             if (i != 6) return $"settings_{i}.json";
+            if (secondRun) throw new Exception("Failed to evaluate backup file name");
 
             DeleteOldestSettingsFile();
-            return EvalBackupFileName();
+            return EvalBackupFileName(true);
         }
 
         private void DeleteOldestSettingsFile()
