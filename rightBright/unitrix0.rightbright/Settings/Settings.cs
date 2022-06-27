@@ -41,81 +41,14 @@ namespace unitrix0.rightbright.Settings
         {
             try
             {
-                string backupFilename = EvalBackupFileName();
-                File.Copy($"{SettingsFolder}\\settings.json", $"{SettingsFolder}\\{backupFilename}");
+                string backupFilename = "settings.bkp";
+                File.Copy($"{SettingsFolder}\\settings.json", $"{SettingsFolder}\\{backupFilename}", true);
             }
             catch (Exception ex)
             {
                 throw new Exception($"Error while creating settings file backup. See See {nameof(Exception.InnerException)} for details",
                     ex);
             }
-        }
-
-        private string EvalBackupFileName(bool secondRun = false)
-        {
-            var i = 1;
-            while (File.Exists($"{SettingsFolder}\\settings_{i}.json") && i <= 5)
-            {
-                i++;
-            }
-
-            if (i != 6) return $"settings_{i}.json";
-            if (secondRun) throw new Exception("Failed to evaluate backup file name");
-
-            DeleteOldestSettingsFile();
-            RenumberBackupSettingsFiles();
-            return EvalBackupFileName(true);
-        }
-
-        private void RenumberBackupSettingsFiles()
-        {
-            try
-            {
-                var existingBackupFiles = GetExistingBackupSettingsFiles()
-                    .OrderBy(fi => fi.CreationTime)
-                    .ToList();
-
-                if (existingBackupFiles == null) throw new Exception("No existing backup files found");
-
-                for (int i = 0; i < existingBackupFiles.Count; i++)
-                {
-                    existingBackupFiles[1].MoveTo($"settings_{i + 1}");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error while roating backup settings files.", ex);
-            }
-        }
-
-        private void DeleteOldestSettingsFile()
-        {
-            try
-            {
-                var oldestFile = GetExistingBackupSettingsFiles()
-                    .OrderByDescending(fi => fi.CreationTime)
-                    .FirstOrDefault();
-
-                if (oldestFile == null) throw new Exception($"Oldest settings file could not be evaluated");
-                oldestFile.Delete();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(
-                    $"Error deleting oldest settings file. See {nameof(Exception.InnerException)} for details", ex);
-            }
-        }
-
-        private static IEnumerable<FileInfo> GetExistingBackupSettingsFiles()
-        {
-            var settingsDir = new DirectoryInfo(SettingsFolder);
-            var files = settingsDir.EnumerateFiles();
-
-            var oldestFile = files
-                .Where(fi => fi.Name != "settings.json");
-
-            return oldestFile;
         }
 
         public static ISettings Load()
