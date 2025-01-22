@@ -11,6 +11,5 @@ namespace unitrix0.rightbright.Services.MonitorAPI.Structs
         public uint DataLength;
 
         public byte Data;
-
     };
 }

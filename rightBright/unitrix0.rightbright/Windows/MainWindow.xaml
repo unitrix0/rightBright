@@ -102,7 +102,7 @@
 
                                 <DockPanel Grid.Row="0" Grid.Column="1">
                                     <Label DockPanel.Dock="Top" FontSize="13" FontWeight="Bold" Foreground="#FCF7F8"
-                                           Padding="5,5,5,2" Content="{Binding DeviceName}"/>
+                                           Padding="5,5,5,2" Content="{Binding ModelName}"/>
                                     <Grid DockPanel.Dock="Bottom">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -259,7 +259,7 @@
             </Grid.Style>
 
             <Label Grid.Row="0" Grid.Column="0" FontSize="18"
-                   Content="{Binding SelectedMonitor.DeviceName}" />
+                   Content="{Binding SelectedMonitor.ModelName}" />
             <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" FlowDirection="RightToLeft" Margin="0,5,13,0">
                 <Button Padding="10,4,10,4" fa:Awesome.Content="Times" TextElement.FontSize="12" 
                         BorderBrush="#C3DAD5" Background="Transparent" 

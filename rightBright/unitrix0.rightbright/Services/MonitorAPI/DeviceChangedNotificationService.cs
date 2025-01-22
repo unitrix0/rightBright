@@ -18,11 +18,11 @@ namespace unitrix0.rightbright.Services.MonitorAPI
             SystemEvents.DisplaySettingsChanged += (_, _) => Debug.WriteLine("@@@@@@@@@@@@@@@@ Settings Changed");
 
             RegisterClass(nameof(DeviceChangedNotificationService));
-            var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(DeviceChangedNotificationService), "", 0, 0, 0, 0, 0, HwinConstants.HWND_MESSAGE, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+            var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(DeviceChangedNotificationService), "",
+                0, 0, 0, 0, 0, HwinConstants.HWND_MESSAGE, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
 
             DeviceChangeMessageHelper.RegisterMonitorDeviceNotification(msgWinHandel);
             DeviceChangeMessageHelper.RegisterUsbDeviceNotification(msgWinHandel);
-
         }
 
         protected override IntPtr WindowProc(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam)
@@ -52,7 +52,6 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                 UsbDeviceConnectedMessage?.Invoke(this, EventArgs.Empty);
             else
                 UsbDeviceDisconnectedMessage?.Invoke(this, EventArgs.Empty);
-
         }
 
         public override void Dispose()

@@ -11,7 +11,6 @@ namespace unitrix0.rightbright.Services.MonitorAPI
 {
     public class PowerNotificationService : NotificationServiceBase, IPowerNotificationService
     {
-
         public event EventHandler? ScreensPoweredOff;
         public event EventHandler? ScreensPoweredOn;
 
@@ -22,7 +21,8 @@ namespace unitrix0.rightbright.Services.MonitorAPI
         {
             SystemEvents.PowerModeChanged += OnPowerModeChanged;
             RegisterClass(nameof(PowerNotificationService));
-            var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(PowerNotificationService), "", 0, 0, 0, 0, 0, HwinConstants.HWND_MESSAGE, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+            var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(PowerNotificationService), "", 0, 0, 0,
+                0, 0, HwinConstants.HWND_MESSAGE, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
             DeviceChangeMessageHelper.RegisterPowerSettingNotification(msgWinHandel);
         }
 
@@ -38,8 +38,6 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                 default:
                     return WindowMessageApiImports.DefWindowProc(hWnd, message, wParam, lParam);
             }
-
-
         }
 
         private void HandlePowerBroadcastMsg(PowerbroadcastSetting msgParams)

@@ -2,6 +2,8 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using unitrix0.rightbright.Brightness.Calculators;
@@ -9,10 +11,12 @@ using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Sensors;
 using unitrix0.rightbright.Sensors.Model;
 using unitrix0.rightbright.Services.Brightness;
+using unitrix0.rightbright.Services.Logging;
 using unitrix0.rightbright.Services.MonitorAPI;
 using unitrix0.rightbright.Services.TrayIcon;
 using unitrix0.rightbright.Settings;
 using DispatcherPriority = System.Windows.Threading.DispatcherPriority;
+using Timer = System.Timers.Timer;
 
 namespace unitrix0.rightbright.Brightness
 {
@@ -24,9 +28,10 @@ namespace unitrix0.rightbright.Brightness
         private readonly IBrightnessCalculator _brightnessCalculator;
         private readonly ISettings _settings;
         private readonly ITrayIcon _trayIcon;
+        private readonly ILoggingService _logger;
         private AmbientLightSensor? _connectedSensor;
         private bool _pauseSettingBrightness;
-        private readonly Timer _restartTimer;
+        private readonly Timer _pollingRestartTimer;
         private bool _updatingStopped;
 
         public bool PauseSettingBrightness
@@ -47,8 +52,9 @@ namespace unitrix0.rightbright.Brightness
 
         public BrightnessController(ISensorService sensorService, ISetBrightnessService brightnessService,
             IMonitorService monitorService, IBrightnessCalculator brightnessCalculator, ISettings settings,
-            IDeviceChangedNotificationService deviceNotificationService, IPowerNotificationService powerNotificationService,
-            ITrayIcon trayIcon)
+            IDeviceChangedNotificationService deviceNotificationService,
+            IPowerNotificationService powerNotificationService,
+            ITrayIcon trayIcon, ILoggingService logger)
         {
             _sensorService = sensorService;
             _brightnessService = brightnessService;
@@ -56,9 +62,10 @@ namespace unitrix0.rightbright.Brightness
             _brightnessCalculator = brightnessCalculator;
             _settings = settings;
             _trayIcon = trayIcon;
+            _logger = logger;
 
-            _restartTimer = new Timer() { Interval = 1500, AutoReset = false };
-            _restartTimer.Elapsed += OnRestartTimerElapsed;
+            _pollingRestartTimer = new Timer() { Interval = 1500, AutoReset = false };
+            _pollingRestartTimer.Elapsed += OnPollingRestartTimerElapsed;
 
             sensorService.Update += OnSensorUpdate;
             deviceNotificationService.DeviceChangedMessage += OnDeviceChangedMessage;
@@ -72,10 +79,12 @@ namespace unitrix0.rightbright.Brightness
 
         public void Run()
         {
+            _updatingStopped = true;
             _monitorService.UpdateList();
             LoadMonitorSettings();
             if (!TryConnectLastUsedSensor()) return;
 
+            _updatingStopped = false;
             _sensorService.StartPollTimer();
         }
 
@@ -89,18 +98,36 @@ namespace unitrix0.rightbright.Brightness
 
         private bool ConnectSensor(AmbientLightSensor sensor)
         {
+            _logger.WriteInformation($"Connecting sensor... (isOnline: {sensor.IsOnline}, isReady: {sensor.IsReady})");
             if (!_sensorService.ConnectToSensor(sensor.FriendlyName)) return false;
 
+            _logger.WriteInformation("Successful!");
             ConnectedSensor = sensor;
             return true;
         }
 
         private bool TryConnectLastUsedSensor()
         {
-            Debug.Print($"\t\t{nameof(TryConnectLastUsedSensor)}");
-            var sensors = _sensorService.GetSensors();
-            var lastUsedSensor = sensors.FirstOrDefault(s => s.FriendlyName == _settings.LastUsedSensor.FriendlyName);
-            if (lastUsedSensor == null) return false;
+            _logger.WriteInformation($"{nameof(TryConnectLastUsedSensor)}");
+
+            AmbientLightSensor? lastUsedSensor = null;
+            int tries = 0;
+            while (lastUsedSensor == null && tries <= 2)
+            {
+                _logger.WriteInformation($"\tTry {tries + 1}");
+                var sensors = _sensorService.GetSensors(true);
+                lastUsedSensor = sensors.FirstOrDefault(s => s.FriendlyName == _settings.LastUsedSensor.FriendlyName);
+                tries++;
+                Task.Delay(1000);
+            }
+
+            if (lastUsedSensor == null)
+            {
+                _logger.WriteWarning("Last used sensor not found! No polling started!");
+                return false;
+            }
+
+            if (!lastUsedSensor.IsOnline || !lastUsedSensor.IsReady) return false;
 
             lastUsedSensor.MaxValue = _settings.LastUsedSensor.MaxValue;
             lastUsedSensor.MinValue = _settings.LastUsedSensor.MinValue;
@@ -110,11 +137,12 @@ namespace unitrix0.rightbright.Brightness
 
         private void LoadMonitorSettings()
         {
+            _logger.WriteInformation("Loading monitor settings");
             foreach (var monitor in _monitorService.Monitors)
             {
-                if (!_settings.BrightnessCalculationParameters.ContainsKey(monitor.DeviceName)) continue;
+                if (!_settings.BrightnessCalculationParameters.ContainsKey(monitor.ModelName)) continue;
 
-                var savedSettings = _settings.BrightnessCalculationParameters[monitor.DeviceName];
+                var savedSettings = _settings.BrightnessCalculationParameters[monitor.ModelName];
                 monitor.CalculationParameters.Progression = savedSettings.Progression;
                 monitor.CalculationParameters.MinBrightness = savedSettings.MinBrightness;
                 monitor.CalculationParameters.Curve = savedSettings.Curve;
@@ -122,19 +150,17 @@ namespace unitrix0.rightbright.Brightness
             }
         }
 
-        private void ResetRestartTimer()
+        private void ResetPollingRestartTimer()
         {
-            Debug.WriteLine($"******** {nameof(ResetRestartTimer)} ********");
-            _restartTimer.Stop();
-            _restartTimer.Start();
+            _logger.WriteInformation(nameof(ResetPollingRestartTimer));
+            _pollingRestartTimer.Stop();
+            _pollingRestartTimer.Start();
         }
 
         private void OnRestartUpdating(object? sender, EventArgs e)
         {
-            // Event is also fired on App startup because of a
-            // "Power On" Window Message, but no reason to reset the timer
-            if(!_updatingStopped) return;
-            ResetRestartTimer();
+            if (!_updatingStopped) return;
+            ResetPollingRestartTimer();
         }
 
         private void OnStopUpdating(object? sender, EventArgs e)
@@ -142,36 +168,39 @@ namespace unitrix0.rightbright.Brightness
             StopUpdating();
         }
 
-        private void OnRestartTimerElapsed(object sender, ElapsedEventArgs e)
+        private void OnPollingRestartTimerElapsed(object? sender, ElapsedEventArgs e)
         {
-            Debug.Print("******** Restarting ********");
-            _updatingStopped = false;
+            _logger.WriteInformation("******** Trying  to restart polling ********");
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(Run));
         }
 
         private void OnDeviceChangedMessage(object? sender, EventArgs e)
         {
+            _logger.WriteInformation(nameof(OnDeviceChangedMessage));
             StopUpdating();
-            ResetRestartTimer();
+            ResetPollingRestartTimer();
         }
 
         private void OnUsbDeviceDisconnectMessage(object? sender, EventArgs e)
         {
+            _logger.WriteInformation(nameof(OnUsbDeviceDisconnectMessage));
             if (_sensorService.Connected) return;
+            _logger.WriteWarning("Ambient light sensor disconnected!");
             _trayIcon.ShowWarningBallon("rightBright", "Ambient light sensor disconnected!");
             StopUpdating();
         }
 
         private void OnUsbDeviceConnectedMessage(object? sender, EventArgs e)
         {
-            if (_updatingStopped && _sensorService.Connected)
-            {
-                ResetRestartTimer();
-            }
+            _logger.WriteInformation(nameof(OnUsbDeviceConnectedMessage));
+
+            if (!_updatingStopped) return;
+            ResetPollingRestartTimer();
         }
 
         private void StopUpdating()
         {
+            if (_updatingStopped) return;
             _updatingStopped = true;
             _sensorService.StopPollTimer();
         }
@@ -186,15 +215,15 @@ namespace unitrix0.rightbright.Brightness
             var monitors = _monitorService.Monitors.Where(m => m.CalculationParameters.Active);
             foreach (var monitor in monitors)
             {
-                if(_updatingStopped) return;
+                if (_updatingStopped) return;
 
-                var newBrightness = (int)Math.Round(_brightnessCalculator.Calculate(e, monitor.CalculationParameters.Progression, monitor.CalculationParameters.Curve, monitor.CalculationParameters.MinBrightness));
+                var newBrightness = (int)Math.Round(_brightnessCalculator.Calculate(e,
+                    monitor.CalculationParameters.Progression,
+                    monitor.CalculationParameters.Curve, monitor.CalculationParameters.MinBrightness));
                 newBrightness = newBrightness > 100 ? 100 : newBrightness;
 
-                if (newBrightness == monitor.LastBrightnessSet) continue;
-
                 //Debug.Print($"{DateTime.Now.TimeOfDay}\t Updating Brightness on {monitor.DeviceName} to: {newBrightness}");
-                _brightnessService.SetBrightness(monitor.Handle, newBrightness);
+                _brightnessService.SetBrightness(monitor, newBrightness);
                 monitor.LastBrightnessSet = newBrightness;
             }
         }

@@ -64,8 +64,8 @@ namespace unitrix0.rightbright.TrayIcon
             {
                 ShowWindowCmd();
                 MessageBox.Show(Application.Current.MainWindow!,
-                     $"Settings konnten nicht gespeicher werden: {ex.Message}",
-                     "rightBright", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    $"Settings konnten nicht gespeicher werden: {ex.Message}",
+                    "rightBright", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
         }
 

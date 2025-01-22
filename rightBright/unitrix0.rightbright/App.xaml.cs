@@ -9,6 +9,7 @@ using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Sensors;
 using unitrix0.rightbright.Services.Brightness;
 using unitrix0.rightbright.Services.CurveCalculation;
+using unitrix0.rightbright.Services.Logging;
 using unitrix0.rightbright.Services.MonitorAPI;
 using unitrix0.rightbright.Services.TrayIcon;
 using unitrix0.rightbright.Settings;
@@ -29,7 +30,9 @@ namespace unitrix0.rightbright
         protected override Window CreateShell()
         {
             _notifyIcon = (TaskbarIcon?)FindResource("NotifyIcon");
-            
+
+            var logger = Container.Resolve<ILoggingService>();
+            logger.WriteInformation("------------------ STARTUP ------------------");
             _brightnessController = Container.Resolve<IBrightnessController>();
             _brightnessController.Run();
             return null!;
@@ -49,6 +52,7 @@ namespace unitrix0.rightbright
             container.RegisterSingleton<ICurveCalculationService, CurveCalculationService>();
             container.RegisterSingleton<IDeviceChangedNotificationService, DeviceChangedNotificationService>();
             container.RegisterSingleton<IPowerNotificationService, PowerNotificationService>();
+            container.RegisterSingleton<ILoggingService, LoggingService>();
             container.Register<ITrayIcon>(() => new TrayIconService(_notifyIcon!));
         }
 

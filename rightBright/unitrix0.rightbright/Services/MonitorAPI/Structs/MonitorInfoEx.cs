@@ -4,8 +4,6 @@
 
 namespace unitrix0.rightbright.Services.MonitorAPI.Structs
 {
-   
-
     /// <summary>
     /// The MONITORINFOEX structure contains information about a display monitor.
     /// The GetMonitorInfo function stores information into a MONITORINFOEX structure or a MONITORINFO structure.

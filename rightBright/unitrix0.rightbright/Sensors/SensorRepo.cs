@@ -20,7 +20,6 @@ namespace unitrix0.rightbright.Sensors
 
             while (sensor != null)
             {
-
                 if (sensor.get_functionId() == "lightSensor")
                 {
                     _sensors.Add(new AmbientLightSensor(sensor));

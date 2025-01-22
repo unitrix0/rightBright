@@ -49,7 +49,5 @@ namespace unitrix0.rightbright.Monitors.Models
             Progression = source.Progression;
             Active = source.Active;
         }
-
-
     }
 }

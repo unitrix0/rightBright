@@ -10,23 +10,29 @@ namespace unitrix0.rightbright.Services.MonitorAPI
     {
         /// <summary>System detected a new device</summary>
         public const int DbtDeviceArrival = 0x8000;
+
         /// <summary>Device is gone</summary>
         public const int DbtDeviceRemoveComplete = 0x8004;
+
         /// <summary>Device change event</summary>
         public const int WmDeviceChange = 0x0219;
+
         private const int DbtDeviceTypeDeviceInterface = 5;
 
         /// <summary>
         /// USB devices
         /// <remarks>https://docs.microsoft.com/en-us/windows-hardware/drivers/install/guid-devinterface-usb-device</remarks>
         /// </summary>
-        private static readonly Guid GuidDeviceInterfaceUsbDevice = new Guid("A5DCBF10-6530-11D2-901F-00C04FB951ED"); // 
+        private static readonly Guid
+            GuidDeviceInterfaceUsbDevice = new Guid("A5DCBF10-6530-11D2-901F-00C04FB951ED"); // 
 
         /// <summary>
         /// Monitor devices
         /// https://docs.microsoft.com/en-us/windows-hardware/drivers/install/guid-devinterface-monitor
         /// </summary>
-        private static readonly Guid GuidDeviceInterfaceMonitorDevice = new Guid("E6F07B5F-EE97-4a90-B076-33F57BF4EAA7"); // 
+        private static readonly Guid GuidDeviceInterfaceMonitorDevice =
+            new Guid("E6F07B5F-EE97-4a90-B076-33F57BF4EAA7"); // 
+
         private static IntPtr _usbNotificationHandle;
         private static IntPtr _monitorNotificationHandle;
 
@@ -35,11 +41,14 @@ namespace unitrix0.rightbright.Services.MonitorAPI
 
         [DllImport("user32.dll")]
         private static extern bool UnregisterDeviceNotification(IntPtr handle);
-        
-        [DllImport(@"User32", SetLastError=true, EntryPoint = "RegisterPowerSettingNotification", CallingConvention = CallingConvention.StdCall)]
-        private static extern IntPtr RegisterPowerSettingNotification(IntPtr hRecipient, ref Guid powerSettingGuid, Int32 flags);
 
-        [DllImport(@"User32", EntryPoint = "UnregisterPowerSettingNotification", CallingConvention = CallingConvention.StdCall)] 
+        [DllImport(@"User32", SetLastError = true, EntryPoint = "RegisterPowerSettingNotification",
+            CallingConvention = CallingConvention.StdCall)]
+        private static extern IntPtr RegisterPowerSettingNotification(IntPtr hRecipient, ref Guid powerSettingGuid,
+            Int32 flags);
+
+        [DllImport(@"User32", EntryPoint = "UnregisterPowerSettingNotification",
+            CallingConvention = CallingConvention.StdCall)]
         private static extern bool UnregisterPowerSettingNotification(IntPtr handle);
 
         public static bool IsMonitor(IntPtr lParam)
@@ -58,7 +67,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
         /// <param name="windowHandle"></param>
         public static void RegisterMonitorDeviceNotification(IntPtr windowHandle)
         {
-            var dbi= CreateBroadcastDeviceInterface(GuidDeviceInterfaceMonitorDevice);
+            var dbi = CreateBroadcastDeviceInterface(GuidDeviceInterfaceMonitorDevice);
             _monitorNotificationHandle = RegisterDeviceNotification(dbi, windowHandle);
         }
 
@@ -111,7 +120,6 @@ namespace unitrix0.rightbright.Services.MonitorAPI
             var devIf = Marshal.PtrToStructure<DevBroadcastDeviceInterface>(lParam);
 
             return devIf.ClassGuid == classGuid;
-
         }
 
         private static DevBroadcastDeviceInterface CreateBroadcastDeviceInterface(Guid classGuid)

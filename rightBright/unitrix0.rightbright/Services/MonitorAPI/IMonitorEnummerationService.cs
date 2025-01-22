@@ -11,5 +11,11 @@ namespace unitrix0.rightbright.Services.MonitorAPI
         /// </summary>
         /// <returns>collection of Display Info</returns>
         List<DisplayInfo> GetDisplays();
+
+        /// <summary>
+        /// Returns list of Devicenames and Monitor hnadles
+        /// </summary>
+        /// <returns></returns>
+        List<MonitorHandleInfo> GetMonitorHandles();
     }
 }

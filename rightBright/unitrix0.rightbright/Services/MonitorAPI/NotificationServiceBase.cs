@@ -9,6 +9,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
     public abstract class NotificationServiceBase : IDisposable
     {
         private WndClassEx _wndClass;
+
         protected void RegisterClass(string className)
         {
             _wndClass = WndClassEx.Build();

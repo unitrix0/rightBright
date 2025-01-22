@@ -10,7 +10,9 @@ namespace unitrix0.rightbright.Settings
 {
     public class Settings : ISettings
     {
-        private static readonly string SettingsFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\rightBright";
+        private static readonly string SettingsFolder =
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\rightBright";
+
         public string HubUrl { get; set; } = "USB";
         public int YapiEventsTimerInterval { get; set; } = 5000;
         public AmbientLightSensor LastUsedSensor { get; set; }
@@ -26,6 +28,7 @@ namespace unitrix0.rightbright.Settings
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             Directory.CreateDirectory($"{appData}");
         }
+
         public void Save()
         {
             if (!Directory.Exists(SettingsFolder)) Directory.CreateDirectory(SettingsFolder);
@@ -46,7 +49,8 @@ namespace unitrix0.rightbright.Settings
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error while creating settings file backup. See See {nameof(Exception.InnerException)} for details",
+                throw new Exception(
+                    $"Error while creating settings file backup. See See {nameof(Exception.InnerException)} for details",
                     ex);
             }
         }
