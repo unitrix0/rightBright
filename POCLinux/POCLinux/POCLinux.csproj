@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Yoctopuce.YoctoLib" Version="2.0.63744" />
+      <PackageReference Include="Yoctopuce.YoctoLib" Version="2.0.64286" />
     </ItemGroup>
 
 </Project>
