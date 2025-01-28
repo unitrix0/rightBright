@@ -8,49 +8,41 @@ using unitrix0.rightbright.Settings;
 
 namespace unitrix0.rightbright.Sensors
 {
-    public class SensorService : ISensorService
+    public class YoctoSensorService : ISensorService
     {
-        private readonly ISettings _settings;
         private readonly ILoggingService _logger;
+        private readonly Timer _handleYapiEventsTimer = new();
+        private readonly ISensorRepo _sensorRepo;
         private YLightSensor? _sensorDevice;
         private string _error = "";
-        private readonly Timer _handleYapiEventsTimer = new();
-        private readonly Queue<Double> _valueHistory;
-        private readonly ISensorRepo _sensorRepo;
+        private bool _sensorInitialized;
 
         public event EventHandler<double>? Update;
 
         public string Error => _error;
         public string FriendlyName => _sensorDevice?.FriendlyName ?? "";
         public string Unit => _sensorDevice?.get_unit() ?? "";
-        public bool Connected => _sensorDevice != null && _sensorDevice.isSensorReady() && _sensorDevice.isOnline();
+        public bool SensorDeviceOnline => _sensorDevice?.isOnline() ?? false;
 
-        public Queue<double> ValueHistory => _valueHistory;
+        public Queue<double> ValueHistory { get; }
 
-        public SensorService(ISensorRepo sensorRepo, ISettings settings, ILoggingService logger)
+        public YoctoSensorService(ISensorRepo sensorRepo, ISettings settings, ILoggingService logger)
         {
             _sensorRepo = sensorRepo;
-            _settings = settings;
             _logger = logger;
             _handleYapiEventsTimer.Elapsed += HandleYapiEventsTimerOnElapsed;
-            _valueHistory = new Queue<double>(17280);
+            _handleYapiEventsTimer.Interval = settings.YapiEventsTimerInterval;
+            ValueHistory = new Queue<double>(17280);
 
-            YAPI.RegisterHub(_settings.HubUrl, ref _error);
-            YAPI.UpdateDeviceList(ref _error);
+            YAPI.RegisterHub(settings.HubUrl, ref _error);
         }
 
 
         public bool ConnectToSensor(string sensorFriendlyName)
         {
             _sensorDevice = YLightSensor.FindLightSensor(sensorFriendlyName);
-            if (!_sensorDevice.isSensorReady() || !_sensorDevice.isOnline()) return false;
-            _valueHistory.Clear();
-
-            _sensorDevice.set_logFrequency("OFF");
-            _sensorDevice.stopDataLogger();
             _sensorDevice.registerTimedReportCallback(TimedReport);
-            _handleYapiEventsTimer.Interval = _settings.YapiEventsTimerInterval;
-
+            ValueHistory.Clear();
             return true;
         }
 
@@ -61,13 +53,10 @@ namespace unitrix0.rightbright.Sensors
 
         public void StartPollTimer()
         {
+            if (_sensorDevice == null) throw new Exception("Sensor device is null");
+            
             _logger.WriteInformation("Starting sensor polling timer");
-            if (_sensorDevice == null || !Connected)
-                throw new InvalidOperationException("Sensor not set or not connected");
-
-            _sensorDevice.clearCache();
             _handleYapiEventsTimer.Start();
-            Update?.Invoke(this, _sensorDevice.get_currentValue());
         }
 
         public void StopPollTimer()
@@ -81,13 +70,31 @@ namespace unitrix0.rightbright.Sensors
             var currentValue = func.get_currentValue();
             Update?.Invoke(this, currentValue);
 
-            if (_valueHistory.Count == 17280) _valueHistory.Dequeue();
-            _valueHistory.Enqueue(currentValue);
+            if (ValueHistory.Count == 17280) ValueHistory.Dequeue();
+            ValueHistory.Enqueue(currentValue);
+            Debug.Print(currentValue.ToString());
         }
 
         private void HandleYapiEventsTimerOnElapsed(object? sender, ElapsedEventArgs e)
         {
+            if(_sensorDevice == null || _sensorDevice.isOnline() == false)
+            {
+                Debug.Print("Offline");
+                _sensorInitialized = false;
+                return;
+            }
+
+            if (_sensorDevice.isOnline() && !_sensorInitialized)
+            {
+                _sensorDevice.stopDataLogger();
+                _sensorDevice.set_logFrequency("OFF");
+                _sensorDevice.clearCache();
+                _sensorInitialized = true;
+                // Update?.Invoke(this, _sensorDevice.get_currentValue());
+            }
+
             YAPI.HandleEvents(ref _error);
+            if (!string.IsNullOrEmpty(_error)) _logger.WriteError($"YAPI.HandleEvents error: {_error}");
         }
     }
 }

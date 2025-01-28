@@ -23,12 +23,13 @@ namespace unitrix0.rightbright.Windows.ViewModel
         private readonly IMonitorService _monitorService;
         private readonly ISettings _settings;
         private readonly ICurveCalculationService _curveCalculator;
-        private readonly bool _isSensorConnected;
+        private bool _isSensorConnected;
         private AmbientLightSensor? _selectedSensor;
         private BrightnessCalculationParameters? _newCalculationParameters;
         private DisplayInfo? _selectedMonitor;
         private IChartValues? _currentCurve;
         private IChartValues? _newCurve;
+        private List<AmbientLightSensor> _sensors;
 
         public ObservableCollection<DisplayInfo> Monitors => _monitorService.Monitors;
 
@@ -47,9 +48,15 @@ namespace unitrix0.rightbright.Windows.ViewModel
                 RaisePropertyChanged(nameof(ShowMonitorSettings));
             }
         }
+
         public bool ShowMonitorSettings => SelectedMonitor != null;
 
-        public List<AmbientLightSensor> Sensors { get; } = new();
+        public List<AmbientLightSensor> Sensors
+        {
+            get => _sensors;
+            private init => SetProperty(ref _sensors, value);
+        }
+
         public AmbientLightSensor? SelectedSensor
         {
             get => _selectedSensor;
@@ -60,11 +67,13 @@ namespace unitrix0.rightbright.Windows.ViewModel
                 ConnectSensorCmd.RaiseCanExecuteChanged();
             }
         }
+
         public bool IsSensorSelected => SelectedSensor != null;
+
         public bool IsSensorConnected
         {
             get => _isSensorConnected;
-            private init => SetProperty(ref _isSensorConnected, value, ConnectSensorCmd.RaiseCanExecuteChanged);
+            private set => SetProperty(ref _isSensorConnected, value, ConnectSensorCmd.RaiseCanExecuteChanged);
         }
 
         public IChartValues? CurrentCurve
@@ -86,13 +95,15 @@ namespace unitrix0.rightbright.Windows.ViewModel
 
         public DelegateCommand ApplyNewCurve { get; }
 
+
         // ReSharper disable once UnusedMember.Global
         public MainWindowViewModel()
         {
         }
 
         // ReSharper disable once UnusedMember.Global
-        public MainWindowViewModel(IBrightnessController brightnessController, IMonitorService monitorService, ISensorRepo sensorRepo, ISettings settings, ICurveCalculationService curveCalculator)
+        public MainWindowViewModel(IBrightnessController brightnessController, IMonitorService monitorService,
+            ISensorRepo sensorRepo, ISettings settings, ICurveCalculationService curveCalculator)
         {
             ConnectSensorCmd = new DelegateCommand(ConnectSensor, () => IsSensorSelected && !IsSensorConnected);
             CloseDisplaySettings = new DelegateCommand(DeSelectMonitor, () => true);
@@ -105,9 +116,8 @@ namespace unitrix0.rightbright.Windows.ViewModel
 
             Sensors = sensorRepo.GetSensors();
             SelectedSensor = _brightnessController.ConnectedSensor;
-
             IsSensorConnected = _brightnessController.ConnectedSensor != null;
-
+            
             SaveSettingsOfNewMonitors();
         }
 
@@ -142,16 +152,17 @@ namespace unitrix0.rightbright.Windows.ViewModel
         {
             SelectedMonitor!.CalculationParameters.MapFrom(NewCalculationParameters!);
             EditSelectedMonitor();
-            _settings.BrightnessCalculationParameters[SelectedMonitor.DeviceName] = SelectedMonitor.CalculationParameters;
+            _settings.BrightnessCalculationParameters[SelectedMonitor.DeviceName] =
+                SelectedMonitor.CalculationParameters;
             _settings.Save();
         }
 
         private bool CanSaveNewMonitorSettings()
         {
             //TODO More Validation
-            return SelectedMonitor!=null && (NewCurve?.Count > 0 ||
-                                             NewCalculationParameters?.Active !=
-                                             SelectedMonitor.CalculationParameters.Active);
+            return SelectedMonitor != null && (NewCurve?.Count > 0 ||
+                                               NewCalculationParameters?.Active !=
+                                               SelectedMonitor.CalculationParameters.Active);
         }
 
         private void ConnectSensor()

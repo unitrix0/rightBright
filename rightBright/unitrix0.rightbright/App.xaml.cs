@@ -45,7 +45,7 @@ namespace unitrix0.rightbright
             container.RegisterSingleton<IMonitorService, MonitorService>();
             container.RegisterSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();
             container.RegisterSingleton<IBrightnessController, BrightnessController>();
-            container.RegisterSingleton<ISensorService, SensorService>();
+            container.RegisterSingleton<ISensorService, YoctoSensorService>();
             container.RegisterSingleton<ISensorRepo, SensorRepo>();
             container.RegisterSingleton<ISetBrightnessService, SetBrightnessService>();
             container.RegisterSingleton<ISettings>(Settings.Settings.Load);

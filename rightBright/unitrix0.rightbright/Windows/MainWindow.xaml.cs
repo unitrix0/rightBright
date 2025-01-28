@@ -15,6 +15,5 @@ namespace unitrix0.rightbright.Windows
         {
             InitializeComponent();
         }
-
     }
 }
