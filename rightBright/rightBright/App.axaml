@@ -3,13 +3,21 @@
              x:Class="rightBright.App"
              xmlns:local="using:rightBright"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
-        <local:ViewLocator/>
+        <local:ViewLocator />
     </Application.DataTemplates>
-  
+
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="Styles.axaml" />
     </Application.Styles>
+
+    <Application.Resources>
+        <FontFamily x:Key="PhosphorThin">/Assets/Fonts/Phosphor-Thin.ttf#Phosphor-Thin</FontFamily>
+        <FontFamily x:Key="PhosphorRegular">/Assets/Fonts/Phosphor.ttf#Phosphor</FontFamily>
+        <SolidColorBrush x:Key="PrimaryBackground">#EFF0F1</SolidColorBrush>
+        <SolidColorBrush x:Key="CustomWhite">#ECE5F0</SolidColorBrush>
+    </Application.Resources>
 </Application>
