@@ -1,4 +1,4 @@
-﻿namespace unitrix0.rightbright.Services.Logging;
+﻿namespace rightBright.Services.Logging;
 
 public interface ILoggingService
 {

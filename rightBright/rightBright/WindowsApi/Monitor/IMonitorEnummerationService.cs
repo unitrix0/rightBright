@@ -1,0 +1,20 @@
+﻿using System.Collections.Generic;
+using unitrix0.rightbright.Monitors.Models;
+
+namespace rightBright.WindowsApi.Monitor
+{
+    public interface IMonitorEnummerationService
+    {
+        /// <summary>
+        /// Returns informations about the connect Mointors
+        /// </summary>
+        /// <returns>collection of Display Info</returns>
+        List<DisplayInfo> GetDisplays();
+
+        /// <summary>
+        /// Returns list of Devicenames and Monitor hnadles
+        /// </summary>
+        /// <returns></returns>
+        List<MonitorHandleInfo> GetMonitorHandles();
+    }
+}

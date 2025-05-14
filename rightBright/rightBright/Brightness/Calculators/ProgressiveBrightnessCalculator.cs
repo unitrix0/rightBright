@@ -1,6 +1,5 @@
 ﻿using System;
 using rightBright.Brightness.Calculators;
-using unitrix0.rightbright.Sensors;
 
 namespace unitrix0.rightbright.Brightness.Calculators
 {

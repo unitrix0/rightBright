@@ -4,13 +4,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using rightBright.Services.MonitorAPI;
-using rightBright.Services.MonitorAPI.Structs;
+using rightBright.Services.Logging;
+using rightBright.WindowsApi.Monitor;
+using rightBright.WindowsApi.Monitor.Structs;
 using unitrix0.rightbright.Monitors.Models;
-using unitrix0.rightbright.Services.Logging;
-using unitrix0.rightbright.Services.MonitorAPI;
 
-namespace unitrix0.rightbright.Services.Brightness
+namespace rightBright.Services.Brightness
 {
     public class SetBrightnessService : ISetBrightnessService
     {

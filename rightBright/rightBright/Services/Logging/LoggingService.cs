@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace unitrix0.rightbright.Services.Logging;
+namespace rightBright.Services.Logging;
 
 public class LoggingService : ILoggingService
 {

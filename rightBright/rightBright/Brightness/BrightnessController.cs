@@ -6,12 +6,12 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using rightBright.Brightness.Calculators;
 using rightBright.Sensors.Model;
+using rightBright.Services.Brightness;
+using rightBright.Services.Logging;
+using rightBright.Services.Monitors;
+using rightBright.Services.Sensors;
+using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
-using unitrix0.rightbright.Monitors;
-using unitrix0.rightbright.Sensors;
-using unitrix0.rightbright.Services.Brightness;
-using unitrix0.rightbright.Services.Logging;
-using unitrix0.rightbright.Services.MonitorAPI;
 using Timer = System.Timers.Timer;
 
 namespace rightBright.Brightness

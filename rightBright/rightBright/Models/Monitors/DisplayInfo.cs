@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using rightBright.Models.Monitors;
-using rightBright.Services.MonitorAPI.Structs;
+using rightBright.WindowsApi.Monitor.Structs;
 
 public class DisplayInfo : ObservableObject
 {
