@@ -8,6 +8,7 @@ using rightBright.Brightness.Calculators;
 using rightBright.Sensors.Model;
 using rightBright.Services.Brightness;
 using rightBright.Services.Logging;
+using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
 using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;

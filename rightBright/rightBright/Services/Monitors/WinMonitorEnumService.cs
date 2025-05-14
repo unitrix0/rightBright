@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using rightBright.WindowsApi.Monitor;
 using rightBright.WindowsApi.Monitor.Structs;
 using unitrix0.rightbright.Monitors.Models;
 
-namespace rightBright.WindowsApi.Monitor
+namespace rightBright.Services.Monitors
 {
-    public class MonitorEnummerationService : IMonitorEnummerationService
+    public class WinMonitorEnumService : IMonitorEnummerationService
     {
         /// <summary>
         /// Returns informations about the connect Mointors

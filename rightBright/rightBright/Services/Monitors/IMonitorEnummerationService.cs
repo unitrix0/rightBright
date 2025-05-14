@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using unitrix0.rightbright.Monitors.Models;
 
-namespace rightBright.WindowsApi.Monitor
+namespace rightBright.Services.Monitors
 {
     public interface IMonitorEnummerationService
     {

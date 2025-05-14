@@ -29,8 +29,4 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Yoctopuce.YoctoLib" Version="2.0.64286" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="WindowsApi\" />
-    </ItemGroup>
 </Project>
