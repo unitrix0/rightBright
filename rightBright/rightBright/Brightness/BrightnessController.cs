@@ -8,10 +8,10 @@ using rightBright.Brightness.Calculators;
 using rightBright.Sensors.Model;
 using rightBright.Services.Brightness;
 using rightBright.Services.Logging;
-using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
 using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
+using rightBright.WindowsApi.Monitor;
 using Timer = System.Timers.Timer;
 
 namespace rightBright.Brightness
@@ -20,7 +20,7 @@ namespace rightBright.Brightness
     {
         private readonly ISensorService _sensorService;
         private readonly ISetBrightnessService _brightnessService;
-        private readonly IMonitorService _monitorService;
+        private readonly IMonitorEnummerationService _monitorService;
         private readonly IBrightnessCalculator _brightnessCalculator;
         private readonly ISettings _settings;
         private readonly ILoggingService _logger;
@@ -46,7 +46,7 @@ namespace rightBright.Brightness
         }
 
         public BrightnessController(ISensorService sensorService, ISetBrightnessService brightnessService,
-            IMonitorService monitorService, IBrightnessCalculator brightnessCalculator, ISettings settings,
+            IMonitorEnummerationService monitorService, IBrightnessCalculator brightnessCalculator, ISettings settings,
             IDeviceChangedNotificationService deviceNotificationService,
             IPowerNotificationService powerNotificationService, ILoggingService logger)
         {
@@ -74,7 +74,6 @@ namespace rightBright.Brightness
         public void Run()
         {
             _updatingStopped = true;
-            _monitorService.UpdateList();
             LoadMonitorSettings();
 
             if (!ConnectSensor(_settings.LastUsedSensor)) return;
@@ -100,7 +99,7 @@ namespace rightBright.Brightness
         private void LoadMonitorSettings()
         {
             _logger.WriteInformation("Loading monitor settings");
-            foreach (var monitor in _monitorService.Monitors)
+            foreach (var monitor in _monitorService.GetDisplays())
             {
                 if (!_settings.BrightnessCalculationParameters.TryGetValue(monitor.ModelName, out var savedSettings))
                     continue;
@@ -139,7 +138,6 @@ namespace rightBright.Brightness
         private void OnDeviceChangedMessage(object? sender, EventArgs e)
         {
             _logger.WriteInformation(nameof(OnDeviceChangedMessage));
-            _monitorService.UpdateList();
             LoadMonitorSettings();
         }
 
@@ -157,7 +155,7 @@ namespace rightBright.Brightness
             ConnectedSensor!.CurrentValue = (int)Math.Round(e);
             if (PauseSettingBrightness) return;
 
-            var monitors = _monitorService.Monitors.Where(m => m.CalculationParameters.Active);
+            var monitors = _monitorService.GetDisplays().Where(m => m.CalculationParameters.Active);
             foreach (var monitor in monitors)
             {
                 if (_updatingStopped) return;
