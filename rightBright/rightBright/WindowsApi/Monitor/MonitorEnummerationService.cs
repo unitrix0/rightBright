@@ -9,20 +9,6 @@ namespace rightBright.WindowsApi.Monitor
 {
     public class MonitorEnummerationService : IMonitorEnummerationService
     {
-        [DllImport("user32.dll")]
-        private static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, EnumMonitorsDelegate lpfnEnum,
-            IntPtr dwData);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfoEx lpmi);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern bool EnumDisplayDevices(string lpDevice, uint iDevNum, ref DISPLAY_DEVICE lpDisplayDevice,
-            uint dwFlags);
-
-        private delegate bool EnumMonitorsDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RectStruct lprcMonitor,
-            IntPtr dwData);
-
         /// <summary>
         /// Returns informations about the connect Mointors
         /// </summary>
@@ -36,7 +22,7 @@ namespace rightBright.WindowsApi.Monitor
                 var mi = new MonitorInfoEx();
                 mi.Size = Marshal.SizeOf(mi);
 
-                var success = GetMonitorInfo(hMonitor, ref mi);
+                var success = WindowsMonitorApiImports.GetMonitorInfo(hMonitor, ref mi);
                 if (!success)
                 {
                     //TODO Error Handling
@@ -46,7 +32,7 @@ namespace rightBright.WindowsApi.Monitor
 
                 var dev = new DISPLAY_DEVICE();
                 dev.cb = Marshal.SizeOf(dev);
-                if (!EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
+                if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
                 {
                     //TODO Error Handling
                     var err = Marshal.GetLastWin32Error();
@@ -68,7 +54,7 @@ namespace rightBright.WindowsApi.Monitor
                 return true;
             }
 
-            EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, ResultCallback, IntPtr.Zero);
+            WindowsMonitorApiImports.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, ResultCallback, IntPtr.Zero);
 
             return col;
         }
@@ -82,7 +68,7 @@ namespace rightBright.WindowsApi.Monitor
                 var mi = new MonitorInfoEx();
                 mi.Size = Marshal.SizeOf(mi);
 
-                var success = GetMonitorInfo(hMonitor, ref mi);
+                var success = WindowsMonitorApiImports.GetMonitorInfo(hMonitor, ref mi);
                 if (!success)
                 {
                     //TODO Error Handling
@@ -92,7 +78,7 @@ namespace rightBright.WindowsApi.Monitor
 
                 var dev = new DISPLAY_DEVICE();
                 dev.cb = Marshal.SizeOf(dev);
-                if (!EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
+                if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
                 {
                     //TODO Error Handling
                     var err = Marshal.GetLastWin32Error();
@@ -103,7 +89,7 @@ namespace rightBright.WindowsApi.Monitor
                 return true;
             }
 
-            EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, ResultCallback, IntPtr.Zero);
+            WindowsMonitorApiImports.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, ResultCallback, IntPtr.Zero);
 
             return col;
         }
