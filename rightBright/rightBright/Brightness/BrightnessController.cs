@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -100,6 +102,7 @@ namespace rightBright.Brightness
         private void LoadMonitorSettings()
         {
             _logger.WriteInformation("Loading monitor settings");
+            
             foreach (var monitor in _monitorService.GetDisplays())
             {
                 if (!_settings.BrightnessCalculationParameters.TryGetValue(monitor.ModelName, out var savedSettings))
@@ -152,7 +155,7 @@ namespace rightBright.Brightness
         private void OnSensorUpdate(object? sender, double e)
         {
             //Debug.Print($"****** Sensor Update: {e} lx ******");
-
+                
             ConnectedSensor!.CurrentValue = (int)Math.Round(e);
             if (PauseSettingBrightness) return;
 
