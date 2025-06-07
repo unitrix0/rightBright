@@ -6,7 +6,7 @@ using rightBright.WindowsApi.WindowMessages;
 
 namespace rightBright.Services.SystemNotifications.Windows
 {
-    public abstract class NotificationServiceBase : IDisposable
+    public abstract class WindowsNotificationServiceBase : IDisposable
     {
         private WndClassEx _wndClass;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using rightBright.Services.DBus.ddcutil;
+using rightBright.Services.DBus.ScreenBrightness;
 using Tmds.DBus.Protocol;
 using Address = Tmds.DBus.Address;
 
@@ -16,6 +17,7 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
     public LinuxMonitorEnumService()
     {
         _dbusSession = new Connection(Address.Session);
+        _dbusSession.ConnectAsync().GetAwaiter();
     }
 
     public List<DisplayInfo> GetDisplays()
@@ -24,7 +26,7 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
         {
             if (_monitors.Count > 0) return _monitors;
 
-            _dbusSession.ConnectAsync().GetAwaiter();
+
             var ddcutilSvc = new DdcutilService(_dbusSession, BusName);
             var ddcutil = ddcutilSvc.CreateDdcutilInterface("/com/ddcutil/DdcutilObject");
 
@@ -34,13 +36,31 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
                 DeviceName = detectedDisplay.Item5,
                 ModelName = detectedDisplay.Item5,
             }).ToList();
-        
+
             return _monitors;
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
             return [];
+        }
+    }
+
+    private void WatchMonitorAdded()
+    {
+        try
+        {
+            var screenBrightnesSvc = new ScreenBrightnessService(_dbusSession, "org.kde.ScreenBrightness");
+            var screenBrightness = screenBrightnesSvc.CreateScreenBrightness("/org/kde/ScreenBrightness");
+            screenBrightness.WatchDisplayAddedAsync((exception, s) =>
+            {
+                _monitors.Clear();
+                GetDisplays();
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
         }
     }
 }

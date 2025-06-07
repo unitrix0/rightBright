@@ -10,7 +10,7 @@ using rightBright.WindowsApi.WindowMessages.Enums;
 
 namespace rightBright.Services.SystemNotifications.Windows
 {
-    public class PowerNotificationService : NotificationServiceBase, IPowerNotificationService
+    public class WinPowerNotificationService : WindowsNotificationServiceBase, IPowerNotificationService
     {
         public event EventHandler? ScreensPoweredOff;
         public event EventHandler? ScreensPoweredOn;
@@ -19,11 +19,11 @@ namespace rightBright.Services.SystemNotifications.Windows
         public event EventHandler? SystemResuming;
 
         [SupportedOSPlatform("windows")]
-        public PowerNotificationService()
+        public WinPowerNotificationService()
         {
             SystemEvents.PowerModeChanged += OnPowerModeChanged;
-            RegisterClass(nameof(PowerNotificationService));
-            var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(PowerNotificationService), "", 0, 0, 0,
+            RegisterClass(nameof(WinPowerNotificationService));
+            var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(WinPowerNotificationService), "", 0, 0, 0,
                 0, 0, HwinConstants.HWND_MESSAGE, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
             DeviceChangeMessageHelper.RegisterPowerSettingNotification(msgWinHandel);
         }

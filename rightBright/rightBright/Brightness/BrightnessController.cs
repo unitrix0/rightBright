@@ -12,6 +12,7 @@ using rightBright.Services.Brightness;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
+using rightBright.Services.SystemNotifications;
 using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
 using rightBright.WindowsApi.Monitor;
@@ -50,7 +51,7 @@ namespace rightBright.Brightness
 
         public BrightnessController(ISensorService sensorService, ISetBrightnessService brightnessService,
             IMonitorEnummerationService monitorService, IBrightnessCalculator brightnessCalculator, ISettings settings,
-            IDeviceChangedNotificationService deviceNotificationService,
+            IMonitorChangedNotificationService monitorNotificationService,
             IPowerNotificationService powerNotificationService, ILoggingService logger)
         {
             _sensorService = sensorService;
@@ -64,7 +65,7 @@ namespace rightBright.Brightness
             _pollingRestartTimer.Elapsed += OnPollingRestartTimerElapsed;
 
             sensorService.Update += OnSensorUpdate;
-            deviceNotificationService.DeviceChangedMessage += OnDeviceChangedMessage;
+            monitorNotificationService.DeviceChangedMessage += OnDeviceChangedMessage;
             powerNotificationService.ScreensPoweredOff += OnStopUpdating;
             powerNotificationService.SystemSuspending += OnStopUpdating;
             powerNotificationService.ScreensPoweredOn += OnRestartUpdating;

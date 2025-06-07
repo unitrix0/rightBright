@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace rightBright.Services.SystemNotifications.Windows
+namespace rightBright.Services.SystemNotifications
 {
     public interface IPowerNotificationService
     {

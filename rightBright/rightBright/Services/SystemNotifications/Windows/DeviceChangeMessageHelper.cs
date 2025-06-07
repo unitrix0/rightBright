@@ -101,14 +101,6 @@ namespace rightBright.Services.SystemNotifications.Windows
             UnregisterDeviceNotification(_monitorNotificationHandle);
         }
 
-        /// <summary>
-        /// UnRegisters the window for USB device notifications
-        /// </summary>
-        public static void UnRegisterUsbDeviceNotification()
-        {
-            UnregisterDeviceNotification(_usbNotificationHandle);
-        }
-
         private static bool IsDeviceOfClass(IntPtr lParam, Guid classGuid)
         {
             var hdr = Marshal.PtrToStructure<DevBroadcastDeviceInterface>(lParam);
