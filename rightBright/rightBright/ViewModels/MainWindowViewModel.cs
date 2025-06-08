@@ -6,7 +6,7 @@ namespace rightBright.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    [ObservableProperty] private ObservableCollection<DisplayInfo> displays = [];
+    [ObservableProperty] private ObservableCollection<DisplayInfo> _displays = [];
 
     public MainWindowViewModel()
     {
@@ -15,7 +15,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void SeedDesignTimeData()
     {
-        displays =
+        Displays =
         [
             new DisplayInfo() { DeviceName = "Screen 1", ModelName = "Model" },
             new DisplayInfo() { DeviceName = "Screen 2", ModelName = "Model" }
