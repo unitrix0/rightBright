@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
-using rightBright.Sensors.Model;
+using rightBright.Models.Sensors;
 using rightBright.Services.Logging;
 using rightBright.Settings;
 

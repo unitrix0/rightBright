@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace rightBright.Sensors.Model
+namespace rightBright.Models.Sensors
 {
     public class AmbientLightSensor : ObservableObject
     {

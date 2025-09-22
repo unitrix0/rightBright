@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using rightBright.Models.Monitors;
-using rightBright.Sensors.Model;
+using rightBright.Models.Sensors;
 
 namespace rightBright.Settings
 {

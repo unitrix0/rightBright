@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using rightBright.Models.Monitors;
-using rightBright.Sensors.Model;
+using rightBright.Models.Sensors;
 
 namespace rightBright.Settings
 {
-    public class Settings : ISettings
+    public class AppSettings : ISettings
     {
         private static readonly string SettingsFolder =
             $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\rightBright";
@@ -19,7 +19,7 @@ namespace rightBright.Settings
         public Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; }
 
 
-        public Settings()
+        public AppSettings()
         {
             LastUsedSensor = new AmbientLightSensor();
             BrightnessCalculationParameters = new Dictionary<string, BrightnessCalculationParameters>();
@@ -58,9 +58,9 @@ namespace rightBright.Settings
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var jsonFile = $"{appData}\\rightBright\\settings.json";
-            if (!File.Exists(jsonFile)) return new Settings();
+            if (!File.Exists(jsonFile)) return new AppSettings();
 
-            return JsonConvert.DeserializeObject<Settings>(File.ReadAllText(jsonFile)) ?? new Settings();
+            return JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText(jsonFile)) ?? new AppSettings();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using rightBright.Sensors.Model;
+﻿using rightBright.Models.Sensors;
 
 namespace rightBright.Brightness
 {

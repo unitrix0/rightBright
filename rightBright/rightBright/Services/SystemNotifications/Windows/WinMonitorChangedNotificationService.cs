@@ -15,7 +15,7 @@ namespace rightBright.Services.SystemNotifications.Windows
         [SupportedOSPlatform("windows")]
         public WinMonitorChangedNotificationService()
         {
-            SystemEvents.DisplaySettingsChanged += (_, _) => Debug.WriteLine("@@@@@@@@@@@@@@@@ Settings Changed");
+            SystemEvents.DisplaySettingsChanged += (_, _) => Debug.WriteLine("@@@@@@@@@@@@@@@@ AppSettings Changed");
 
             RegisterClass(nameof(WinMonitorChangedNotificationService));
             var msgWinHandel = WindowMessageApiImports.CreateWindowEx(0, nameof(WinMonitorChangedNotificationService), "",

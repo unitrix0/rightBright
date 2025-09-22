@@ -7,7 +7,7 @@ using System.Timers;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using rightBright.Brightness.Calculators;
-using rightBright.Sensors.Model;
+using rightBright.Models.Sensors;
 using rightBright.Services.Brightness;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;

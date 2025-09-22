@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using rightBright.Sensors.Model;
+using rightBright.Models.Sensors;
 
 namespace rightBright.Services.Sensors
 {
