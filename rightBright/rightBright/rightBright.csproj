@@ -36,4 +36,8 @@
     <ItemGroup>
       <Folder Include="Services\SystemNotifications\Linux\" />
     </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="Assets\AppIcon 16 white.ico" />
+    </ItemGroup>
 </Project>

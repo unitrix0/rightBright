@@ -4,15 +4,22 @@ using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using rightBright.Brightness;
+using rightBright.Brightness.Calculators;
+using rightBright.Services.Brightness;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
+using rightBright.Services.SystemNotifications;
+using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
 using rightBright.ViewModels;
 using rightBright.Views;
 using Tmds.DBus.Protocol;
+using unitrix0.rightbright.Brightness.Calculators;
 using Address = Tmds.DBus.Address;
 
 namespace rightBright;
@@ -27,16 +34,30 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         var services = InitializeDependencyInjection();
-
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             DisableAvaloniaDataAnnotationValidation();
-            var viewModel = services.GetRequiredService<MainWindowViewModel>();
-            desktop.MainWindow = new MainWindow
+            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            
+            var appViewModel = services.GetRequiredService<ApplicationViewModel>();
+            appViewModel.OnOpenMainWindow += () =>
             {
-                DataContext = viewModel
+                var viewModel = services.GetRequiredService<MainWindowViewModel>();
+                desktop.MainWindow = new MainWindow
+                {
+                    DataContext = viewModel
+                };
+                
+                desktop.MainWindow.Show();
             };
+            
+            DataContext = appViewModel;
+            var brightnessController = services.GetRequiredService<IBrightnessController>();
+            brightnessController.Run();
         }
+        
+        
 
         base.OnFrameworkInitializationCompleted();
     }
@@ -49,7 +70,27 @@ public partial class App : Application
 
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<MainWindowViewModel>();
+        serviceCollection.AddSingleton<ApplicationViewModel>();
+        
         serviceCollection.AddSingleton<ISettings, AppSettings>();
+        serviceCollection.AddSingleton<IBrightnessController, BrightnessController>();
+        serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                ? new SetBrightnessServiceLinux()
+                : new SetBrightnessServiceWin(servies.GetRequiredService<ILoggingService>(),
+                    servies.GetRequiredService<IMonitorEnummerationService>()));
+
+        serviceCollection.AddSingleton<IMonitorChangedNotificationService>(services => 
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+            ? new WinMonitorChangedNotificationService() //TODO
+            : new WinMonitorChangedNotificationService());
+        
+        serviceCollection.AddSingleton<IPowerNotificationService>(services => 
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+            ? new WinPowerNotificationService() //TODO
+            : new WinPowerNotificationService());
+        
+        serviceCollection.AddSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
         serviceCollection.AddSingleton<ILoggingService, LoggingService>();
         serviceCollection.AddSingleton<ISensorService, YoctoSensorService>();

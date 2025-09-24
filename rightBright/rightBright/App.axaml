@@ -2,12 +2,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="rightBright.App"
              xmlns:local="using:rightBright"
-             RequestedThemeVariant="Default">
-    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-
+             xmlns:views="clr-namespace:rightBright.Views"
+             RequestedThemeVariant="Default"
+             x:DataType="views:ApplicationViewModel"
+             x:CompileBindings="True">
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
+    
+    <!-- <Application.DataContext> -->
+    <!--     <views:ApplicationViewModel /> -->
+    <!-- </Application.DataContext> -->
 
     <Application.Styles>
         <FluentTheme />
@@ -20,4 +25,20 @@
         <SolidColorBrush x:Key="PrimaryBackground">#EFF0F1</SolidColorBrush>
         <SolidColorBrush x:Key="CustomWhite">#ECE5F0</SolidColorBrush>
     </Application.Resources>
+
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/AppIcon 16 white.ico">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Öffnen" Command="{Binding OpenMainWindowCommand}" />
+                        <NativeMenuItem Header="Pause" ToggleType="CheckBox"
+                                        IsChecked="{Binding Suspend, Mode=TwoWay}"/>
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Exit" Command="{Binding EndProgramCommand}" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 </Application>
