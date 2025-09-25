@@ -56,8 +56,6 @@ public partial class App : Application
             var brightnessController = services.GetRequiredService<IBrightnessController>();
             brightnessController.Run();
         }
-        
-        
 
         base.OnFrameworkInitializationCompleted();
     }

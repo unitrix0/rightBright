@@ -1,11 +1,12 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using rightBright.Brightness;
 using rightBright.Models.Sensors;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
-using rightBright.Views;
 
 namespace rightBright.ViewModels;
 
@@ -13,22 +14,38 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IMonitorEnummerationService _monitosService = null!;
     private readonly ISensorService _sensorService = null!;
+    private readonly IBrightnessController _brightnessController;
 
-    [ObservableProperty] private ObservableCollection<AmbientLightSensor> _availableSensors = [];
-    [ObservableProperty] private ObservableCollection<DisplayInfo> _displays = [];
-    [ObservableProperty] private AmbientLightSensor? _selectedSensor;
-    [ObservableProperty] private MainViewContentViewModel _currentContent = null!;
-    
+    [ObservableProperty]
+    private ObservableCollection<AmbientLightSensor> _availableSensors = [];
+
+    [ObservableProperty]
+    private ObservableCollection<DisplayInfo> _displays = [];
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ConnectSensorCommand))]
+    private AmbientLightSensor? _selectedSensor;
+
+    [ObservableProperty]
+    private MainViewContentViewModel _currentContent = null!;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ConnectSensorCommand))]
+    private bool _sensorConnected;
+
 
     public MainWindowViewModel()
     {
-        if (Design.IsDesignMode) SeedDesigntimeData();
+        if (Design.IsDesignMode) SeedDesignetimeData();
     }
 
-    public MainWindowViewModel(IMonitorEnummerationService monitosService, ISensorService sensorService)
+    public MainWindowViewModel(IMonitorEnummerationService monitosService,
+        ISensorService sensorService,
+        IBrightnessController brightnessController)
     {
         _monitosService = monitosService;
         _sensorService = sensorService;
+        _brightnessController = brightnessController;
 
         UpdateMonitors();
         UpdateSensors();
@@ -67,10 +84,21 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void EditMonitorSettings(int monitorId)
     {
-        
     }
 
-    private void SeedDesigntimeData()
+    [RelayCommand(CanExecute = nameof(CanConnectSensor))]
+    private void ConnectSensor()
+    {
+        SensorConnected = _brightnessController.Run(SelectedSensor!);
+    }
+
+    private bool CanConnectSensor()
+    {
+        Debug.Print("CanExecute");
+        return SelectedSensor != null && _brightnessController.ConnectedSensor != null && !SensorConnected;
+    }
+
+    private void SeedDesignetimeData()
     {
         AvailableSensors =
         [
