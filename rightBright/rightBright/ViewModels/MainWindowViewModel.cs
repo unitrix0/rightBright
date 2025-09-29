@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Avalonia.Controls;
@@ -54,25 +55,32 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void UpdateSensors()
     {
-        foreach (var lightSensor in _sensorService.GetSensors())
+        try
         {
-            AvailableSensors.Add(lightSensor);
-        }
+            foreach (var lightSensor in _sensorService.GetSensors())
+            {
+                AvailableSensors.Add(lightSensor);
+            }
 
-        SelectedSensor = AvailableSensors
-            .SingleOrDefault(s =>
-                s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
+            SelectedSensor = AvailableSensors
+                .SingleOrDefault(s =>
+                    s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
         
-        UpdateNoSelectionText();
+            UpdateNoSelectionText(_sensorService.Error);
+        }
+        catch (Exception ex)
+        {
+            UpdateNoSelectionText(ex.Message);
+        }
     }
 
-    private void UpdateNoSelectionText()
+    private void UpdateNoSelectionText(string error)
     {
-        if (!string.IsNullOrEmpty(_sensorService.Error))
+        if (!string.IsNullOrEmpty(error))
         {
             CurrentContent = new NoSelectionViewModel
             {
-                Message = $"Sensoren konnte nicht abgefragt werden:\n {_sensorService.Error}"
+                Message = $"Sensoren konnte nicht abgefragt werden:\n {error}"
             };
             return;
         }
@@ -109,12 +117,12 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ConnectSensor()
     {
         SensorConnected = _brightnessController.Run(SelectedSensor!);
-        UpdateNoSelectionText();
+        UpdateNoSelectionText(_sensorService.Error);
     }
 
     private bool CanConnectSensor()
     {
-        return SelectedSensor != null && _brightnessController.ConnectedSensor != null && !SensorConnected;
+        return SelectedSensor != null && _brightnessController.ConnectedSensor == null && !SensorConnected;
     }
 
     private void SeedDesignetimeData()

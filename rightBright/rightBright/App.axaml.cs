@@ -14,6 +14,7 @@ using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
 using rightBright.Services.SystemNotifications;
+using rightBright.Services.SystemNotifications.Linux;
 using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
 using rightBright.ViewModels;
@@ -21,6 +22,7 @@ using rightBright.Views;
 using Tmds.DBus.Protocol;
 using unitrix0.rightbright.Brightness.Calculators;
 using Address = Tmds.DBus.Address;
+using ApplicationViewModel = rightBright.ViewModels.ApplicationViewModel;
 
 namespace rightBright;
 
@@ -80,12 +82,12 @@ public partial class App : Application
 
         serviceCollection.AddSingleton<IMonitorChangedNotificationService>(services => 
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-            ? new WinMonitorChangedNotificationService() //TODO
+            ? new LinuxMonitorChangedNotificationService()
             : new WinMonitorChangedNotificationService());
         
         serviceCollection.AddSingleton<IPowerNotificationService>(services => 
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-            ? new WinPowerNotificationService() //TODO
+            ? new LinuxPowerNotificationService()
             : new WinPowerNotificationService());
         
         serviceCollection.AddSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();

@@ -33,7 +33,7 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
             var detected = ddcutil.DetectAsync(0x0).GetAwaiter().GetResult();
             _monitors = detected.DetectedDisplays.Select(detectedDisplay => new DisplayInfo()
             {
-                DeviceName = detectedDisplay.Item5,
+                DeviceName = detectedDisplay.Item1.ToString(),
                 ModelName = detectedDisplay.Item5,
             }).ToList();
 

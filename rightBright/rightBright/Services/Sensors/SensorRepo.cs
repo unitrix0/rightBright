@@ -8,14 +8,13 @@ namespace rightBright.Services.Sensors
     {
         private List<AmbientLightSensor>? _sensors;
 
-
         public List<AmbientLightSensor> GetSensors(bool forceUpdate = false)
         {
             if (_sensors != null && !forceUpdate) return _sensors;
 
-            var errmsg = "";
-            YAPI.UpdateDeviceList(ref errmsg);
-            if (!string.IsNullOrEmpty(errmsg)) throw new Exception($"Error getting sensors: {errmsg}");
+            var error = "";
+            YAPI.UpdateDeviceList(ref error);
+            if (!string.IsNullOrEmpty(error)) throw new Exception(error);
             
             _sensors = new List<AmbientLightSensor>();
             var sensor = YLightSensor.FirstLightSensor();
