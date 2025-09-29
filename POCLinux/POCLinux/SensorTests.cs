@@ -1,7 +1,7 @@
 using System.Timers;
 using Timer = System.Timers.Timer;
 
-public static class SensorTyests
+public static class SensorTests
 {
     public static void Run()
     {

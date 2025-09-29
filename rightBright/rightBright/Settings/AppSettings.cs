@@ -14,19 +14,10 @@ namespace rightBright.Settings
 
         public string HubUrl { get; set; } = "USB";
         public int YapiEventsTimerInterval { get; set; } = 5000;
-        public AmbientLightSensor LastUsedSensor { get; set; }
+        public AmbientLightSensor LastUsedSensor { get; set; } = new();
 
-        public Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; }
+        public Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; } = new();
 
-
-        public AppSettings()
-        {
-            LastUsedSensor = new AmbientLightSensor();
-            BrightnessCalculationParameters = new Dictionary<string, BrightnessCalculationParameters>();
-
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            Directory.CreateDirectory($"{appData}");
-        }
 
         public void Save()
         {
@@ -56,8 +47,7 @@ namespace rightBright.Settings
 
         public static ISettings Load()
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var jsonFile = $"{appData}\\rightBright\\settings.json";
+            var jsonFile = $"{SettingsFolder}\\settings.json";
             if (!File.Exists(jsonFile)) return new AppSettings();
 
             return JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText(jsonFile)) ?? new AppSettings();

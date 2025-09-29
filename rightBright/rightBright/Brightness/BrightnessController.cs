@@ -96,8 +96,9 @@ namespace rightBright.Brightness
 
         private bool ConnectSensor(AmbientLightSensor sensor)
         {
-            ConnectedSensor = sensor;
-            return _sensorService.ConnectToSensor(sensor.FriendlyName);
+            ConnectedSensor = _sensorService.GetSensors().SingleOrDefault(s => s.FriendlyName == sensor.FriendlyName);
+            return ConnectedSensor != null && 
+                   _sensorService.ConnectToSensor(ConnectedSensor.FriendlyName);
         }
 
         private void LoadMonitorSettings()

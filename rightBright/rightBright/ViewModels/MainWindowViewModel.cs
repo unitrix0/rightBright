@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -58,19 +59,37 @@ public partial class MainWindowViewModel : ViewModelBase
             AvailableSensors.Add(lightSensor);
         }
 
-        if (string.IsNullOrEmpty(_sensorService.Error))
-        {
-            CurrentContent = AvailableSensors.Count == 0
-                ? new NoSelectionViewModel { Message = "Keine Sensoren gefunden" }
-                : new NoSelectionViewModel { Message = "Kein Sensor ausgewählt" };
-        }
-        else
+        SelectedSensor = AvailableSensors
+            .SingleOrDefault(s =>
+                s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
+        
+        UpdateNoSelectionText();
+    }
+
+    private void UpdateNoSelectionText()
+    {
+        if (!string.IsNullOrEmpty(_sensorService.Error))
         {
             CurrentContent = new NoSelectionViewModel
             {
                 Message = $"Sensoren konnte nicht abgefragt werden:\n {_sensorService.Error}"
             };
+            return;
         }
+
+        if (AvailableSensors.Count == 0)
+        {
+            CurrentContent = new NoSelectionViewModel { Message = "Keine Sensoren gefunden" };
+            return;
+        }
+
+        if (SelectedSensor == null)
+        {
+            CurrentContent = new NoSelectionViewModel { Message = "Kein Sensor verbunden" };
+            return;
+        }
+
+        CurrentContent = new NoSelectionViewModel() { Message = "Kein Bildschirm ausgewählt" };
     }
 
     private void UpdateMonitors()
@@ -90,11 +109,11 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ConnectSensor()
     {
         SensorConnected = _brightnessController.Run(SelectedSensor!);
+        UpdateNoSelectionText();
     }
 
     private bool CanConnectSensor()
     {
-        Debug.Print("CanExecute");
         return SelectedSensor != null && _brightnessController.ConnectedSensor != null && !SensorConnected;
     }
 

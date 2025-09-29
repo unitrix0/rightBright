@@ -70,7 +70,7 @@ public partial class App : Application
         serviceCollection.AddTransient<MainWindowViewModel>();
         serviceCollection.AddSingleton<ApplicationViewModel>();
         
-        serviceCollection.AddSingleton<ISettings, AppSettings>();
+        serviceCollection.AddSingleton<ISettings>(_ => AppSettings.Load());
         serviceCollection.AddSingleton<IBrightnessController, BrightnessController>();
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
