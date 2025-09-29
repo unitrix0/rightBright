@@ -10,13 +10,14 @@ namespace rightBright.Settings
     public class AppSettings : ISettings
     {
         private static readonly string SettingsFolder =
-            $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\rightBright";
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "rightBright");
 
         public string HubUrl { get; set; } = "USB";
         public int YapiEventsTimerInterval { get; set; } = 5000;
         public AmbientLightSensor LastUsedSensor { get; set; } = new();
 
-        public Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; } = new();
+        public Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; } =
+            new();
 
 
         public void Save()
@@ -27,15 +28,19 @@ namespace rightBright.Settings
             if (string.IsNullOrEmpty(settingsJson)) return;
 
             CeateBackup();
-            File.WriteAllText($"{SettingsFolder}\\settings.json", settingsJson);
+            var path = Path.Combine(SettingsFolder, "settings.json");
+            File.WriteAllText(path, settingsJson);
         }
 
         private void CeateBackup()
         {
             try
             {
-                string backupFilename = "settings.bkp";
-                File.Copy($"{SettingsFolder}\\settings.json", $"{SettingsFolder}\\{backupFilename}", true);
+                var backupFilename = "settings.bkp";
+                var sourceFileName = Path.Combine(SettingsFolder, "settings.json");
+                var destFileName = Path.Combine(SettingsFolder, backupFilename);
+                
+                File.Copy(sourceFileName, destFileName, true);
             }
             catch (Exception ex)
             {
@@ -47,7 +52,7 @@ namespace rightBright.Settings
 
         public static ISettings Load()
         {
-            var jsonFile = $"{SettingsFolder}\\settings.json";
+            var jsonFile = Path.Combine(SettingsFolder, "settings.json");
             if (!File.Exists(jsonFile)) return new AppSettings();
 
             return JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText(jsonFile)) ?? new AppSettings();
