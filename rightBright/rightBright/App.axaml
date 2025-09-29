@@ -3,8 +3,9 @@
              x:Class="rightBright.App"
              xmlns:local="using:rightBright"
              xmlns:views="clr-namespace:rightBright.Views"
+             xmlns:viewModels="clr-namespace:rightBright.ViewModels"
              RequestedThemeVariant="Default"
-             x:DataType="views:ApplicationViewModel"
+             x:DataType="viewModels:ApplicationViewModel"
              x:CompileBindings="True">
     <Application.DataTemplates>
         <local:ViewLocator />
@@ -28,11 +29,12 @@
 
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="/Assets/AppIcon 16 white.ico">
+            <TrayIcon Icon="{Binding AppIcon}">
                 <TrayIcon.Menu>
                     <NativeMenu>
                         <NativeMenuItem Header="Öffnen" Command="{Binding OpenMainWindowCommand}" />
                         <NativeMenuItem Header="Pause" ToggleType="CheckBox"
+                                        Command="{Binding ToggleSuspendUpdatingCommand}"
                                         IsChecked="{Binding Suspend, Mode=TwoWay}"/>
                         <NativeMenuItemSeparator />
                         <NativeMenuItem Header="Exit" Command="{Binding EndProgramCommand}" />

@@ -33,11 +33,7 @@
         <PackageReference Include="Yoctopuce.YoctoLib" Version="2.0.64286" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Services\SystemNotifications\Linux\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <AvaloniaResource Include="Assets\AppIcon 16 white.ico" />
-    </ItemGroup>
+<!--    <ItemGroup>-->
+<!--      <AvaloniaResource Include="Assets\AppIcon 16 white.ico" />-->
+<!--    </ItemGroup>-->
 </Project>
