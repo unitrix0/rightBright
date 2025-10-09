@@ -103,7 +103,7 @@ namespace unitrix0.rightbright.Brightness
             _logger.WriteInformation("Loading monitor settings");
             foreach (var monitor in _monitorService.Monitors)
             {
-                if (!_settings.BrightnessCalculationParameters.TryGetValue(monitor.ModelName, out var savedSettings)) continue;
+                if (!_settings.BrightnessCalculationParameters.TryGetValue(monitor.DeviceName, out var savedSettings)) continue;
 
                 monitor.CalculationParameters.Progression = savedSettings.Progression;
                 monitor.CalculationParameters.MinBrightness = savedSettings.MinBrightness;
