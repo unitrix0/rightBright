@@ -2,7 +2,38 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:draw="clr-namespace:LiveChartsCore.SkiaSharpView.Drawing.Geometries;assembly=LiveChartsCore.SkiaSharpView"
+             xmlns:vm="clr-namespace:rightBright.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="rightBright.Views.CurveEditorView">
-    Welcome to Avalonia!
+             x:Class="rightBright.Views.CurveEditorView"
+             x:DataType="vm:CurveEditorContentViewModel">
+    <Design.DataContext>
+        <vm:CurveEditorContentViewModel/>
+    </Design.DataContext>
+    
+    <lvc:CartesianChart>
+        <lvc:CartesianChart.Title>
+            <lvc:XamlDrawnLabelVisual
+                Text="My chart title"
+                Paint="{lvc:SolidColorPaint Color='#303030'}"
+                TextSize="25"
+                Padding="{lvc:Padding '15'}" />
+        </lvc:CartesianChart.Title>
+
+        <lvc:CartesianChart.Series>
+            <lvc:XamlLineSeries
+                Values="{Binding CurrentCurve}"
+                LineSmoothness="1"
+                Stroke="#A3A3A3" 
+                Fill="#6BE0E0E0"
+                GeometrySize="20" />
+            <lvc:XamlLineSeries
+                Values="{Binding NewCurve}"
+                LineSmoothness="1"
+                Stroke="#A3A3A3"
+                Fill="#6BE0E0E0"
+                GeometrySize="20" />
+        </lvc:CartesianChart.Series>
+    </lvc:CartesianChart>
 </UserControl>

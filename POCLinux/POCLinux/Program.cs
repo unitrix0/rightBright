@@ -9,11 +9,11 @@ using ScreenBrightness.DBus;
 using Tmds.DBus;
 using Connection = Tmds.DBus.Protocol.Connection;
 
-// var dbusConnection = new Connection(Address.Session);
-// await dbusConnection.ConnectAsync();
+var dbusConnection = new Connection(Address.Session);
+await dbusConnection.ConnectAsync();
 
 // await WatchAddDisplay(dbusConnection);
-// await DdcUtilSetBrightness(dbusConnection);
+await DdcUtilSetBrightness(dbusConnection);
 
 SensorTests.Run();
 

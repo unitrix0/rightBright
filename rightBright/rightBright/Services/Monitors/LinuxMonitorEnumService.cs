@@ -31,11 +31,12 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
             var ddcutil = ddcutilSvc.CreateDdcutilInterface("/com/ddcutil/DdcutilObject");
 
             var detected = ddcutil.DetectAsync(0x0).GetAwaiter().GetResult();
-            _monitors = detected.DetectedDisplays.Select(detectedDisplay => new DisplayInfo()
-            {
-                DeviceName = detectedDisplay.Item1.ToString(),
-                ModelName = detectedDisplay.Item5,
-            }).ToList();
+            _monitors = detected.DetectedDisplays.OrderBy(x => x.Item1)
+                .Select(detectedDisplay => new DisplayInfo()
+                {
+                    DeviceName = detectedDisplay.Item1.ToString(),
+                    ModelName = detectedDisplay.Item5,
+                }).ToList();
 
             return _monitors;
         }

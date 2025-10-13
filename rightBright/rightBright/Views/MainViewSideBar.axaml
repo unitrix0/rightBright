@@ -12,7 +12,8 @@
 
     <StackPanel>
         <Label FontSize="18" Margin="0,0,0,4"> Bildschirme</Label>
-        <ListBox ItemsSource="{Binding Displays}">
+        <ListBox ItemsSource="{Binding Displays}"
+                 SelectedItem="{Binding SelectedScreenItem}">
             <ListBox.Styles>
                 <Style Selector="ListBoxItem">
                     <Setter Property="Padding" Value="0"></Setter>

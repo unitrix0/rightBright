@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
 using rightBright.Services.Brightness;
+using rightBright.Services.DBus.ddcutil;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
@@ -36,12 +38,12 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         var services = InitializeDependencyInjection();
-        
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             DisableAvaloniaDataAnnotationValidation();
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            
+
             var appViewModel = services.GetRequiredService<ApplicationViewModel>();
             appViewModel.OnOpenMainWindow += () =>
             {
@@ -50,10 +52,10 @@ public partial class App : Application
                 {
                     DataContext = viewModel
                 };
-                
+
                 desktop.MainWindow.Show();
             };
-            
+
             DataContext = appViewModel;
             var brightnessController = services.GetRequiredService<IBrightnessController>();
             brightnessController.Run();
@@ -71,7 +73,8 @@ public partial class App : Application
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddTransient<MainWindowViewModel>();
         serviceCollection.AddSingleton<ApplicationViewModel>();
-        
+        serviceCollection.AddSingleton<CurveEditorContentViewModel>();
+
         serviceCollection.AddSingleton<ISettings>(_ => AppSettings.Load());
         serviceCollection.AddSingleton<IBrightnessController, BrightnessController>();
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
@@ -80,16 +83,16 @@ public partial class App : Application
                 : new SetBrightnessServiceWin(servies.GetRequiredService<ILoggingService>(),
                     servies.GetRequiredService<IMonitorEnummerationService>()));
 
-        serviceCollection.AddSingleton<IMonitorChangedNotificationService>(services => 
+        serviceCollection.AddSingleton<IMonitorChangedNotificationService>(services =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-            ? new LinuxMonitorChangedNotificationService()
-            : new WinMonitorChangedNotificationService());
-        
-        serviceCollection.AddSingleton<IPowerNotificationService>(services => 
+                ? new LinuxMonitorChangedNotificationService()
+                : new WinMonitorChangedNotificationService());
+
+        serviceCollection.AddSingleton<IPowerNotificationService>(services =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-            ? new LinuxPowerNotificationService()
-            : new WinPowerNotificationService());
-        
+                ? new LinuxPowerNotificationService()
+                : new WinPowerNotificationService());
+
         serviceCollection.AddSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
         serviceCollection.AddSingleton<ILoggingService, LoggingService>();
@@ -98,6 +101,14 @@ public partial class App : Application
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new LinuxMonitorEnumService()
                 : new WinMonitorEnumService());
+
+        serviceCollection.AddSingleton<ContentViewFactory>();
+        serviceCollection.AddScoped<Func<Type, MainWindowContentViewModel>>(services => requestedType =>
+            requestedType switch
+            {
+                _ when requestedType == typeof(CurveEditorContentViewModel) => services.GetRequiredService<CurveEditorContentViewModel>(),
+                _ => throw new InvalidOperationException($"Page of type {requestedType.FullName} has no view model")
+            });
 
         var services = serviceCollection.BuildServiceProvider();
         return services;

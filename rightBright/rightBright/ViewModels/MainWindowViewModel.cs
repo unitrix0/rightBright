@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.Linq;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,7 +16,8 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IMonitorEnummerationService _monitosService = null!;
     private readonly ISensorService _sensorService = null!;
-    private readonly IBrightnessController _brightnessController;
+    private readonly IBrightnessController _brightnessController = null!;
+    private readonly ContentViewFactory _contentViewFactory = null!;
 
     [ObservableProperty]
     private ObservableCollection<AmbientLightSensor> _availableSensors = [];
@@ -29,12 +30,15 @@ public partial class MainWindowViewModel : ViewModelBase
     private AmbientLightSensor? _selectedSensor;
 
     [ObservableProperty]
-    private MainViewContentViewModel _currentContent = null!;
+    private MainWindowContentViewModel _currentContent = null!;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ConnectSensorCommand))]
     private bool _sensorConnected;
 
+    [ObservableProperty] private string _selectedScreenDeviceName = "";
+
+    [ObservableProperty] private DisplayInfo? _selectedScreenItem;
 
     public MainWindowViewModel()
     {
@@ -43,11 +47,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel(IMonitorEnummerationService monitosService,
         ISensorService sensorService,
-        IBrightnessController brightnessController)
+        IBrightnessController brightnessController,
+        ContentViewFactory contentViewFactory)
     {
         _monitosService = monitosService;
         _sensorService = sensorService;
         _brightnessController = brightnessController;
+        _contentViewFactory = contentViewFactory;
 
         UpdateMonitors();
         UpdateSensors();
@@ -78,7 +84,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (!string.IsNullOrEmpty(error))
         {
-            CurrentContent = new NoSelectionViewModel
+            CurrentContent = new NoSelectionContentViewModel
             {
                 Message = $"Sensoren konnte nicht abgefragt werden:\n {error}"
             };
@@ -87,17 +93,17 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (AvailableSensors.Count == 0)
         {
-            CurrentContent = new NoSelectionViewModel { Message = "Keine Sensoren gefunden" };
+            CurrentContent = new NoSelectionContentViewModel { Message = "Keine Sensoren gefunden" };
             return;
         }
 
         if (SelectedSensor == null)
         {
-            CurrentContent = new NoSelectionViewModel { Message = "Kein Sensor verbunden" };
+            CurrentContent = new NoSelectionContentViewModel { Message = "Kein Sensor verbunden" };
             return;
         }
 
-        CurrentContent = new NoSelectionViewModel() { Message = "Kein Bildschirm ausgewählt" };
+        CurrentContent = new NoSelectionContentViewModel() { Message = "Kein Bildschirm ausgewählt" };
     }
 
     private void UpdateMonitors()
@@ -125,6 +131,7 @@ public partial class MainWindowViewModel : ViewModelBase
         return SelectedSensor != null && _brightnessController.ConnectedSensor == null && !SensorConnected;
     }
 
+
     private void SeedDesignetimeData()
     {
         AvailableSensors =
@@ -144,5 +151,16 @@ public partial class MainWindowViewModel : ViewModelBase
             new DisplayInfo() { DeviceName = "Screen 1", ModelName = "Model" },
             new DisplayInfo() { DeviceName = "Screen 2", ModelName = "Model" }
         ];
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SelectedScreenItem))
+        {
+            CurrentContent = _contentViewFactory.GetMainWindowContentViewModel<CurveEditorContentViewModel>();
+            ((CurveEditorContentViewModel)CurrentContent).SelectedDisplay = SelectedScreenItem!;
+        }
+        
+        base.OnPropertyChanged(e);
     }
 }
