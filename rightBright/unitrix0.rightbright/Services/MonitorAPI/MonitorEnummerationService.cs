@@ -60,7 +60,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                     WorkArea = mi.WorkArea,
                     IsPrimaryMonitor = Convert.ToBoolean(mi.Flags),
                     ModelName = dev.DeviceString,
-                    DeviceName = mi.DeviceName
+                    DeviceName = dev.DeviceID
                 };
 
                 Debug.Print($"Display Found: {di.ModelName}");
@@ -98,7 +98,7 @@ namespace unitrix0.rightbright.Services.MonitorAPI
                     var err = Marshal.GetLastWin32Error();
                 }
 
-                var di = new MonitorHandleInfo(mi.DeviceName, hMonitor);
+                var di = new MonitorHandleInfo(dev.DeviceID, hMonitor);
                 col.Add(di);
                 return true;
             }
