@@ -1,0 +1,1 @@
+A tool that uses an ambient light sensor to adjust your screens brightness accordingly
