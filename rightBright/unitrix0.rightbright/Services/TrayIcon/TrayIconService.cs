@@ -1,4 +1,5 @@
-﻿using Hardcodet.Wpf.TaskbarNotification;
+﻿using H.NotifyIcon;
+using H.NotifyIcon.Core;
 
 namespace unitrix0.rightbright.Services.TrayIcon
 {
@@ -13,12 +14,12 @@ namespace unitrix0.rightbright.Services.TrayIcon
 
         public void ShowInformationBalloon(string titel, string msg)
         {
-            _taskbarIcon.ShowBalloonTip(titel, msg, BalloonIcon.Info);
+            _taskbarIcon.ShowNotification(titel, msg, NotificationIcon.Info);
         }
 
         public void ShowWarningBallon(string title, string msg)
         {
-            _taskbarIcon.ShowBalloonTip(title, msg, BalloonIcon.Error);
+            _taskbarIcon.ShowNotification(title, msg, NotificationIcon.Error);
         }
     }
 }

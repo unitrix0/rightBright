@@ -1,8 +1,9 @@
-﻿using Hardcodet.Wpf.TaskbarNotification;
+﻿using System.Reflection;
+using System.Windows;
+using H.NotifyIcon;
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Unity;
-using System.Windows;
 using unitrix0.rightbright.Brightness;
 using unitrix0.rightbright.Brightness.Calculators;
 using unitrix0.rightbright.Monitors;
@@ -15,7 +16,6 @@ using unitrix0.rightbright.Services.TrayIcon;
 using unitrix0.rightbright.Settings;
 using unitrix0.rightbright.Windows;
 using unitrix0.rightbright.Windows.ViewModel;
-
 
 namespace unitrix0.rightbright
 {
@@ -30,9 +30,10 @@ namespace unitrix0.rightbright
         protected override Window CreateShell()
         {
             _notifyIcon = (TaskbarIcon?)FindResource("NotifyIcon");
+            _notifyIcon?.ForceCreate();
 
             var logger = Container.Resolve<ILoggingService>();
-            logger.WriteInformation("------------------ STARTUP ------------------");
+            logger.WriteInformation($"------------------ STARTUP {Assembly.GetEntryAssembly()?.GetName().Version} ------------------");
             _brightnessController = Container.Resolve<IBrightnessController>();
             _brightnessController.Run();
             return null!;
@@ -54,6 +55,7 @@ namespace unitrix0.rightbright
             container.RegisterSingleton<IPowerNotificationService, PowerNotificationService>();
             container.RegisterSingleton<ILoggingService, LoggingService>();
             container.Register<ITrayIcon>(() => new TrayIconService(_notifyIcon!));
+            container.RegisterSingleton<AssemblyName>(_ => Assembly.GetEntryAssembly()?.GetName());
         }
 
         protected override void ConfigureViewModelLocator()

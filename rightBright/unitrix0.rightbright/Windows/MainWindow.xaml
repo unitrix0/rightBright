@@ -9,7 +9,7 @@
         xmlns:charts="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         prism:ViewModelLocator.AutoWireViewModel="True"
         mc:Ignorable="d"
-        Title="bRightRight" Height="620" Width="1000"
+        Title="{Binding WindowTitle}" Height="620" Width="1000"
         d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel, IsDesignTimeCreatable=True}"
         Background="#160B2F">
     <Grid>

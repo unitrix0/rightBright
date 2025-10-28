@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using unitrix0.rightbright.Brightness;
 using unitrix0.rightbright.Monitors;
 using unitrix0.rightbright.Monitors.Models;
@@ -29,9 +30,10 @@ namespace unitrix0.rightbright.Windows.ViewModel
         private DisplayInfo? _selectedMonitor;
         private IChartValues? _currentCurve;
         private IChartValues? _newCurve;
-        private List<AmbientLightSensor> _sensors;
+        private readonly List<AmbientLightSensor> _sensors = [];
+        private string _windowTitle = "";
 
-        public ObservableCollection<DisplayInfo> Monitors => _monitorService.Monitors;
+    public ObservableCollection<DisplayInfo> Monitors => _monitorService.Monitors;
 
         public DisplayInfo? SelectedMonitor
         {
@@ -88,6 +90,12 @@ namespace unitrix0.rightbright.Windows.ViewModel
             set => SetProperty(ref _newCurve, value, ApplyNewCurve.RaiseCanExecuteChanged);
         }
 
+        public string WindowTitle
+        {
+            get => _windowTitle;
+            set =>  SetProperty(ref _windowTitle, value);
+        }
+
 
         public DelegateCommand ConnectSensorCmd { get; }
 
@@ -96,15 +104,16 @@ namespace unitrix0.rightbright.Windows.ViewModel
         public DelegateCommand ApplyNewCurve { get; }
 
 
-        // ReSharper disable once UnusedMember.Global
         public MainWindowViewModel()
         {
         }
 
-        // ReSharper disable once UnusedMember.Global
         public MainWindowViewModel(IBrightnessController brightnessController, IMonitorService monitorService,
-            ISensorRepo sensorRepo, ISettings settings, ICurveCalculationService curveCalculator)
+            ISensorRepo sensorRepo, ISettings settings, ICurveCalculationService curveCalculator, AssemblyName assemblyName)
         {
+            var version = assemblyName.Version?.ToString() ?? "";
+            WindowTitle = $"rightBright ({version})";
+            
             ConnectSensorCmd = new DelegateCommand(ConnectSensor, () => IsSensorSelected && !IsSensorConnected);
             CloseDisplaySettings = new DelegateCommand(DeSelectMonitor, () => true);
             ApplyNewCurve = new DelegateCommand(SaveNewMonitorSettings, CanSaveNewMonitorSettings);
