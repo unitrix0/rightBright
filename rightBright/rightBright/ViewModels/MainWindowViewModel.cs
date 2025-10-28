@@ -158,7 +158,6 @@ public partial class MainWindowViewModel : ViewModelBase
         if (e.PropertyName == nameof(SelectedScreenItem))
         {
             CurrentContent = _contentViewFactory.GetMainWindowContentViewModel<CurveEditorContentViewModel>();
-            ((CurveEditorContentViewModel)CurrentContent).SelectedDisplay = SelectedScreenItem!;
         }
         
         base.OnPropertyChanged(e);
