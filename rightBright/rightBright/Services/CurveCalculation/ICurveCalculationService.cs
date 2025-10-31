@@ -1,11 +1,11 @@
-﻿using LiveCharts;
-using LiveCharts.Defaults;
+﻿using System;
+using System.Collections.Generic;
 using rightBright.Models.Monitors;
 
 namespace rightBright.Services.CurveCalculation
 {
     public interface ICurveCalculationService
     {
-        ChartValues<ObservablePoint> Calculate(BrightnessCalculationParameters calculationParameters, int maxLuxValue);
+        List<Tuple<int, double>> Calculate(BrightnessCalculationParameters calculationParameters, int maxLuxValue);
     }
 }

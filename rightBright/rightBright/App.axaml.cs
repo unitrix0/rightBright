@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
 using rightBright.Services.Brightness;
+using rightBright.Services.CurveCalculation;
 using rightBright.Services.DBus.ddcutil;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
@@ -71,9 +72,9 @@ public partial class App : Application
         BindingPlugins.DataValidators.RemoveAt(0);
 
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddTransient<MainWindowViewModel>();
+        serviceCollection.AddSingleton<MainWindowViewModel>();
         serviceCollection.AddSingleton<ApplicationViewModel>();
-        serviceCollection.AddSingleton<CurveEditorContentViewModel>();
+        serviceCollection.AddSingleton<CurveEditorViewModel>();
 
         serviceCollection.AddSingleton<ISettings>(_ => AppSettings.Load());
         serviceCollection.AddSingleton<IBrightnessController, BrightnessController>();
@@ -97,6 +98,7 @@ public partial class App : Application
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
         serviceCollection.AddSingleton<ILoggingService, LoggingService>();
         serviceCollection.AddSingleton<ISensorService, YoctoSensorService>();
+        serviceCollection.AddSingleton<ICurveCalculationService, CurveCalculationService>();
         serviceCollection.AddSingleton<IMonitorEnummerationService>(_ =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new LinuxMonitorEnumService()
@@ -106,7 +108,7 @@ public partial class App : Application
         serviceCollection.AddScoped<Func<Type, MainWindowContentViewModel>>(services => requestedType =>
             requestedType switch
             {
-                _ when requestedType == typeof(CurveEditorContentViewModel) => services.GetRequiredService<CurveEditorContentViewModel>(),
+                _ when requestedType == typeof(CurveEditorViewModel) => services.GetRequiredService<CurveEditorViewModel>(),
                 _ => throw new InvalidOperationException($"Page of type {requestedType.FullName} has no view model")
             });
 
