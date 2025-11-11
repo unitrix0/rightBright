@@ -6,6 +6,6 @@ namespace rightBright.Services.CurveCalculation
 {
     public interface ICurveCalculationService
     {
-        List<Tuple<int, double>> Calculate(BrightnessCalculationParameters calculationParameters, int maxLuxValue);
+        List<Tuple<int, double>> Calculate(int minBrightness, int curve, double progresssion, int maxLuxValue);
     }
 }

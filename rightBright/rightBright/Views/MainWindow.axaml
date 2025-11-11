@@ -50,7 +50,6 @@
                 <Border BorderBrush="#606161"
                         BorderThickness="1,1,1,1" CornerRadius="2">
                     <ContentControl Content="{Binding CurrentContent}"></ContentControl>
-                    
                 </Border>
             </Grid>
         </Grid>

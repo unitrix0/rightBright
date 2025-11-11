@@ -42,7 +42,7 @@ namespace rightBright.Models.Monitors
             MapFrom(source);
         }
 
-        public void MapFrom(BrightnessCalculationParameters source)
+        private void MapFrom(BrightnessCalculationParameters source)
         {
             MinBrightness = source.MinBrightness;
             Curve = source.Curve;

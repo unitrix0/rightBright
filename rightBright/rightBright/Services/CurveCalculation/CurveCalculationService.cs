@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LiveChartsCore.Defaults;
 using rightBright.Brightness.Calculators;
 using rightBright.Models.Monitors;
@@ -15,8 +16,7 @@ namespace rightBright.Services.CurveCalculation
             _brightnessCalculator = brightnessCalculator;
         }
 
-        public List<Tuple<int, double>> Calculate(BrightnessCalculationParameters calculationParameters,
-            int maxLuxValue)
+        public List<Tuple<int, double>> Calculate(int minBrightness, int curve, double progresssion, int maxLuxValue)
         {
             var values = new List<Tuple<int, double>>();
             var step = maxLuxValue / 50;
@@ -25,9 +25,8 @@ namespace rightBright.Services.CurveCalculation
 
             do
             {
-                brightness = _brightnessCalculator.Calculate(x, calculationParameters.Progression,
-                    calculationParameters.Curve, calculationParameters.MinBrightness);
-
+                brightness = _brightnessCalculator.Calculate(x, progresssion, curve, minBrightness);
+            
                 values.Add(new Tuple<int, double>(x, brightness > 100 ? 100 : brightness));
                 x += step;
             } while (brightness < 100);
