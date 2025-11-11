@@ -39,6 +39,7 @@ namespace rightBright.Settings
                 var backupFilename = "settings.bkp";
                 var sourceFileName = Path.Combine(SettingsFolder, "settings.json");
                 var destFileName = Path.Combine(SettingsFolder, backupFilename);
+                if (!File.Exists(sourceFileName)) return;
                 
                 File.Copy(sourceFileName, destFileName, true);
             }
