@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Newtonsoft.Json;
 
 namespace rightBright.Models.Sensors
 {
