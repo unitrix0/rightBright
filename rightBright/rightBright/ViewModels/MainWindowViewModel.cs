@@ -9,6 +9,7 @@ using rightBright.Brightness;
 using rightBright.Models.Sensors;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
+using rightBright.Settings;
 
 namespace rightBright.ViewModels;
 
@@ -18,6 +19,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ISensorService _sensorService = null!;
     private readonly IBrightnessController _brightnessController = null!;
     private readonly ContentViewFactory _contentViewFactory = null!;
+    private readonly ISettings _settings;
 
     [ObservableProperty]
     private ObservableCollection<AmbientLightSensor> _availableSensors = [];
@@ -43,17 +45,20 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         if (Design.IsDesignMode) SeedDesignetimeData();
+        _settings = new AppSettings();
     }
 
     public MainWindowViewModel(IMonitorEnummerationService monitosService,
         ISensorService sensorService,
         IBrightnessController brightnessController,
-        ContentViewFactory contentViewFactory)
+        ContentViewFactory contentViewFactory,
+        ISettings settings)
     {
         _monitosService = monitosService;
         _sensorService = sensorService;
         _brightnessController = brightnessController;
         _contentViewFactory = contentViewFactory;
+        _settings = settings;
 
         UpdateMonitors();
         UpdateSensors();
@@ -124,6 +129,10 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         SensorConnected = _brightnessController.Run(SelectedSensor!);
         UpdateNoSelectionText(_sensorService.Error);
+        if (!SensorConnected) return;
+        
+        _settings.LastUsedSensor = SelectedSensor!;
+        _settings.Save();
     }
 
     private bool CanConnectSensor()
