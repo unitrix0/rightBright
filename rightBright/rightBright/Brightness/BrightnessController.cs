@@ -162,26 +162,33 @@ namespace rightBright.Brightness
             _sensorService.StopPollTimer();
         }
 
-        private void OnSensorUpdate(object? sender, double e)
+        private async void OnSensorUpdate(object? sender, double e)
         {
-            //Debug.Print($"****** Sensor Update: {e} lx ******");
-                
-            ConnectedSensor!.CurrentValue = (int)Math.Round(e);
-            if (PauseSettingBrightness) return;
-
-            var monitors = _monitorService.GetDisplays().Where(m => m.CalculationParameters.Active);
-            foreach (var monitor in monitors)
+            try
             {
-                if (_updatingStopped) return;
+                //Debug.Print($"****** Sensor Update: {e} lx ******");
+                
+                ConnectedSensor!.CurrentValue = (int)Math.Round(e);
+                if (PauseSettingBrightness) return;
 
-                var newBrightness = (int)Math.Round(_brightnessCalculator.Calculate(e,
-                    monitor.CalculationParameters.Progression,
-                    monitor.CalculationParameters.Curve, monitor.CalculationParameters.MinBrightness));
-                newBrightness = newBrightness > 100 ? 100 : newBrightness;
+                var monitors = _monitorService.GetDisplays().Where(m => m.CalculationParameters.Active);
+                foreach (var monitor in monitors)
+                {
+                    if (_updatingStopped) return;
 
-                //Debug.Print($"{DateTime.Now.TimeOfDay}\t Updating Brightness on {monitor.DeviceName} to: {newBrightness}");
-                _brightnessService.SetBrightness(monitor, newBrightness);
-                monitor.LastBrightnessSet = newBrightness;
+                    var newBrightness = (int)Math.Round(_brightnessCalculator.Calculate(e,
+                        monitor.CalculationParameters.Progression,
+                        monitor.CalculationParameters.Curve, monitor.CalculationParameters.MinBrightness));
+                    newBrightness = newBrightness > 100 ? 100 : newBrightness;
+
+                    //Debug.Print($"{DateTime.Now.TimeOfDay}\t Updating Brightness on {monitor.DeviceName} to: {newBrightness}");
+                    await _brightnessService.SetBrightness(monitor, newBrightness);
+                    monitor.LastBrightnessSet = newBrightness;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.WriteError($"Error setting Brightness: {ex.Message}");
             }
         }
     }

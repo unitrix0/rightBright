@@ -1,7 +1,9 @@
-﻿namespace rightBright.Services.Brightness
+﻿using System.Threading.Tasks;
+
+namespace rightBright.Services.Brightness
 {
     public interface ISetBrightnessService
     {
-        void SetBrightness(DisplayInfo monitor, int newValue);
+        Task SetBrightness(DisplayInfo monitor, int newValue);
     }
 }
