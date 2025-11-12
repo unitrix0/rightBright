@@ -5,14 +5,14 @@ namespace rightBright.Models.Sensors
 {
     public class AmbientLightSensor : ObservableObject
     {
-        private readonly YSensor _sensor;
+        private readonly YSensor? _sensor;
         private int _currentValue;
         private int _maxValue;
         private int _minValue;
         public string FriendlyName { get; set; }
         public string SerialNumber { get; set; }
-        [JsonIgnore] public bool IsOnline => _sensor.isOnline();
-        [JsonIgnore] public bool IsReady => _sensor.isSensorReady();
+        [JsonIgnore] public bool IsOnline => _sensor?.isOnline() ?? false;
+        [JsonIgnore] public bool IsReady => _sensor?.isSensorReady() ?? false;
 
         [JsonIgnore]
         public int CurrentValue
@@ -40,6 +40,8 @@ namespace rightBright.Models.Sensors
 
         public AmbientLightSensor()
         {
+            FriendlyName = "";
+            SerialNumber = "";
         }
 
         public AmbientLightSensor(YSensor sensor)
