@@ -81,8 +81,7 @@ public partial class App : Application
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new SetBrightnessServiceLinux()
-                : new SetBrightnessServiceWin(servies.GetRequiredService<ILoggingService>(),
-                    servies.GetRequiredService<IMonitorEnummerationService>()));
+                : new SetBrightnessServiceWin(servies.GetRequiredService<ILoggingService>()));
 
         serviceCollection.AddSingleton<IMonitorChangedNotificationService>(services =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)

@@ -28,7 +28,7 @@
 
         <lvc:CartesianChart Grid.Row="1" Grid.Column="0" Series="{Binding Series}"
                             EasingFunction="{x:Null}"
-                            Background="#EFF0F1" />
+                             />
 
         <Border Grid.Row="1" Grid.Column="1"
                 Padding="7,0">

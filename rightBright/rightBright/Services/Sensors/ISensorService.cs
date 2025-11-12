@@ -6,7 +6,7 @@ namespace rightBright.Services.Sensors
 {
     public interface ISensorService
     {
-        event EventHandler<double> Update;
+        event EventHandler<double>? Update;
         bool SensorDeviceOnline { get; }
         string Error { get; }
         string FriendlyName { get; }
