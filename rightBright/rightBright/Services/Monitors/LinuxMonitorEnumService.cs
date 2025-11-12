@@ -32,10 +32,14 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
 
             var detected = ddcutil.DetectAsync(0x0).GetAwaiter().GetResult();
             _monitors = detected.DetectedDisplays.OrderBy(x => x.Item1)
-                .Select(detectedDisplay => new DisplayInfo()
+                .Select(detectedDisplay =>
                 {
-                    DeviceName = detectedDisplay.Item1.ToString(),
-                    ModelName = detectedDisplay.Item5,
+                    string[] parts = [detectedDisplay.Item5.ToString(), detectedDisplay.Item6.ToString()];
+                    return new DisplayInfo()
+                    {
+                        DeviceName = detectedDisplay.Item1.ToString(),
+                        ModelName = $"{string.Join('-', parts)}",
+                    };
                 }).ToList();
 
             return _monitors;
