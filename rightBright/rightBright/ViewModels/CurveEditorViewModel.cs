@@ -103,7 +103,7 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
         SelectedScreen!.CalculationParameters.Progression = Progression;
         SelectedScreen!.CalculationParameters.Active = Active;
         
-        _settings.BrightnessCalculationParameters[SelectedScreen.DeviceName] =
+        _settings.BrightnessCalculationParameters[SelectedScreen.ModelName] =
             SelectedScreen.CalculationParameters;
         _settings.Save();
         
