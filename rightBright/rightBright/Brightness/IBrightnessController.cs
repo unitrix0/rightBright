@@ -1,4 +1,5 @@
-﻿using rightBright.Models.Sensors;
+﻿using System.Threading.Tasks;
+using rightBright.Models.Sensors;
 
 namespace rightBright.Brightness
 {
@@ -7,7 +8,7 @@ namespace rightBright.Brightness
         /// <summary>
         /// Runs the <see cref="BrightnessController"/> with settings loaded from the settings file
         /// </summary>
-        void Run();
+        Task Run();
 
         /// <summary>
         /// Trys to run with the passed sensor and starts polling. Does not load settings from the settings file.

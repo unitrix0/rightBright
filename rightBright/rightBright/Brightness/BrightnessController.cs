@@ -73,12 +73,12 @@ namespace rightBright.Brightness
         }
 
         /// <summary>
-        /// Uses the previously used sensor
+        /// Uses the previously used sensor from settings
         /// </summary>
-        public void Run()
+        public async Task Run()
         {
             _updatingStopped = true;
-            LoadMonitorSettings();
+            await LoadMonitorSettings();
 
             if (!ConnectSensor(_settings.LastUsedSensor)) return;
 
@@ -99,21 +99,25 @@ namespace rightBright.Brightness
             try
             {
                 ConnectedSensor = _sensorService.GetSensors().SingleOrDefault(s => s.FriendlyName == sensor.FriendlyName);
-                return ConnectedSensor != null && 
-                       _sensorService.ConnectToSensor(ConnectedSensor.FriendlyName);
+                if (ConnectedSensor == null) return false;
+
+                _sensorService.ConnectToSensor(ConnectedSensor.FriendlyName);
+                _logger.WriteInformation($"Sensor {ConnectedSensor.FriendlyName} connected");
+
+                return true;
             }
-            catch (Exception )
+            catch (Exception ex)
             {
-                //TODO Log error message
+                _logger.WriteError($"Connection to '{ConnectedSensor?.FriendlyName}' failed: {ex.Message}");
                 return false;
             }
         }
 
-        private void LoadMonitorSettings()
+        private async Task LoadMonitorSettings()
         {
             _logger.WriteInformation("Loading monitor settings");
-            
-            foreach (var monitor in _monitorService.GetDisplays())
+
+            foreach (var monitor in await _monitorService.GetDisplays())
             {
                 if (!_settings.BrightnessCalculationParameters.TryGetValue(monitor.ModelName, out var savedSettings))
                     continue;
@@ -152,7 +156,7 @@ namespace rightBright.Brightness
         private void OnDeviceChangedMessage(object? sender, EventArgs e)
         {
             _logger.WriteInformation(nameof(OnDeviceChangedMessage));
-            LoadMonitorSettings();
+            _ = LoadMonitorSettings();
         }
 
         private void StopUpdating()
@@ -167,23 +171,26 @@ namespace rightBright.Brightness
             try
             {
                 //Debug.Print($"****** Sensor Update: {e} lx ******");
-                
+
                 ConnectedSensor!.CurrentValue = (int)Math.Round(e);
                 if (PauseSettingBrightness) return;
 
-                var monitors = _monitorService.GetDisplays().Where(m => m.CalculationParameters.Active);
-                foreach (var monitor in monitors)
+                List<DisplayInfo> activeDisplays = (await _monitorService.GetDisplays())
+                    .Where(m => m.CalculationParameters.Active)
+                    .ToList();
+
+                foreach (var display in activeDisplays)
                 {
                     if (_updatingStopped) return;
 
                     var newBrightness = (int)Math.Round(_brightnessCalculator.Calculate(e,
-                        monitor.CalculationParameters.Progression,
-                        monitor.CalculationParameters.Curve, monitor.CalculationParameters.MinBrightness));
+                        display.CalculationParameters.Progression,
+                        display.CalculationParameters.Curve, display.CalculationParameters.MinBrightness));
                     newBrightness = newBrightness > 100 ? 100 : newBrightness;
 
                     //Debug.Print($"{DateTime.Now.TimeOfDay}\t Updating Brightness on {monitor.DeviceName} to: {newBrightness}");
-                    await _brightnessService.SetBrightness(monitor, newBrightness);
-                    monitor.LastBrightnessSet = newBrightness;
+                    await _brightnessService.SetBrightness(display, newBrightness);
+                    display.LastBrightnessSet = newBrightness;
                 }
             }
             catch (Exception ex)

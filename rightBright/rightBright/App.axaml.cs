@@ -1,20 +1,19 @@
 using System;
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
-using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
 using rightBright.Services.Brightness;
 using rightBright.Services.CurveCalculation;
-using rightBright.Services.DBus.ddcutil;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
+using rightBright.Services.Monitors.Enummerators;
 using rightBright.Services.Sensors;
 using rightBright.Services.SystemNotifications;
 using rightBright.Services.SystemNotifications.Linux;
@@ -22,9 +21,7 @@ using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
 using rightBright.ViewModels;
 using rightBright.Views;
-using Tmds.DBus.Protocol;
 using unitrix0.rightbright.Brightness.Calculators;
-using Address = Tmds.DBus.Address;
 using ApplicationViewModel = rightBright.ViewModels.ApplicationViewModel;
 
 namespace rightBright;
@@ -98,10 +95,14 @@ public partial class App : Application
         serviceCollection.AddSingleton<ILoggingService, LoggingService>();
         serviceCollection.AddSingleton<ISensorService, YoctoSensorService>();
         serviceCollection.AddSingleton<ICurveCalculationService, CurveCalculationService>();
-        serviceCollection.AddSingleton<IMonitorEnummerationService>(_ =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? new LinuxMonitorEnumService()
-                : new WinMonitorEnumService());
+        serviceCollection.AddSingleton<IMonitorEnummerationService>(services =>
+        {
+            var logger = services.GetRequiredService<ILoggingService>();
+            var changeNotificationService = services.GetRequiredService<IMonitorChangedNotificationService>();
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                ? new LinuxMonitorEnumService(logger, changeNotificationService)
+                : new WinMonitorEnumService(logger, changeNotificationService);
+        });
 
         serviceCollection.AddSingleton<ContentViewFactory>();
         serviceCollection.AddScoped<Func<Type, MainWindowContentViewModel>>(services => requestedType =>

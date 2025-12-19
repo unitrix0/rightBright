@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -60,7 +62,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _contentViewFactory = contentViewFactory;
         _settings = settings;
 
-        UpdateMonitors();
+        _ = UpdateMonitors();
         UpdateSensors();
     }
 
@@ -111,9 +113,10 @@ public partial class MainWindowViewModel : ViewModelBase
         CurrentContent = new NoSelectionContentViewModel() { Message = "Kein Bildschirm ausgewählt" };
     }
 
-    private void UpdateMonitors()
+    private async Task UpdateMonitors()
     {
-        foreach (var display in _monitosService.GetDisplays())
+        List<DisplayInfo> displays = await _monitosService.GetDisplays();
+        foreach (var display in displays)
         {
             Displays.Add(display);
         }
