@@ -69,12 +69,61 @@ public partial class App : Application
         BindingPlugins.DataValidators.RemoveAt(0);
 
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton<MainWindowViewModel>();
-        serviceCollection.AddSingleton<ApplicationViewModel>();
         serviceCollection.AddSingleton<CurveEditorViewModel>();
 
         serviceCollection.AddSingleton<ISettings>(_ => AppSettings.Load());
-        serviceCollection.AddSingleton<IBrightnessController, BrightnessController>();
+        
+        // Register ApplicationViewModel first (without IBrightnessController to avoid circular dependency)
+        serviceCollection.AddSingleton<ApplicationViewModel>(_ => new ApplicationViewModel());
+        
+        // Register BrightnessController with ApplicationViewModel
+        serviceCollection.AddSingleton<IBrightnessController>(services =>
+        {
+            var sensorService = services.GetRequiredService<ISensorService>();
+            var brightnessService = services.GetRequiredService<ISetBrightnessService>();
+            var monitorService = services.GetRequiredService<IMonitorEnummerationService>();
+            var brightnessCalculator = services.GetRequiredService<IBrightnessCalculator>();
+            var settings = services.GetRequiredService<ISettings>();
+            var monitorNotificationService = services.GetRequiredService<IMonitorChangedNotificationService>();
+            var powerNotificationService = services.GetRequiredService<IPowerNotificationService>();
+            var logger = services.GetRequiredService<ILoggingService>();
+            var applicationViewModel = services.GetRequiredService<ApplicationViewModel>();
+            
+            var brightnessController = new BrightnessController(
+                sensorService,
+                brightnessService,
+                monitorService,
+                brightnessCalculator,
+                settings,
+                monitorNotificationService,
+                powerNotificationService,
+                logger,
+                applicationViewModel);
+            
+            // Set the brightness controller on ApplicationViewModel after creation
+            applicationViewModel.SetBrightnessController(brightnessController);
+            
+            return brightnessController;
+        });
+        
+        // Register MainWindowViewModel with ApplicationViewModel
+        serviceCollection.AddSingleton<MainWindowViewModel>(services =>
+        {
+            var monitosService = services.GetRequiredService<IMonitorEnummerationService>();
+            var sensorService = services.GetRequiredService<ISensorService>();
+            var brightnessController = services.GetRequiredService<IBrightnessController>();
+            var contentViewFactory = services.GetRequiredService<ContentViewFactory>();
+            var settings = services.GetRequiredService<ISettings>();
+            var applicationViewModel = services.GetRequiredService<ApplicationViewModel>();
+            
+            return new MainWindowViewModel(
+                monitosService,
+                sensorService,
+                brightnessController,
+                contentViewFactory,
+                settings,
+                applicationViewModel);
+        });
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new SetBrightnessServiceLinux()

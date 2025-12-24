@@ -22,6 +22,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IBrightnessController _brightnessController = null!;
     private readonly ContentViewFactory _contentViewFactory = null!;
     private readonly ISettings _settings;
+    private readonly ApplicationViewModel? _applicationViewModel;
 
     [ObservableProperty]
     private ObservableCollection<AmbientLightSensor> _availableSensors = [];
@@ -44,6 +45,10 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private DisplayInfo? _selectedScreenItem;
 
+    public ApplicationViewModel? ApplicationViewModel => _applicationViewModel;
+    
+    public bool IsNotLoadingDisplays => _applicationViewModel?.IsLoadingDisplays == false;
+
     public MainWindowViewModel()
     {
         if (Design.IsDesignMode) SeedDesignetimeData();
@@ -54,13 +59,24 @@ public partial class MainWindowViewModel : ViewModelBase
         ISensorService sensorService,
         IBrightnessController brightnessController,
         ContentViewFactory contentViewFactory,
-        ISettings settings)
+        ISettings settings,
+        ApplicationViewModel applicationViewModel)
     {
         _monitosService = monitosService;
         _sensorService = sensorService;
         _brightnessController = brightnessController;
         _contentViewFactory = contentViewFactory;
         _settings = settings;
+        _applicationViewModel = applicationViewModel ?? throw new ArgumentNullException(nameof(applicationViewModel));
+
+        // Subscribe to ApplicationViewModel's property changes to update IsNotLoadingDisplays
+        _applicationViewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ApplicationViewModel.IsLoadingDisplays))
+            {
+                OnPropertyChanged(nameof(IsNotLoadingDisplays));
+            }
+        };
 
         _ = UpdateMonitors();
         UpdateSensors();
@@ -115,10 +131,19 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task UpdateMonitors()
     {
-        List<DisplayInfo> displays = await _monitosService.GetDisplays();
-        foreach (var display in displays)
+        try
         {
-            Displays.Add(display);
+            _applicationViewModel.IsLoadingDisplays = true;
+
+            List<DisplayInfo> displays = await _monitosService.GetDisplays();
+            foreach (var display in displays)
+            {
+                Displays.Add(display);
+            }
+        }
+        finally
+        {
+            _applicationViewModel.IsLoadingDisplays = false;
         }
     }
 

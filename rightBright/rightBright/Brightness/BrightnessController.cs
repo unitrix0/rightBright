@@ -15,6 +15,7 @@ using rightBright.Services.Sensors;
 using rightBright.Services.SystemNotifications;
 using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
+using rightBright.ViewModels;
 using rightBright.WindowsApi.Monitor;
 using Timer = System.Timers.Timer;
 
@@ -28,6 +29,7 @@ namespace rightBright.Brightness
         private readonly IBrightnessCalculator _brightnessCalculator;
         private readonly ISettings _settings;
         private readonly ILoggingService _logger;
+        private readonly ApplicationViewModel? _applicationViewModel;
         private AmbientLightSensor? _connectedSensor;
         private bool _pauseSettingBrightness;
         private readonly Timer _pollingRestartTimer;
@@ -52,7 +54,7 @@ namespace rightBright.Brightness
         public BrightnessController(ISensorService sensorService, ISetBrightnessService brightnessService,
             IMonitorEnummerationService monitorService, IBrightnessCalculator brightnessCalculator, ISettings settings,
             IMonitorChangedNotificationService monitorNotificationService,
-            IPowerNotificationService powerNotificationService, ILoggingService logger)
+            IPowerNotificationService powerNotificationService, ILoggingService logger, ApplicationViewModel? applicationViewModel = null)
         {
             _sensorService = sensorService;
             _brightnessService = brightnessService;
@@ -60,6 +62,7 @@ namespace rightBright.Brightness
             _brightnessCalculator = brightnessCalculator;
             _settings = settings;
             _logger = logger;
+            _applicationViewModel = applicationViewModel;
 
             _pollingRestartTimer = new Timer() { Interval = 1500, AutoReset = false };
             _pollingRestartTimer.Elapsed += OnPollingRestartTimerElapsed;
@@ -117,15 +120,30 @@ namespace rightBright.Brightness
         {
             _logger.WriteInformation("Loading monitor settings");
 
-            foreach (var monitor in await _monitorService.GetDisplays())
+            try
             {
-                if (!_settings.BrightnessCalculationParameters.TryGetValue(monitor.ModelName, out var savedSettings))
-                    continue;
+                if (_applicationViewModel != null)
+                {
+                    _applicationViewModel.IsLoadingDisplays = true;
+                }
 
-                monitor.CalculationParameters.Progression = savedSettings.Progression;
-                monitor.CalculationParameters.MinBrightness = savedSettings.MinBrightness;
-                monitor.CalculationParameters.Curve = savedSettings.Curve;
-                monitor.CalculationParameters.Active = savedSettings.Active;
+                foreach (var monitor in await _monitorService.GetDisplays())
+                {
+                    if (!_settings.BrightnessCalculationParameters.TryGetValue(monitor.ModelName, out var savedSettings))
+                        continue;
+
+                    monitor.CalculationParameters.Progression = savedSettings.Progression;
+                    monitor.CalculationParameters.MinBrightness = savedSettings.MinBrightness;
+                    monitor.CalculationParameters.Curve = savedSettings.Curve;
+                    monitor.CalculationParameters.Active = savedSettings.Active;
+                }
+            }
+            finally
+            {
+                if (_applicationViewModel != null)
+                {
+                    _applicationViewModel.IsLoadingDisplays = false;
+                }
             }
         }
 
@@ -175,9 +193,25 @@ namespace rightBright.Brightness
                 ConnectedSensor!.CurrentValue = (int)Math.Round(e);
                 if (PauseSettingBrightness) return;
 
-                List<DisplayInfo> activeDisplays = (await _monitorService.GetDisplays())
-                    .Where(m => m.CalculationParameters.Active)
-                    .ToList();
+                List<DisplayInfo> activeDisplays;
+                try
+                {
+                    if (_applicationViewModel != null)
+                    {
+                        _applicationViewModel.IsLoadingDisplays = true;
+                    }
+
+                    activeDisplays = (await _monitorService.GetDisplays())
+                        .Where(m => m.CalculationParameters.Active)
+                        .ToList();
+                }
+                finally
+                {
+                    if (_applicationViewModel != null)
+                    {
+                        _applicationViewModel.IsLoadingDisplays = false;
+                    }
+                }
 
                 foreach (var display in activeDisplays)
                 {
