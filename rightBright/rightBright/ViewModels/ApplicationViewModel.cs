@@ -7,12 +7,14 @@ using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using rightBright.Brightness;
+using rightBright.Services.LoadingState;
 
 namespace rightBright.ViewModels;
 
 public partial class ApplicationViewModel : ViewModelBase
 {
-    private IBrightnessController? _brightnessController;
+    private readonly IBrightnessController? _brightnessController;
+    private readonly ILoadingMonitorStateService _loadingMonitorStateService;
     private WindowIcon? _normalIcon;
     private WindowIcon? _loadingIcon;
 
@@ -28,11 +30,6 @@ public partial class ApplicationViewModel : ViewModelBase
         }
     }
     
-    public void SetBrightnessController(IBrightnessController brightnessController)
-    {
-        _brightnessController = brightnessController;
-    }
-
     public Action? OnOpenMainWindow;
     [ObservableProperty] private WindowIcon? _appIcon;
     
@@ -42,12 +39,29 @@ public partial class ApplicationViewModel : ViewModelBase
     public ApplicationViewModel()
     {
         SetAppIcon();
+        _loadingMonitorStateService = new LoadingMonitorStateService();
     }
-    
-    public ApplicationViewModel(IBrightnessController brightnessController)
+
+    public ApplicationViewModel(IBrightnessController brightnessController, ILoadingMonitorStateService loadingMonitorStateService)
     {
         _brightnessController = brightnessController;
+        _loadingMonitorStateService = loadingMonitorStateService;
         SetAppIcon();
+        SubscribeToLoadingState();
+    }
+
+    private void SubscribeToLoadingState()
+    {
+        _loadingMonitorStateService.PropertyChanged += OnLoadingMonitorStateChanged;
+        IsLoadingDisplays = _loadingMonitorStateService.IsLoading;
+    }
+
+    private void OnLoadingMonitorStateChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ILoadingMonitorStateService.IsLoading))
+        {
+            IsLoadingDisplays = _loadingMonitorStateService.IsLoading;
+        }
     }
 
     private void SetAppIcon()
@@ -103,26 +117,25 @@ public partial class ApplicationViewModel : ViewModelBase
     
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(IsLoadingDisplays))
+        switch (e.PropertyName)
         {
-            if (IsLoadingDisplays)
-            {
+            case nameof(IsLoadingDisplays) when IsLoadingDisplays:
                 SetLoadingIcon();
-            }
-            else
-            {
+                break;
+            case nameof(IsLoadingDisplays):
                 SetNormalIcon();
-            }
-        }
-        
-        if (e.PropertyName == nameof(Suspend))
-        {
-            if (_brightnessController != null)
+                break;
+            case nameof(Suspend):
             {
-                _brightnessController.PauseSettingBrightness = Suspend;
+                if (_brightnessController != null)
+                {
+                    _brightnessController.PauseSettingBrightness = Suspend;
+                }
+
+                break;
             }
         }
-        
+
         base.OnPropertyChanged(e);
     }
 }

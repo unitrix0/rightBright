@@ -9,14 +9,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using rightBright.Brightness.Calculators;
 using rightBright.Models.Sensors;
 using rightBright.Services.Brightness;
+using rightBright.Services.LoadingState;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
 using rightBright.Services.SystemNotifications;
-using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
-using rightBright.ViewModels;
-using rightBright.WindowsApi.Monitor;
 using Timer = System.Timers.Timer;
 
 namespace rightBright.Brightness
@@ -29,7 +27,7 @@ namespace rightBright.Brightness
         private readonly IBrightnessCalculator _brightnessCalculator;
         private readonly ISettings _settings;
         private readonly ILoggingService _logger;
-        private readonly ApplicationViewModel? _applicationViewModel;
+        private readonly ILoadingMonitorStateService _loadingMonitorStateService;
         private AmbientLightSensor? _connectedSensor;
         private bool _pauseSettingBrightness;
         private readonly Timer _pollingRestartTimer;
@@ -51,10 +49,15 @@ namespace rightBright.Brightness
             private set => SetProperty(ref _connectedSensor, value);
         }
 
-        public BrightnessController(ISensorService sensorService, ISetBrightnessService brightnessService,
-            IMonitorEnummerationService monitorService, IBrightnessCalculator brightnessCalculator, ISettings settings,
+        public BrightnessController(ISensorService sensorService, 
+            ISetBrightnessService brightnessService,
+            IMonitorEnummerationService monitorService, 
+            IBrightnessCalculator brightnessCalculator, 
+            ISettings settings,
             IMonitorChangedNotificationService monitorNotificationService,
-            IPowerNotificationService powerNotificationService, ILoggingService logger, ApplicationViewModel? applicationViewModel = null)
+            IPowerNotificationService powerNotificationService, 
+            ILoggingService logger, 
+            ILoadingMonitorStateService loadingMonitorStateService)
         {
             _sensorService = sensorService;
             _brightnessService = brightnessService;
@@ -62,7 +65,7 @@ namespace rightBright.Brightness
             _brightnessCalculator = brightnessCalculator;
             _settings = settings;
             _logger = logger;
-            _applicationViewModel = applicationViewModel;
+            _loadingMonitorStateService = loadingMonitorStateService;
 
             _pollingRestartTimer = new Timer() { Interval = 1500, AutoReset = false };
             _pollingRestartTimer.Elapsed += OnPollingRestartTimerElapsed;
@@ -122,10 +125,7 @@ namespace rightBright.Brightness
 
             try
             {
-                if (_applicationViewModel != null)
-                {
-                    _applicationViewModel.IsLoadingDisplays = true;
-                }
+                _loadingMonitorStateService.IsLoading = true;
 
                 foreach (var monitor in await _monitorService.GetDisplays())
                 {
@@ -140,10 +140,7 @@ namespace rightBright.Brightness
             }
             finally
             {
-                if (_applicationViewModel != null)
-                {
-                    _applicationViewModel.IsLoadingDisplays = false;
-                }
+                _loadingMonitorStateService.IsLoading = false;
             }
         }
 
@@ -196,10 +193,7 @@ namespace rightBright.Brightness
                 List<DisplayInfo> activeDisplays;
                 try
                 {
-                    if (_applicationViewModel != null)
-                    {
-                        _applicationViewModel.IsLoadingDisplays = true;
-                    }
+                    _loadingMonitorStateService.IsLoading = true;
 
                     activeDisplays = (await _monitorService.GetDisplays())
                         .Where(m => m.CalculationParameters.Active)
@@ -207,10 +201,7 @@ namespace rightBright.Brightness
                 }
                 finally
                 {
-                    if (_applicationViewModel != null)
-                    {
-                        _applicationViewModel.IsLoadingDisplays = false;
-                    }
+                    _loadingMonitorStateService.IsLoading = false;
                 }
 
                 foreach (var display in activeDisplays)

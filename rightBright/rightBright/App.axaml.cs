@@ -11,6 +11,7 @@ using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
 using rightBright.Services.Brightness;
 using rightBright.Services.CurveCalculation;
+using rightBright.Services.LoadingState;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
 using rightBright.Services.Monitors.Enummerators;
@@ -21,11 +22,10 @@ using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
 using rightBright.ViewModels;
 using rightBright.Views;
-using ApplicationViewModel = rightBright.ViewModels.ApplicationViewModel;
 
 namespace rightBright;
 
-public partial class App : Application
+public class App : Application
 {
     public override void Initialize()
     {
@@ -69,54 +69,23 @@ public partial class App : Application
 
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<CurveEditorViewModel>();
-
         serviceCollection.AddSingleton<ISettings>(_ => AppSettings.Load());
-        
-        // Register ApplicationViewModel first (without IBrightnessController to avoid circular dependency)
-        serviceCollection.AddSingleton<ApplicationViewModel>(_ => new ApplicationViewModel());
-        
-        // Register BrightnessController with ApplicationViewModel
-        serviceCollection.AddSingleton<IBrightnessController>(services =>
-        {
-            var sensorService = services.GetRequiredService<ISensorService>();
-            var brightnessService = services.GetRequiredService<ISetBrightnessService>();
-            var monitorService = services.GetRequiredService<IMonitorEnummerationService>();
-            var brightnessCalculator = services.GetRequiredService<IBrightnessCalculator>();
-            var settings = services.GetRequiredService<ISettings>();
-            var monitorNotificationService = services.GetRequiredService<IMonitorChangedNotificationService>();
-            var powerNotificationService = services.GetRequiredService<IPowerNotificationService>();
-            var logger = services.GetRequiredService<ILoggingService>();
-            var applicationViewModel = services.GetRequiredService<ApplicationViewModel>();
-            
-            var brightnessController = new BrightnessController(
-                sensorService,
-                brightnessService,
-                monitorService,
-                brightnessCalculator,
-                settings,
-                monitorNotificationService,
-                powerNotificationService,
-                logger,
-                applicationViewModel);
-            
-            // Set the brightness controller on ApplicationViewModel after creation
-            applicationViewModel.SetBrightnessController(brightnessController);
-            
-            return brightnessController;
-        });
-        
+        serviceCollection.AddSingleton<ILoadingMonitorStateService, LoadingMonitorStateService>();
+        serviceCollection.AddSingleton<IBrightnessController, BrightnessController>();
+        serviceCollection.AddSingleton<ApplicationViewModel>();
+
         serviceCollection.AddSingleton<MainWindowViewModel>();
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new SetBrightnessServiceLinux()
                 : new SetBrightnessServiceWin(servies.GetRequiredService<ILoggingService>()));
 
-        serviceCollection.AddSingleton<IMonitorChangedNotificationService>(services =>
+        serviceCollection.AddSingleton<IMonitorChangedNotificationService>(_ =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new LinuxMonitorChangedNotificationService()
                 : new WinMonitorChangedNotificationService());
 
-        serviceCollection.AddSingleton<IPowerNotificationService>(services =>
+        serviceCollection.AddSingleton<IPowerNotificationService>(_ =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new LinuxPowerNotificationService()
                 : new WinPowerNotificationService());

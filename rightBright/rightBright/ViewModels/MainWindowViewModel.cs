@@ -22,7 +22,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IBrightnessController _brightnessController = null!;
     private readonly ContentViewFactory _contentViewFactory = null!;
     private readonly ISettings _settings;
-    private readonly ApplicationViewModel? _applicationViewModel;
+    private readonly ApplicationViewModel _applicationViewModel;
 
     [ObservableProperty]
     private ObservableCollection<AmbientLightSensor> _availableSensors = [];
@@ -45,13 +45,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private DisplayInfo? _selectedScreenItem;
 
-    public ApplicationViewModel? ApplicationViewModel => _applicationViewModel;
+    public ApplicationViewModel ApplicationViewModel => _applicationViewModel;
     
-    public bool IsNotLoadingDisplays => _applicationViewModel?.IsLoadingDisplays == false;
+    public bool IsNotLoadingDisplays => !_applicationViewModel.IsLoadingDisplays;
 
     public MainWindowViewModel()
     {
         if (Design.IsDesignMode) SeedDesignetimeData();
+        _applicationViewModel = new ApplicationViewModel();
         _settings = new AppSettings();
     }
 
@@ -67,7 +68,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _brightnessController = brightnessController;
         _contentViewFactory = contentViewFactory;
         _settings = settings;
-        _applicationViewModel = applicationViewModel ?? throw new ArgumentNullException(nameof(applicationViewModel));
+        _applicationViewModel = applicationViewModel;
 
         // Subscribe to ApplicationViewModel's property changes to update IsNotLoadingDisplays
         _applicationViewModel.PropertyChanged += (_, e) =>
