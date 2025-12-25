@@ -1,7 +1,6 @@
 ﻿using System;
-using rightBright.Brightness.Calculators;
 
-namespace unitrix0.rightbright.Brightness.Calculators
+namespace rightBright.Brightness.Calculators
 {
     public class ProgressiveBrightnessCalculator : IBrightnessCalculator
     {

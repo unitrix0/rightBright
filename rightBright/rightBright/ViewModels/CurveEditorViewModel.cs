@@ -11,12 +11,12 @@ using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
+using rightBright.Brightness.Calculators;
 using rightBright.Models.Monitors;
 using rightBright.Services.CurveCalculation;
 using rightBright.Services.Logging;
 using rightBright.Settings;
 using SkiaSharp;
-using unitrix0.rightbright.Brightness.Calculators;
 using Timer = System.Timers.Timer;
 
 namespace rightBright.ViewModels;

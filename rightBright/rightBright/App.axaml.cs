@@ -21,7 +21,6 @@ using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
 using rightBright.ViewModels;
 using rightBright.Views;
-using unitrix0.rightbright.Brightness.Calculators;
 using ApplicationViewModel = rightBright.ViewModels.ApplicationViewModel;
 
 namespace rightBright;
@@ -106,24 +105,7 @@ public partial class App : Application
             return brightnessController;
         });
         
-        // Register MainWindowViewModel with ApplicationViewModel
-        serviceCollection.AddSingleton<MainWindowViewModel>(services =>
-        {
-            var monitosService = services.GetRequiredService<IMonitorEnummerationService>();
-            var sensorService = services.GetRequiredService<ISensorService>();
-            var brightnessController = services.GetRequiredService<IBrightnessController>();
-            var contentViewFactory = services.GetRequiredService<ContentViewFactory>();
-            var settings = services.GetRequiredService<ISettings>();
-            var applicationViewModel = services.GetRequiredService<ApplicationViewModel>();
-            
-            return new MainWindowViewModel(
-                monitosService,
-                sensorService,
-                brightnessController,
-                contentViewFactory,
-                settings,
-                applicationViewModel);
-        });
+        serviceCollection.AddSingleton<MainWindowViewModel>();
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new SetBrightnessServiceLinux()
