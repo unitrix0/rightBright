@@ -56,6 +56,7 @@ namespace rightBright.Services.Sensors
             if (_sensorDevice == null) throw new Exception("Sensor device is null");
             
             _logger.WriteInformation("Starting sensor polling timer");
+            Update?.Invoke(this, _sensorDevice.get_currentValue());
             _handleYapiEventsTimer.Start();
         }
 
@@ -65,9 +66,9 @@ namespace rightBright.Services.Sensors
             _handleYapiEventsTimer.Stop();
         }
 
-        private void TimedReport(YLightSensor func, YMeasure measure)
+        private void TimedReport(YLightSensor sensor, YMeasure measure)
         {
-            var currentValue = func.get_currentValue();
+            var currentValue = sensor.get_currentValue();
             Update?.Invoke(this, currentValue);
 
             if (ValueHistory.Count == 17280) ValueHistory.Dequeue();

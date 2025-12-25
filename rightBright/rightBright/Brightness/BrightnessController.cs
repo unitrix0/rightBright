@@ -85,8 +85,8 @@ namespace rightBright.Brightness
 
             if (!ConnectSensor(_settings.LastUsedSensor)) return;
 
-            _sensorService.StartPollTimer();
             _updatingStopped = false;
+            _sensorService.StartPollTimer();
         }
 
         public bool Run(AmbientLightSensor sensor)
