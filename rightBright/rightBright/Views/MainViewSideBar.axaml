@@ -40,9 +40,19 @@
                             <Label Grid.Column="1" Grid.Row="0" Foreground="White" Content="{Binding ModelName}"
                                    FontWeight="Bold">
                             </Label>
-                            <Label Grid.Column="1" Grid.Row="1" Foreground="White" Content="{Binding DeviceName}"
-                                   FontSize="13">
-                            </Label>
+                            <Grid Grid.Column="1" Grid.Row="1" ColumnDefinitions="*,Auto">
+                                <Label Foreground="White" Content="{Binding DeviceName}"
+                                       FontSize="13"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" 
+                                            HorizontalAlignment="Right" VerticalAlignment="Center" 
+                                            Margin="0,0,7,0">
+                                    <Label Classes="icon" Foreground="White">&#xE472;</Label>
+                                    <Label Grid.Column="1" HorizontalAlignment="Right" Foreground="White" Padding="0,2,0,0"
+                                           Content="{Binding LastBrightnessSet, StringFormat='{}{0}%'}"
+                                           FontSize="13" />    
+                                </StackPanel>
+                            </Grid>
+                            
                         </Grid>
                     </Border>
                 </DataTemplate>

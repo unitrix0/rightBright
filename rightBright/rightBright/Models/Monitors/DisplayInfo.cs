@@ -12,8 +12,8 @@ public class DisplayInfo : ObservableObject
     public string Resolution => $"{ScreenWidth}x{ScreenHeight}";
     public RectStruct MonitorArea { get; set; }
     public RectStruct WorkArea { get; set; }
-    public string DeviceName { get; set; }
-    public string ModelName { get; set; }
+    public string DeviceName { get; set; } = "";
+    public string ModelName { get; set; } = "";
 
     public BrightnessCalculationParameters CalculationParameters { get; set; }
 
@@ -26,7 +26,7 @@ public class DisplayInfo : ObservableObject
     public DisplayInfo()
     {
         CalculationParameters = new BrightnessCalculationParameters();
-        _lastBrightnessSet = -1;
+        _lastBrightnessSet = 0;
     }
 
     public override string ToString()
