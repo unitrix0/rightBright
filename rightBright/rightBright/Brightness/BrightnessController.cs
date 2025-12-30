@@ -49,14 +49,14 @@ namespace rightBright.Brightness
             private set => SetProperty(ref _connectedSensor, value);
         }
 
-        public BrightnessController(ISensorService sensorService, 
+        public BrightnessController(ISensorService sensorService,
             ISetBrightnessService brightnessService,
-            IMonitorEnummerationService monitorService, 
-            IBrightnessCalculator brightnessCalculator, 
+            IMonitorEnummerationService monitorService,
+            IBrightnessCalculator brightnessCalculator,
             ISettings settings,
             IMonitorChangedNotificationService monitorNotificationService,
-            IPowerNotificationService powerNotificationService, 
-            ILoggingService logger, 
+            IPowerNotificationService powerNotificationService,
+            ILoggingService logger,
             ILoadingMonitorStateService loadingMonitorStateService)
         {
             _sensorService = sensorService;
@@ -213,9 +213,17 @@ namespace rightBright.Brightness
                         display.CalculationParameters.Curve, display.CalculationParameters.MinBrightness));
                     newBrightness = newBrightness > 100 ? 100 : newBrightness;
 
-                    //Debug.Print($"{DateTime.Now.TimeOfDay}\t Updating Brightness on {monitor.DeviceName} to: {newBrightness}");
-                    await _brightnessService.SetBrightness(display, newBrightness);
-                    display.LastBrightnessSet = newBrightness;
+                    bool successful;
+                    var trycount = 0;
+                    do
+                    {
+                        _logger.WriteInformation($"Setting Brightness {newBrightness} for {display.ModelName} try {trycount + 1}");
+                        if (trycount > 0) Task.Delay(250).Wait();
+                        successful = await _brightnessService.SetBrightness(display, newBrightness);
+                        trycount++;
+                    } while (!successful && trycount < 4);
+
+                    if (successful) display.LastBrightnessSet = newBrightness;
                 }
             }
             catch (Exception ex)

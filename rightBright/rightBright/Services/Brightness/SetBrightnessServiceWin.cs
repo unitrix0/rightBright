@@ -23,42 +23,45 @@ namespace rightBright.Services.Brightness
             _logger = logger;
         }
 
-        public Task SetBrightness(DisplayInfo monitor, int newValue)
+        public Task<bool> SetBrightness(DisplayInfo monitor, int newValue)
         {
-            return Task.Factory.StartNew(() =>
+            return Task.Factory.StartNew(() => SetBrightnessInternal(monitor, newValue));
+        }
+
+        private bool SetBrightnessInternal(DisplayInfo monitor, int newValue)
+        {
+            uint maxValue = 0;
+            uint minValue = 0;
+            newValue = newValue > 100 ? 100 : newValue;
+            newValue = newValue < 1 ? 1 : newValue;
+            uint currentBrightness = 0;
+
+            List<MonitorHandleInfo> monitorHandles = GetMonitorHandles();
+            var monitorHandleInfo = monitorHandles.Single(h => h.DeviceName == monitor.DeviceName);
+
+            PHYSICAL_MONITOR[] monitors = GetPhysicalMonitors(monitorHandleInfo.Handle);
+            var getMonBrightness = DxvaImports.GetMonitorBrightness(monitors[0].hPhysicalMonitor, ref minValue,
+                ref currentBrightness, ref maxValue);
+                
+            newValue = (int)((maxValue - minValue) * newValue / 100 + minValue);
+                
+            if (!getMonBrightness)
             {
-                uint maxValue = 0;
-                uint minValue = 0;
-                newValue = newValue > 100 ? 100 : newValue;
-                newValue = newValue < 1 ? 1 : newValue;
-                uint currentBrightness = 0;
-
-                List<MonitorHandleInfo> monitorHandles = GetMonitorHandles();
-                var monitorHandleInfo = monitorHandles.Single(h => h.DeviceName == monitor.DeviceName);
-
-                PHYSICAL_MONITOR[] monitors = GetPhysicalMonitors(monitorHandleInfo.Handle);
-                var getMonBrightness = DxvaImports.GetMonitorBrightness(monitors[0].hPhysicalMonitor, ref minValue,
-                    ref currentBrightness, ref maxValue);
-                
-                newValue = (int)((maxValue - minValue) * newValue / 100 + minValue);
-                
-                if (!getMonBrightness)
+                var lastWin32Error = Marshal.GetLastWin32Error();
+                var ex = new Win32Exception(lastWin32Error);
+                if (ex.HResult != -2147467259)
                 {
-                    var lastWin32Error = Marshal.GetLastWin32Error();
-                    var ex = new Win32Exception(lastWin32Error);
-                    if (ex.HResult != -2147467259)
-                    {
-                        _logger.WriteError(
-                            $"{nameof(DxvaImports.GetMonitorBrightness)} for {monitor.DeviceName} ({lastWin32Error}) Error: 0x{ex.HResult:X} {ex.Message} - {ex.HResult}");
-                        _logger.WriteError($"Returned brightness: {currentBrightness}");
-                    }
+                    _logger.WriteError(
+                        $"{nameof(DxvaImports.GetMonitorBrightness)} for {monitor.DeviceName} ({lastWin32Error}) Error: 0x{ex.HResult:X} {ex.Message} - {ex.HResult}");
+                    _logger.WriteError($"Returned brightness: {currentBrightness}");
                 }
+            }
 
-                if (currentBrightness == newValue) return;
+            if (currentBrightness == newValue) return true;
 
-                var result = DxvaImports.SetMonitorBrightness(monitors[0].hPhysicalMonitor, (uint)newValue);
-                Debug.Print($"{nameof(SetBrightness)} FROM:{currentBrightness} TO: {newValue} => success: {result}");
-            });
+            var result = DxvaImports.SetMonitorBrightness(monitors[0].hPhysicalMonitor, (uint)newValue);
+            Debug.Print($"{nameof(SetBrightness)} FROM:{currentBrightness} TO: {newValue} => success: {result}");
+            return result;
         }
 
         private List<MonitorHandleInfo> GetMonitorHandles()

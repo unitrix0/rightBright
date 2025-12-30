@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using rightBright.Services.DBus.ddcutil;
 using Address = Tmds.DBus.Address;
@@ -15,7 +16,7 @@ public class SetBrightnessServiceLinux : ISetBrightnessService
         _dbusConnection = new Connection(Address.Session);
     }
 
-    public async Task SetBrightness(DisplayInfo monitor, int newValue)
+    public async Task<bool> SetBrightness(DisplayInfo monitor, int newValue)
     {
         try
         {
@@ -28,13 +29,16 @@ public class SetBrightnessServiceLinux : ISetBrightnessService
             var currentVcp = await ddcUtil.GetVcpAsync(displayNumber, "", 16, 0x0);
             var maxValue = currentVcp.VcpMaxValue;
             newValue = (maxValue - minValue) * newValue / 100 + minValue;
+            if (currentVcp.VcpCurrentValue == newValue) return true;
 
-            if (currentVcp.VcpCurrentValue == newValue) return;
-            ddcUtil.SetVcpAsync(displayNumber, "", 16, (ushort)newValue, 0x0).GetAwaiter();
+            var result = await ddcUtil.SetVcpAsync(displayNumber, "", 16, (ushort)newValue, 0x0);
+            Debug.Print($"Setting to {newValue} ErrorStatus: {result.ErrorStatus}");
+            return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
+            return false; 
         }
     }
 }

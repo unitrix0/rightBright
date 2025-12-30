@@ -11,21 +11,21 @@ public class LoggingService : ILoggingService
     public void WriteInformation(string msg)
     {
         var line = $"{DateTime.Now:g} INF\t{msg}\n";
-        if (Debugger.IsAttached) Debug.Print(line);
+        if (Debugger.IsAttached) Debug.Print(line.TrimEnd('\n'));
         File.AppendAllText(LogfileName, line);
     }
 
     public void WriteWarning(string msg)
     {
         var line = $"{DateTime.Now:g} WRN\t{msg}\n";
-        if (Debugger.IsAttached) Debug.Print(line);
+        if (Debugger.IsAttached) Debug.Print(line.TrimEnd('\n'));
         File.AppendAllText(LogfileName, line);
     }
 
     public void WriteError(string msg)
     {
         var line = $"{DateTime.Now:g} ERR\t{msg}\n";
-        if (Debugger.IsAttached) Debug.Print(line);
+        if (Debugger.IsAttached) Debug.Print(line.TrimEnd('\n'));
         File.AppendAllText(LogfileName, line);
     }
 }

@@ -4,6 +4,6 @@ namespace rightBright.Services.Brightness
 {
     public interface ISetBrightnessService
     {
-        Task SetBrightness(DisplayInfo monitor, int newValue);
+        Task<bool> SetBrightness(DisplayInfo monitor, int newValue);
     }
 }

@@ -73,7 +73,6 @@ namespace rightBright.Services.Sensors
 
             if (ValueHistory.Count == 17280) ValueHistory.Dequeue();
             ValueHistory.Enqueue(currentValue);
-            Debug.Print(currentValue.ToString());
         }
 
         private void HandleYapiEventsTimerOnElapsed(object? sender, ElapsedEventArgs e)
