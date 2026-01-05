@@ -217,8 +217,11 @@ namespace rightBright.Brightness
                     var trycount = 0;
                     do
                     {
-                        _logger.WriteInformation($"Setting Brightness {newBrightness} for {display.ModelName} try {trycount + 1}");
-                        if (trycount > 0) Task.Delay(250).Wait();
+                        if (trycount > 0)
+                        {
+                            _logger.WriteInformation($"Setting Brightness {newBrightness} for {display.ModelName} try {trycount + 1}");
+                            Task.Delay(250).Wait();
+                        }
                         successful = await _brightnessService.SetBrightness(display, newBrightness);
                         trycount++;
                     } while (!successful && trycount < 4);
