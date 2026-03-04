@@ -104,13 +104,15 @@ namespace rightBright.Brightness
         {
             try
             {
-                ConnectedSensor = _sensorService.GetSensors().SingleOrDefault(s => s.FriendlyName == sensor.FriendlyName);
-                if (ConnectedSensor == null) return false;
-
-                _sensorService.ConnectToSensor(ConnectedSensor.FriendlyName);
-                _logger.WriteInformation($"Sensor {ConnectedSensor.FriendlyName} connected");
-
+                // ConnectedSensor = _sensorService.GetSensors().SingleOrDefault(s => s.FriendlyName == sensor.FriendlyName);
+                // if (ConnectedSensor == null) return false;
+                
+                if (!_sensorService.ConnectToSensor(sensor.FriendlyName)) return false;
+                
+                ConnectedSensor = sensor;
+                _logger.WriteInformation($"Sensor {sensor.FriendlyName} connected");
                 return true;
+
             }
             catch (Exception ex)
             {

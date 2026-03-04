@@ -92,9 +92,10 @@ public partial class MainWindowViewModel : ViewModelBase
                 AvailableSensors.Add(lightSensor);
             }
 
-            SelectedSensor = AvailableSensors
-                .SingleOrDefault(s =>
-                    s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
+            // SelectedSensor = AvailableSensors
+            //     .SingleOrDefault(s =>
+            //         s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
+            SelectedSensor = _brightnessController.ConnectedSensor;
         
             UpdateNoSelectionText(_sensorService.Error);
         }

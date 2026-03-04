@@ -54,9 +54,11 @@ namespace rightBright.Services.Sensors
         public void StartPollTimer()
         {
             if (_sensorDevice == null) throw new Exception("Sensor device is null");
-            
+
             _logger.WriteInformation("Starting sensor polling timer");
-            Update?.Invoke(this, _sensorDevice.get_currentValue());
+            if (_sensorDevice.isOnline())
+                Update?.Invoke(this, _sensorDevice.get_currentValue());
+
             _handleYapiEventsTimer.Start();
         }
 
@@ -77,7 +79,7 @@ namespace rightBright.Services.Sensors
 
         private void HandleYapiEventsTimerOnElapsed(object? sender, ElapsedEventArgs e)
         {
-            if(_sensorDevice == null || _sensorDevice.isOnline() == false)
+            if (_sensorDevice == null || _sensorDevice.isOnline() == false)
             {
                 Debug.Print("Offline");
                 _sensorInitialized = false;
