@@ -108,7 +108,7 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
         _settings.Save();
         
         await CalculateCurrentCurve(SelectedScreen.CalculationParameters);
-        Series[1].Values = null;
+        if (_series[1].Values is ObservableCollection<ObservablePoint> points) points.Clear(); 
     }
 
     protected override async void OnPropertyChanged(PropertyChangedEventArgs eventArgs)
