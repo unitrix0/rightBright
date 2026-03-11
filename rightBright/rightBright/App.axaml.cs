@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
 using rightBright.Services.Brightness;
-using rightBright.Services.CurveCalculation;
 using rightBright.Services.LoadingState;
 using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
@@ -90,11 +89,10 @@ public class App : Application
                 ? new LinuxPowerNotificationService()
                 : new WinPowerNotificationService());
 
-        serviceCollection.AddSingleton<IBrightnessCalculator, ProgressiveBrightnessCalculator>();
+        serviceCollection.AddSingleton<IBrightnessCalculator, BezierBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
         serviceCollection.AddSingleton<ILoggingService, LoggingService>();
         serviceCollection.AddSingleton<ISensorService, YoctoSensorService>();
-        serviceCollection.AddSingleton<ICurveCalculationService, CurveCalculationService>();
         serviceCollection.AddSingleton<IMonitorEnummerationService>(services =>
         {
             var logger = services.GetRequiredService<ILoggingService>();

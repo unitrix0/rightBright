@@ -1,32 +1,17 @@
-﻿using System;
-using System.Collections;
-using System.Collections.ObjectModel;
+using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LiveChartsCore;
-using LiveChartsCore.Defaults;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
-using rightBright.Brightness.Calculators;
 using rightBright.Models.Monitors;
-using rightBright.Services.CurveCalculation;
 using rightBright.Services.Logging;
 using rightBright.Settings;
-using SkiaSharp;
-using Timer = System.Timers.Timer;
 
 namespace rightBright.ViewModels;
 
 public partial class CurveEditorViewModel : MainWindowContentViewModel
 {
-    private readonly ICurveCalculationService _curveService;
     private readonly ILoggingService _logger;
     private readonly ISettings _settings;
-    private readonly Timer _curveUpdateTimer;
 
     public Action? closeView;
 
@@ -34,59 +19,46 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
     private int _minBrightness;
 
     [ObservableProperty]
-    private int _curve;
+    private double _controlPointX = 400;
 
     [ObservableProperty]
-    private double _progression;
+    private double _controlPointY = 50;
+
+    [ObservableProperty]
+    private int _maxLux = 800;
 
     [ObservableProperty]
     private bool _active;
 
     [ObservableProperty]
-    private ISeries[] _series =
-    [
-        new LineSeries<ObservablePoint>()
-        {
-            Name = "Current Curve",
-            Stroke = new SolidColorPaint(SKColor.Parse("#BDBDBD"), 2),
-            Fill = new SolidColorPaint(SKColor.Parse("#6BBDBDBD")),
-            GeometryStroke = null,
-            GeometrySize = 0,
-            Values = new ObservableCollection<ObservablePoint>()
-        },
-        new LineSeries<ObservablePoint>()
-        {
-            Name = "New Curve",
-            Stroke = new SolidColorPaint(SKColor.Parse("#5A60B4"), 2),
-            Fill = new SolidColorPaint(SKColor.Parse("#6bBFC9FF")),
-            GeometryStroke = new SolidColorPaint(SKColor.Parse("#5A60B4")),
-            GeometrySize = 3,
-            Values = new ObservableCollection<ObservablePoint>()
-        }
-    ];
+    private int _savedMinBrightness;
+
+    [ObservableProperty]
+    private double _savedControlPointX = 400;
+
+    [ObservableProperty]
+    private double _savedControlPointY = 50;
+
+    [ObservableProperty]
+    private int _savedMaxLux = 800;
+
+    [ObservableProperty]
+    private bool _showSavedCurve;
 
     [ObservableProperty]
     private DisplayInfo? _selectedScreen;
 
     public CurveEditorViewModel()
     {
-        _curveService = new CurveCalculationService(new ProgressiveBrightnessCalculator());
         _logger = new LoggingService();
-        _curveUpdateTimer = new Timer();
         SeedDesignTimeData();
         _settings = null!;
     }
 
-    public CurveEditorViewModel(ICurveCalculationService curveService, ILoggingService logger, ISettings settings)
+    public CurveEditorViewModel(ILoggingService logger, ISettings settings)
     {
-        _curveService = curveService;
         _logger = logger;
         _settings = settings;
-        _curveUpdateTimer = new Timer(500);
-        _curveUpdateTimer.Enabled = false;
-        _curveUpdateTimer.AutoReset = false;
-        _curveUpdateTimer.Elapsed += async (_, _) =>
-            await CalculateCurve(MinBrightness, Curve, Progression, Series[1].Values);
     }
 
     [RelayCommand]
@@ -96,104 +68,75 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
     }
 
     [RelayCommand]
-    private async Task ApplyCurve()
+    private void ApplyCurve()
     {
         SelectedScreen!.CalculationParameters.MinBrightness = MinBrightness;
-        SelectedScreen!.CalculationParameters.Curve = Curve;
-        SelectedScreen!.CalculationParameters.Progression = Progression;
+        SelectedScreen!.CalculationParameters.ControlPointX = ControlPointX;
+        SelectedScreen!.CalculationParameters.ControlPointY = ControlPointY;
+        SelectedScreen!.CalculationParameters.MaxLux = MaxLux;
         SelectedScreen!.CalculationParameters.Active = Active;
-        
+
         _settings.BrightnessCalculationParameters[SelectedScreen.ModelName] =
             SelectedScreen.CalculationParameters;
         _settings.Save();
-        
-        await CalculateCurrentCurve(SelectedScreen.CalculationParameters);
-        if (_series[1].Values is ObservableCollection<ObservablePoint> points) points.Clear(); 
+
+        SnapshotSavedCurve(SelectedScreen.CalculationParameters);
     }
 
-    protected override async void OnPropertyChanged(PropertyChangedEventArgs eventArgs)
+    protected override void OnPropertyChanged(PropertyChangedEventArgs eventArgs)
     {
         try
         {
-            switch (eventArgs.PropertyName)
+            if (eventArgs.PropertyName == nameof(SelectedScreen) && SelectedScreen != null)
             {
-                case nameof(SelectedScreen) when SelectedScreen != null:
-                    MapCurentValuesToUi(SelectedScreen.CalculationParameters);
-                    Series[1].Values = new ObservableCollection<ObservablePoint>();
-                    
-                    //Enable the update timer but keep it from running
-                    _curveUpdateTimer.Enabled = true;
-                    _curveUpdateTimer.Stop();
-
-                    await CalculateCurrentCurve(SelectedScreen.CalculationParameters);
-                    break;
-                case nameof(MinBrightness):
-                case nameof(Curve):
-                case nameof(Progression):
-                    _curveUpdateTimer.Stop();
-                    _curveUpdateTimer.Start();
-                    break;
+                MapCurrentValuesToUi(SelectedScreen.CalculationParameters);
+                SnapshotSavedCurve(SelectedScreen.CalculationParameters);
             }
 
             base.OnPropertyChanged(eventArgs);
         }
         catch (Exception ex)
         {
-            _logger.WriteError($"Error calcualting new monitor curve: {ex}");
+            _logger.WriteError($"Error in curve editor property change: {ex}");
         }
     }
 
-    private async Task CalculateCurrentCurve(BrightnessCalculationParameters calculationParameters)
+    private void SnapshotSavedCurve(BrightnessCalculationParameters p)
     {
-        await CalculateCurve(calculationParameters.MinBrightness,
-            calculationParameters.Curve, calculationParameters.Progression,
-            Series[0].Values);
+        SavedMinBrightness = p.MinBrightness;
+        SavedControlPointX = p.ControlPointX;
+        SavedControlPointY = p.ControlPointY;
+        SavedMaxLux = p.MaxLux;
+        ShowSavedCurve = true;
     }
 
-    private void MapCurentValuesToUi(BrightnessCalculationParameters calculationParameters)
+    private void MapCurrentValuesToUi(BrightnessCalculationParameters p)
     {
-        MinBrightness = calculationParameters.MinBrightness;
-        Curve = calculationParameters.Curve;
-        Progression = calculationParameters.Progression;
-        Active = calculationParameters.Active;
-    }
-
-    private async Task CalculateCurve(int minBrightness, int curve, double progresssion,
-        IEnumerable? seriesValues)
-    {
-        if (seriesValues is ObservableCollection<ObservablePoint> points)
-        {
-            points.Clear();
-            await Task.Factory.StartNew(() => Thread.Sleep(250));
-            _curveService.Calculate(minBrightness, curve, progresssion, 800)
-                .ForEach(x => points.Add(new ObservablePoint(x.Item1, x.Item2)));
-        }
+        MinBrightness = p.MinBrightness;
+        ControlPointX = p.ControlPointX;
+        ControlPointY = p.ControlPointY;
+        MaxLux = p.MaxLux;
+        Active = p.Active;
     }
 
     private void SeedDesignTimeData()
     {
-        SelectedScreen = new DisplayInfo()
+        SelectedScreen = new DisplayInfo
         {
             ModelName = "Monitor 2",
-            CalculationParameters = new BrightnessCalculationParameters()
+            CalculationParameters = new BrightnessCalculationParameters
             {
                 Active = true,
                 MinBrightness = 7,
-                Curve = 25,
-                Progression = 1.15
+                ControlPointX = 200,
+                ControlPointY = 60,
+                MaxLux = 800
             }
         };
-        
-        Series[0].Values = _curveService.Calculate(SelectedScreen.CalculationParameters.MinBrightness,
-                SelectedScreen.CalculationParameters.Curve, SelectedScreen.CalculationParameters.Progression, 800)
-            .Select(x => new ObservablePoint(x.Item1, x.Item2))
-            .ToList();
 
         MinBrightness = 7;
-        Curve = 16;
-        Progression = 1.18;
-        Series[1].Values = _curveService.Calculate(MinBrightness, Curve, Progression, 800)
-            .Select(x => new ObservablePoint(x.Item1, x.Item2))
-            .ToArray();
+        ControlPointX = 300;
+        ControlPointY = 45;
+        MaxLux = 800;
     }
 }

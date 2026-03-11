@@ -1,12 +1,13 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace rightBright.Models.Monitors
 {
     public class BrightnessCalculationParameters : ObservableObject
     {
         private int _minBrightness;
-        private int _curve = 80;
-        private double _progression = 2.105;
+        private double _controlPointX = 400;
+        private double _controlPointY = 50;
+        private int _maxLux = 800;
         private bool _active;
 
         public bool Active
@@ -15,16 +16,22 @@ namespace rightBright.Models.Monitors
             set => SetProperty(ref _active, value);
         }
 
-        public int Curve
+        public double ControlPointX
         {
-            get => _curve;
-            set => SetProperty(ref _curve, value);
+            get => _controlPointX;
+            set => SetProperty(ref _controlPointX, value);
         }
 
-        public double Progression
+        public double ControlPointY
         {
-            get => _progression;
-            set => SetProperty(ref _progression, value);
+            get => _controlPointY;
+            set => SetProperty(ref _controlPointY, value);
+        }
+
+        public int MaxLux
+        {
+            get => _maxLux;
+            set => SetProperty(ref _maxLux, value);
         }
 
         public int MinBrightness
@@ -45,8 +52,9 @@ namespace rightBright.Models.Monitors
         private void MapFrom(BrightnessCalculationParameters source)
         {
             MinBrightness = source.MinBrightness;
-            Curve = source.Curve;
-            Progression = source.Progression;
+            ControlPointX = source.ControlPointX;
+            ControlPointY = source.ControlPointY;
+            MaxLux = source.MaxLux;
             Active = source.Active;
         }
     }
