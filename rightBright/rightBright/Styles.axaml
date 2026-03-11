@@ -1,0 +1,45 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20"
+                Background="{DynamicResource PrimaryBackground}"
+                Width="300" Height="200">
+            <!-- Add Controls for Previewer Here -->
+            <StackPanel>
+                <Button HorizontalAlignment="Center">Lorem</Button>
+            </StackPanel>
+
+        </Border>
+    </Design.PreviewWith>
+
+    <!-- Add Styles Here -->
+    <!-- <Style Selector="Button"> -->
+    <!--     <Setter Property="Background" Value="{DynamicResource ButtonBackground}"></Setter> -->
+    <!--     <Setter Property="Foreground" Value="{DynamicResource CustomWhite}"></Setter> -->
+    <!-- </Style> -->
+    <Style Selector="Button.titleBar">
+        <Setter Property="Height" Value="45" />
+        <Setter Property="Width" Value="45" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource CustomWhite}" />
+    </Style>
+    <Style Selector="Button.titleBar:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#3D1F84" />
+        <Setter Property="Foreground" Value="{DynamicResource CustomWhite}" />
+    </Style>
+    <Style Selector="Button.titlebarClose:pointerover /template/ ContentPresenter">
+        <Setter Property="CornerRadius" Value="0,4,0,0" />
+        <Setter Property="Background" Value="Red" />
+        <Setter Property="Foreground" Value="{DynamicResource CustomWhite}" />
+    </Style>
+
+    <Style Selector="Label.icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PhosphorThin}" />
+    </Style>
+</Styles>

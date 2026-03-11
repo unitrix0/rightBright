@@ -51,7 +51,7 @@ namespace unitrix0.rightbright.Windows.ViewModel
             }
         }
 
-        public bool ShowMonitorSettings => SelectedMonitor != null;
+        public bool ShowMonitorSettings => true; //SelectedMonitor != null;
 
         public List<AmbientLightSensor> Sensors
         {
@@ -126,7 +126,7 @@ namespace unitrix0.rightbright.Windows.ViewModel
             Sensors = sensorRepo.GetSensors();
             SelectedSensor = _brightnessController.ConnectedSensor;
             IsSensorConnected = _brightnessController.ConnectedSensor != null;
-            
+
             SaveSettingsOfNewMonitors();
         }
 

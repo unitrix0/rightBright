@@ -36,8 +36,8 @@ namespace unitrix0.rightbright.Settings
             var settingsJson = JsonConvert.SerializeObject(this, Formatting.Indented);
             if (string.IsNullOrEmpty(settingsJson)) return;
 
-            CeateBackup();
-            File.WriteAllText($"{SettingsFolder}\\settings.json", settingsJson);
+            // CeateBackup();
+            // File.WriteAllText($"{SettingsFolder}\\settings.json", settingsJson);
         }
 
         private void CeateBackup()

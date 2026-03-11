@@ -2,13 +2,19 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Tmds.DBus" Version="0.21.2" />
+      <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
       <PackageReference Include="Yoctopuce.YoctoLib" Version="2.0.64286" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="dbus\POCLinux.sln.DotSettings.user" />
     </ItemGroup>
 
 </Project>
