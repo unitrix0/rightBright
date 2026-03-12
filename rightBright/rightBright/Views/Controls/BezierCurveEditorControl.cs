@@ -233,22 +233,27 @@ public class BezierCurveEditorControl : Control
         var px1 = ChartToPixel(chart, p1x, p1y, xMax);
         var px2 = ChartToPixel(chart, p2x, p2y, xMax);
 
-        var geometry = new StreamGeometry();
-        using (var ctx = geometry.Open())
+        var fillGeometry = new StreamGeometry();
+        using (var ctx = fillGeometry.Open())
         {
             ctx.BeginFigure(px0, true);
             ctx.QuadraticBezierTo(px1, px2);
-
-            // Close the fill area down to the X-axis and back
             ctx.LineTo(new Point(px2.X, chart.Bottom));
             ctx.LineTo(new Point(px0.X, chart.Bottom));
             ctx.EndFigure(true);
         }
 
-        context.DrawGeometry(
-            new SolidColorBrush(fillColor),
-            new Pen(new SolidColorBrush(strokeColor), 2),
-            geometry);
+        context.DrawGeometry(new SolidColorBrush(fillColor), null, fillGeometry);
+
+        var strokeGeometry = new StreamGeometry();
+        using (var ctx = strokeGeometry.Open())
+        {
+            ctx.BeginFigure(px0, false);
+            ctx.QuadraticBezierTo(px1, px2);
+            ctx.EndFigure(false);
+        }
+
+        context.DrawGeometry(null, new Pen(new SolidColorBrush(strokeColor), 2), strokeGeometry);
     }
 
     private void DrawHandleLines(DrawingContext context, Rect chart, double xMax)
