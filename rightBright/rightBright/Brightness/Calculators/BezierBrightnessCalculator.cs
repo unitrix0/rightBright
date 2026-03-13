@@ -1,5 +1,6 @@
 using System;
 using rightBright.Models.Monitors;
+using rightBright.Views.Controls;
 
 namespace rightBright.Brightness.Calculators
 {
@@ -8,12 +9,13 @@ namespace rightBright.Brightness.Calculators
         public double Calculate(double lux, BrightnessCalculationParameters p)
         {
             double minBrightness = p.MinBrightness;
-            double cx = p.ControlPointX;
-            double cy = p.ControlPointY;
             double maxLux = p.MaxLux;
 
             if (lux <= 0) return minBrightness;
             if (lux >= maxLux) return 100;
+
+            var (cx, cy) = BezierCurveEditorControl.PassthroughToControl(
+                p.ControlPointX, p.ControlPointY, 0, minBrightness, maxLux, 100);
 
             double t = SolveForT(lux, cx, maxLux);
             double oneMinusT = 1 - t;

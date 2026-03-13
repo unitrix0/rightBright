@@ -20,7 +20,6 @@ public class BezierCurveEditorControl : Control
     private static readonly Color CurveFill = Color.Parse("#3FBFC9FF");
     private static readonly Color SavedCurveColor = Color.Parse("#BDBDBD");
     private static readonly Color SavedCurveFill = Color.Parse("#3FBDBDBD");
-    private static readonly Color HandleLineColor = Color.Parse("#80808080");
     private static readonly Color GridLineColor = Color.Parse("#20808080");
     private static readonly Color AxisColor = Color.Parse("#60808080");
     private static readonly Color LabelColor = Color.Parse("#A0A0A0");
@@ -160,7 +159,6 @@ public class BezierCurveEditorControl : Control
             0, MinBrightness, ControlPointX, ControlPointY, MaxLux, 100,
             CurveColor, CurveFill);
 
-        DrawHandleLines(context, chartRect, xMax);
         DrawControlPoints(context, chartRect, xMax);
     }
 
@@ -226,11 +224,13 @@ public class BezierCurveEditorControl : Control
     }
 
     private void DrawBezierCurve(DrawingContext context, Rect chart, double xMax,
-        double p0x, double p0y, double p1x, double p1y, double p2x, double p2y,
+        double p0x, double p0y, double qx, double qy, double p2x, double p2y,
         Color strokeColor, Color fillColor)
     {
+        var (cp1x, cp1y) = PassthroughToControl(qx, qy, p0x, p0y, p2x, p2y);
+
         var px0 = ChartToPixel(chart, p0x, p0y, xMax);
-        var px1 = ChartToPixel(chart, p1x, p1y, xMax);
+        var px1 = ChartToPixel(chart, cp1x, cp1y, xMax);
         var px2 = ChartToPixel(chart, p2x, p2y, xMax);
 
         var fillGeometry = new StreamGeometry();
@@ -254,19 +254,6 @@ public class BezierCurveEditorControl : Control
         }
 
         context.DrawGeometry(null, new Pen(new SolidColorBrush(strokeColor), 2), strokeGeometry);
-    }
-
-    private void DrawHandleLines(DrawingContext context, Rect chart, double xMax)
-    {
-        var pen = new Pen(new SolidColorBrush(HandleLineColor), 1,
-            new DashStyle(new double[] { 4, 4 }, 0));
-
-        var p0 = ChartToPixel(chart, 0, MinBrightness, xMax);
-        var p1 = ChartToPixel(chart, ControlPointX, ControlPointY, xMax);
-        var p2 = ChartToPixel(chart, MaxLux, 100, xMax);
-
-        context.DrawLine(pen, p0, p1);
-        context.DrawLine(pen, p1, p2);
     }
 
     private void DrawControlPoints(DrawingContext context, Rect chart, double xMax)
@@ -316,6 +303,17 @@ public class BezierCurveEditorControl : Control
         double cx = (pixel.X - chart.Left) / chart.Width * xMax;
         double cy = (chart.Bottom - pixel.Y) / chart.Height * 100.0;
         return (cx, cy);
+    }
+
+    /// <summary>
+    /// Converts a passthrough point Q (on the curve at t=0.5) to the actual
+    /// quadratic Bezier control point: actualP1 = 2*Q - 0.5*P0 - 0.5*P2.
+    /// </summary>
+    internal static (double x, double y) PassthroughToControl(
+        double qx, double qy, double p0x, double p0y, double p2x, double p2y)
+    {
+        return (2 * qx - 0.5 * p0x - 0.5 * p2x,
+                2 * qy - 0.5 * p0y - 0.5 * p2y);
     }
 
     private static int ChooseXStep(double xMax)
