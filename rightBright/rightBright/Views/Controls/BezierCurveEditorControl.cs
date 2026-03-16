@@ -20,7 +20,6 @@ public class BezierCurveEditorControl : Control
     private static readonly Color CurveFill = Color.Parse("#3FBFC9FF");
     private static readonly Color SavedCurveColor = Color.Parse("#BDBDBD");
     private static readonly Color SavedCurveFill = Color.Parse("#3FBDBDBD");
-    private static readonly Color HandleLineColor = Color.Parse("#80808080");
     private static readonly Color GridLineColor = Color.Parse("#20808080");
     private static readonly Color AxisColor = Color.Parse("#60808080");
     private static readonly Color LabelColor = Color.Parse("#A0A0A0");
@@ -160,7 +159,6 @@ public class BezierCurveEditorControl : Control
             0, MinBrightness, ControlPointX, ControlPointY, MaxLux, 100,
             CurveColor, CurveFill);
 
-        DrawHandleLines(context, chartRect, xMax);
         DrawControlPoints(context, chartRect, xMax);
     }
 
@@ -229,17 +227,22 @@ public class BezierCurveEditorControl : Control
         double p0x, double p0y, double p1x, double p1y, double p2x, double p2y,
         Color strokeColor, Color fillColor)
     {
-        var px0 = ChartToPixel(chart, p0x, p0y, xMax);
-        var px1 = ChartToPixel(chart, p1x, p1y, xMax);
-        var px2 = ChartToPixel(chart, p2x, p2y, xMax);
+        var (c1, c2) = ComputeSegmentControlPoints(p0x, p0y, p1x, p1y, p2x, p2y);
+
+        var pxP0 = ChartToPixel(chart, p0x, p0y, xMax);
+        var pxC1 = ChartToPixel(chart, c1.x, c1.y, xMax);
+        var pxP1 = ChartToPixel(chart, p1x, p1y, xMax);
+        var pxC2 = ChartToPixel(chart, c2.x, c2.y, xMax);
+        var pxP2 = ChartToPixel(chart, p2x, p2y, xMax);
 
         var fillGeometry = new StreamGeometry();
         using (var ctx = fillGeometry.Open())
         {
-            ctx.BeginFigure(px0, true);
-            ctx.QuadraticBezierTo(px1, px2);
-            ctx.LineTo(new Point(px2.X, chart.Bottom));
-            ctx.LineTo(new Point(px0.X, chart.Bottom));
+            ctx.BeginFigure(pxP0, true);
+            ctx.QuadraticBezierTo(pxC1, pxP1);
+            ctx.QuadraticBezierTo(pxC2, pxP2);
+            ctx.LineTo(new Point(pxP2.X, chart.Bottom));
+            ctx.LineTo(new Point(pxP0.X, chart.Bottom));
             ctx.EndFigure(true);
         }
 
@@ -248,25 +251,13 @@ public class BezierCurveEditorControl : Control
         var strokeGeometry = new StreamGeometry();
         using (var ctx = strokeGeometry.Open())
         {
-            ctx.BeginFigure(px0, false);
-            ctx.QuadraticBezierTo(px1, px2);
+            ctx.BeginFigure(pxP0, false);
+            ctx.QuadraticBezierTo(pxC1, pxP1);
+            ctx.QuadraticBezierTo(pxC2, pxP2);
             ctx.EndFigure(false);
         }
 
         context.DrawGeometry(null, new Pen(new SolidColorBrush(strokeColor), 2), strokeGeometry);
-    }
-
-    private void DrawHandleLines(DrawingContext context, Rect chart, double xMax)
-    {
-        var pen = new Pen(new SolidColorBrush(HandleLineColor), 1,
-            new DashStyle(new double[] { 4, 4 }, 0));
-
-        var p0 = ChartToPixel(chart, 0, MinBrightness, xMax);
-        var p1 = ChartToPixel(chart, ControlPointX, ControlPointY, xMax);
-        var p2 = ChartToPixel(chart, MaxLux, 100, xMax);
-
-        context.DrawLine(pen, p0, p1);
-        context.DrawLine(pen, p1, p2);
     }
 
     private void DrawControlPoints(DrawingContext context, Rect chart, double xMax)
@@ -316,6 +307,48 @@ public class BezierCurveEditorControl : Control
         double cx = (pixel.X - chart.Left) / chart.Width * xMax;
         double cy = (chart.Bottom - pixel.Y) / chart.Height * 100.0;
         return (cx, cy);
+    }
+
+    /// <summary>
+    /// Computes Catmull-Rom-style control points for two quadratic Bezier segments
+    /// joined at P1: segment 1 (P0->P1 via C1) and segment 2 (P1->P2 via C2).
+    /// The tangent is uniformly scaled down to keep both control points inside their
+    /// segment bounding boxes, preserving colinearity at P1 (smooth tangent continuity).
+    /// </summary>
+    internal static ((double x, double y) c1, (double x, double y) c2) ComputeSegmentControlPoints(
+        double p0x, double p0y, double p1x, double p1y, double p2x, double p2y)
+    {
+        double tx = (p2x - p0x) / 4.0;
+        double ty = (p2y - p0y) / 4.0;
+
+        double s = 1.0;
+
+        // C1 = P1 - s*t must be in segment 1 bounding box [P0, P1]
+        s = ConstrainScale(s, p1x, -tx, Math.Min(p0x, p1x), Math.Max(p0x, p1x));
+        s = ConstrainScale(s, p1y, -ty, Math.Min(p0y, p1y), Math.Max(p0y, p1y));
+
+        // C2 = P1 + s*t must be in segment 2 bounding box [P1, P2]
+        s = ConstrainScale(s, p1x, tx, Math.Min(p1x, p2x), Math.Max(p1x, p2x));
+        s = ConstrainScale(s, p1y, ty, Math.Min(p1y, p2y), Math.Max(p1y, p2y));
+
+        return ((p1x - s * tx, p1y - s * ty),
+                (p1x + s * tx, p1y + s * ty));
+    }
+
+    /// <summary>
+    /// Returns the largest scale factor &lt;= current s such that origin + s * delta
+    /// stays within [lo, hi].
+    /// </summary>
+    private static double ConstrainScale(double s, double origin, double delta, double lo, double hi)
+    {
+        if (Math.Abs(delta) < 1e-9) return s;
+
+        double sLo = (lo - origin) / delta;
+        double sHi = (hi - origin) / delta;
+        double sMax = Math.Max(sLo, sHi);
+
+        if (sMax < 0) return 0;
+        return Math.Min(s, sMax);
     }
 
     private static int ChooseXStep(double xMax)
