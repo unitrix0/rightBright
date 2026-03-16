@@ -224,22 +224,25 @@ public class BezierCurveEditorControl : Control
     }
 
     private void DrawBezierCurve(DrawingContext context, Rect chart, double xMax,
-        double p0x, double p0y, double qx, double qy, double p2x, double p2y,
+        double p0x, double p0y, double p1x, double p1y, double p2x, double p2y,
         Color strokeColor, Color fillColor)
     {
-        var (cp1x, cp1y) = PassthroughToControl(qx, qy, p0x, p0y, p2x, p2y);
+        var (c1, c2) = ComputeSegmentControlPoints(p0x, p0y, p1x, p1y, p2x, p2y);
 
-        var px0 = ChartToPixel(chart, p0x, p0y, xMax);
-        var px1 = ChartToPixel(chart, cp1x, cp1y, xMax);
-        var px2 = ChartToPixel(chart, p2x, p2y, xMax);
+        var pxP0 = ChartToPixel(chart, p0x, p0y, xMax);
+        var pxC1 = ChartToPixel(chart, c1.x, c1.y, xMax);
+        var pxP1 = ChartToPixel(chart, p1x, p1y, xMax);
+        var pxC2 = ChartToPixel(chart, c2.x, c2.y, xMax);
+        var pxP2 = ChartToPixel(chart, p2x, p2y, xMax);
 
         var fillGeometry = new StreamGeometry();
         using (var ctx = fillGeometry.Open())
         {
-            ctx.BeginFigure(px0, true);
-            ctx.QuadraticBezierTo(px1, px2);
-            ctx.LineTo(new Point(px2.X, chart.Bottom));
-            ctx.LineTo(new Point(px0.X, chart.Bottom));
+            ctx.BeginFigure(pxP0, true);
+            ctx.QuadraticBezierTo(pxC1, pxP1);
+            ctx.QuadraticBezierTo(pxC2, pxP2);
+            ctx.LineTo(new Point(pxP2.X, chart.Bottom));
+            ctx.LineTo(new Point(pxP0.X, chart.Bottom));
             ctx.EndFigure(true);
         }
 
@@ -248,8 +251,9 @@ public class BezierCurveEditorControl : Control
         var strokeGeometry = new StreamGeometry();
         using (var ctx = strokeGeometry.Open())
         {
-            ctx.BeginFigure(px0, false);
-            ctx.QuadraticBezierTo(px1, px2);
+            ctx.BeginFigure(pxP0, false);
+            ctx.QuadraticBezierTo(pxC1, pxP1);
+            ctx.QuadraticBezierTo(pxC2, pxP2);
             ctx.EndFigure(false);
         }
 
@@ -306,14 +310,45 @@ public class BezierCurveEditorControl : Control
     }
 
     /// <summary>
-    /// Converts a passthrough point Q (on the curve at t=0.5) to the actual
-    /// quadratic Bezier control point: actualP1 = 2*Q - 0.5*P0 - 0.5*P2.
+    /// Computes Catmull-Rom-style control points for two quadratic Bezier segments
+    /// joined at P1: segment 1 (P0->P1 via C1) and segment 2 (P1->P2 via C2).
+    /// The tangent is uniformly scaled down to keep both control points inside their
+    /// segment bounding boxes, preserving colinearity at P1 (smooth tangent continuity).
     /// </summary>
-    internal static (double x, double y) PassthroughToControl(
-        double qx, double qy, double p0x, double p0y, double p2x, double p2y)
+    internal static ((double x, double y) c1, (double x, double y) c2) ComputeSegmentControlPoints(
+        double p0x, double p0y, double p1x, double p1y, double p2x, double p2y)
     {
-        return (2 * qx - 0.5 * p0x - 0.5 * p2x,
-                2 * qy - 0.5 * p0y - 0.5 * p2y);
+        double tx = (p2x - p0x) / 4.0;
+        double ty = (p2y - p0y) / 4.0;
+
+        double s = 1.0;
+
+        // C1 = P1 - s*t must be in segment 1 bounding box [P0, P1]
+        s = ConstrainScale(s, p1x, -tx, Math.Min(p0x, p1x), Math.Max(p0x, p1x));
+        s = ConstrainScale(s, p1y, -ty, Math.Min(p0y, p1y), Math.Max(p0y, p1y));
+
+        // C2 = P1 + s*t must be in segment 2 bounding box [P1, P2]
+        s = ConstrainScale(s, p1x, tx, Math.Min(p1x, p2x), Math.Max(p1x, p2x));
+        s = ConstrainScale(s, p1y, ty, Math.Min(p1y, p2y), Math.Max(p1y, p2y));
+
+        return ((p1x - s * tx, p1y - s * ty),
+                (p1x + s * tx, p1y + s * ty));
+    }
+
+    /// <summary>
+    /// Returns the largest scale factor &lt;= current s such that origin + s * delta
+    /// stays within [lo, hi].
+    /// </summary>
+    private static double ConstrainScale(double s, double origin, double delta, double lo, double hi)
+    {
+        if (Math.Abs(delta) < 1e-9) return s;
+
+        double sLo = (lo - origin) / delta;
+        double sHi = (hi - origin) / delta;
+        double sMax = Math.Max(sLo, sHi);
+
+        if (sMax < 0) return 0;
+        return Math.Min(s, sMax);
     }
 
     private static int ChooseXStep(double xMax)
