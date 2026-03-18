@@ -1,8 +1,8 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:controls="clr-namespace:rightBright.Views.Controls"
              xmlns:vm="clr-namespace:rightBright.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="rightBright.Views.CurveEditorView"
@@ -11,8 +11,7 @@
         <vm:CurveEditorViewModel />
     </Design.DataContext>
 
-
-    <Grid ColumnDefinitions="*, 170" RowDefinitions="Auto, *">
+    <Grid ColumnDefinitions="*, 190" RowDefinitions="Auto, *">
         <Label Grid.Row="0" Grid.Column="0"
                Content="{Binding SelectedScreen.ModelName, FallbackValue=''}"
                FontSize="18" Margin="10,10,0,0" />
@@ -26,34 +25,56 @@
             </Button>
         </StackPanel>
 
-        <lvc:CartesianChart Grid.Row="1" Grid.Column="0" Series="{Binding Series}"
-                            EasingFunction="{x:Null}"
-                             />
+        <controls:BezierCurveEditorControl Grid.Row="1" Grid.Column="0"
+                                           Margin="5,5,0,5"
+                                           MinBrightness="{Binding MinBrightness}"
+                                           ControlPointX="{Binding ControlPointX}"
+                                           ControlPointY="{Binding ControlPointY}"
+                                           MaxLux="{Binding MaxLux}"
+                                           SavedMinBrightness="{Binding SavedMinBrightness}"
+                                           SavedControlPointX="{Binding SavedControlPointX}"
+                                           SavedControlPointY="{Binding SavedControlPointY}"
+                                           SavedMaxLux="{Binding SavedMaxLux}"
+                                           ShowSavedCurve="{Binding ShowSavedCurve}" />
 
         <Border Grid.Row="1" Grid.Column="1"
-                Padding="7,0">
+                BorderBrush="LightGray"
+                BorderThickness="1,0,0,0"
+                Margin="0,0,0,10"
+                Padding="12,0,5,0">
             <StackPanel>
-                <CheckBox Grid.Row="2" Grid.Column="0"
-                          Margin="0,0,0,7"
+                
+                <CheckBox Margin="0,0,0,7"
                           IsChecked="{Binding Active}">
                     Aktiv
                 </CheckBox>
-                <Label Content="Minimum Helligkeit" />
-                <TextBox Margin="0,0,0,7"
-                         Text="{Binding MinBrightness}">
-                </TextBox>
-                <Label Content="Abflachung" />
-                <TextBox Margin="0,0,0,7"
-                         Text="{Binding Curve}">
-                </TextBox>
-                <Label Content="Progression" />
-                <TextBox Margin="0,0,0,7"
-                         Text="{Binding Progression}">
-                </TextBox>
+
+                <TextBlock Text="P0 (Min. Helligkeit %)"
+                           Margin="0,5,0,3"
+                           FontSize="12" />
+                <NumericUpDown Value="{Binding MinBrightness}"
+                               Minimum="0"
+                               Maximum="99"
+                               Increment="1"
+                               FormatString="0"
+                               Width="120"
+                               HorizontalAlignment="Left" />
+
+                <TextBlock Text="P2 (Max. Lux)"
+                           Margin="0,10,0,3"
+                           FontSize="12" />
+                <NumericUpDown Value="{Binding MaxLux}"
+                               Minimum="100"
+                               Maximum="5000"
+                               Increment="50"
+                               FormatString="0"
+                               Width="120"
+                               HorizontalAlignment="Left" />
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                             Margin="0,10,0,0">
-                    <Button Command="{Binding ApplyCurveCommand}">
+                    <Button Command="{Binding ApplyCurveCommand}"
+                            Margin="0,10,0,0">
                         Übernehmen
                     </Button>
                 </StackPanel>

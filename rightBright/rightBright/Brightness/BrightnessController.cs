@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -134,9 +134,10 @@ namespace rightBright.Brightness
                     if (!_settings.BrightnessCalculationParameters.TryGetValue(monitor.ModelName, out var savedSettings))
                         continue;
 
-                    monitor.CalculationParameters.Progression = savedSettings.Progression;
                     monitor.CalculationParameters.MinBrightness = savedSettings.MinBrightness;
-                    monitor.CalculationParameters.Curve = savedSettings.Curve;
+                    monitor.CalculationParameters.ControlPointX = savedSettings.ControlPointX;
+                    monitor.CalculationParameters.ControlPointY = savedSettings.ControlPointY;
+                    monitor.CalculationParameters.MaxLux = savedSettings.MaxLux;
                     monitor.CalculationParameters.Active = savedSettings.Active;
                 }
             }
@@ -210,10 +211,9 @@ namespace rightBright.Brightness
                 {
                     if (_updatingStopped) return;
 
-                    var newBrightness = (int)Math.Round(_brightnessCalculator.Calculate(e,
-                        display.CalculationParameters.Progression,
-                        display.CalculationParameters.Curve, display.CalculationParameters.MinBrightness));
-                    newBrightness = newBrightness > 100 ? 100 : newBrightness;
+                    var newBrightness = (int)Math.Round(
+                        _brightnessCalculator.Calculate(e, display.CalculationParameters));
+                    newBrightness = Math.Min(newBrightness, 100);
 
                     bool successful;
                     var trycount = 0;

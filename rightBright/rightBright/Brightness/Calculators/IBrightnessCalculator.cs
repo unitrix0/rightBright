@@ -1,7 +1,9 @@
-﻿namespace rightBright.Brightness.Calculators
+using rightBright.Models.Monitors;
+
+namespace rightBright.Brightness.Calculators
 {
     public interface IBrightnessCalculator
     {
-        double Calculate(double lux, double progression, int curve, int lowestBrightness);
+        double Calculate(double lux, BrightnessCalculationParameters parameters);
     }
 }
