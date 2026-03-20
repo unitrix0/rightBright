@@ -272,7 +272,7 @@ public class BezierCurveEditorControl : Control
 
     private void DrawControlPoints(DrawingContext context, Rect chart, double xMax)
     {
-        DrawPoint(context, chart, 0, MinBrightness, xMax, PointP0Color, "P0");
+        DrawPoint(context, chart, 0, MinBrightness, xMax, PointP0Color, "P0", false);
 
         // Draw crosshairs for P1 (only towards the axes)
         var p1Pixel = ChartToPixel(chart, ControlPointX, ControlPointY, xMax);
@@ -283,12 +283,12 @@ public class BezierCurveEditorControl : Control
         // Vertical line (from P1 to X-axis)
         context.DrawLine(crosshairPen, new Point(p1Pixel.X, p1Pixel.Y), new Point(p1Pixel.X, chart.Bottom));
 
-        DrawPoint(context, chart, ControlPointX, ControlPointY, xMax, PointP1Color, "P1");
-        DrawPoint(context, chart, MaxLux, 100, xMax, PointP2Color, "P2");
+        DrawPoint(context, chart, ControlPointX, ControlPointY, xMax, PointP1Color, "P1", false);
+        DrawPoint(context, chart, MaxLux, 100, xMax, PointP2Color, "P2", true);
     }
 
     private void DrawPoint(DrawingContext context, Rect chart,
-        double cx, double cy, double xMax, Color color, string label)
+        double cx, double cy, double xMax, Color color, string label, bool labelBelow)
     {
         var px = ChartToPixel(chart, cx, cy, xMax);
         var brush = new SolidColorBrush(color);
@@ -300,7 +300,12 @@ public class BezierCurveEditorControl : Control
         var typeface = new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold);
         var text = new FormattedText(label, CultureInfo.InvariantCulture,
             FlowDirection.LeftToRight, typeface, 10, brush);
-        context.DrawText(text, new Point(px.X - text.Width / 2, px.Y - ControlPointRadius - text.Height - 2));
+
+        double labelY = labelBelow
+            ? px.Y + ControlPointRadius + 2
+            : px.Y - ControlPointRadius - text.Height - 2;
+
+        context.DrawText(text, new Point(px.X - text.Width / 2, labelY));
     }
 
     #endregion
