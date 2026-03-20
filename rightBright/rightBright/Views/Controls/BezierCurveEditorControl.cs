@@ -274,14 +274,14 @@ public class BezierCurveEditorControl : Control
     {
         DrawPoint(context, chart, 0, MinBrightness, xMax, PointP0Color, "P0");
 
-        // Draw crosshairs for P1
+        // Draw crosshairs for P1 (only towards the axes)
         var p1Pixel = ChartToPixel(chart, ControlPointX, ControlPointY, xMax);
         var crosshairPen = new Pen(new SolidColorBrush(Color.FromArgb(80, 90, 96, 180)), 1,
             new DashStyle(new[] { 3.0, 3.0 }, 0));
-        // Horizontal line
-        context.DrawLine(crosshairPen, new Point(chart.Left, p1Pixel.Y), new Point(chart.Right, p1Pixel.Y));
-        // Vertical line
-        context.DrawLine(crosshairPen, new Point(p1Pixel.X, chart.Top), new Point(p1Pixel.X, chart.Bottom));
+        // Horizontal line (from P1 to Y-axis)
+        context.DrawLine(crosshairPen, new Point(chart.Left, p1Pixel.Y), new Point(p1Pixel.X, p1Pixel.Y));
+        // Vertical line (from P1 to X-axis)
+        context.DrawLine(crosshairPen, new Point(p1Pixel.X, p1Pixel.Y), new Point(p1Pixel.X, chart.Bottom));
 
         DrawPoint(context, chart, ControlPointX, ControlPointY, xMax, PointP1Color, "P1");
         DrawPoint(context, chart, MaxLux, 100, xMax, PointP2Color, "P2");
