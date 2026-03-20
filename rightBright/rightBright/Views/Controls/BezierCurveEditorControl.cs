@@ -29,7 +29,7 @@ public class BezierCurveEditorControl : Control
 
     private DragTarget _dragTarget = DragTarget.None;
     private double _maxLuxScaleDuringDrag = 0;
-    private const int MinLuxScale = 1000;
+    private const int MinLuxScale = 800;
 
     private enum DragTarget { None, P0, P1, P2 }
 
