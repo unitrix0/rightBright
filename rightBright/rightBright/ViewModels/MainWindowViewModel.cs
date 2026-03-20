@@ -79,6 +79,9 @@ public partial class MainWindowViewModel : ViewModelBase
             }
         };
 
+        // Subscribe to BrightnessController's property changes to update SelectedSensor
+        _brightnessController.PropertyChanged += OnBrightnessControllerPropertyChanged;
+
         _ = UpdateMonitors();
         UpdateSensors();
     }
@@ -92,16 +95,28 @@ public partial class MainWindowViewModel : ViewModelBase
                 AvailableSensors.Add(lightSensor);
             }
 
-            // SelectedSensor = AvailableSensors
-            //     .SingleOrDefault(s =>
-            //         s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
-            SelectedSensor = _brightnessController.ConnectedSensor;
+            SelectedSensor = AvailableSensors
+                .SingleOrDefault(s =>
+                    s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
         
             UpdateNoSelectionText(_sensorService.Error);
         }
         catch (Exception ex)
         {
             UpdateNoSelectionText(ex.Message);
+        }
+    }
+
+    private void OnBrightnessControllerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IBrightnessController.ConnectedSensor))
+        {
+            // Update SelectedSensor when BrightnessController connects to a sensor
+            SelectedSensor = AvailableSensors
+                .SingleOrDefault(s =>
+                    s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
+
+            UpdateNoSelectionText(_sensorService.Error);
         }
     }
 

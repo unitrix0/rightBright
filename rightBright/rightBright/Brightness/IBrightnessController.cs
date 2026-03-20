@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using rightBright.Models.Sensors;
 
 namespace rightBright.Brightness
 {
-    public interface IBrightnessController
+    public interface IBrightnessController : INotifyPropertyChanged
     {
         /// <summary>
         /// Runs the <see cref="BrightnessController"/> with settings loaded from the settings file

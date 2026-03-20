@@ -86,7 +86,11 @@ namespace rightBright.Brightness
             _updatingStopped = true;
             await LoadMonitorSettings();
 
-            if (!ConnectSensor(_settings.LastUsedSensor)) return;
+            // Get the cached sensor instance from the sensor service instead of using the deserialized settings object
+            var sensorToConnect = _sensorService.GetSensors()
+                .SingleOrDefault(s => s.SerialNumber == _settings.LastUsedSensor?.SerialNumber);
+
+            if (sensorToConnect == null || !ConnectSensor(sensorToConnect)) return;
 
             _updatingStopped = false;
             _sensorService.StartPollTimer();
