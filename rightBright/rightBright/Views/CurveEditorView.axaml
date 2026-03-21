@@ -35,7 +35,8 @@
                                            SavedControlPointX="{Binding SavedControlPointX}"
                                            SavedControlPointY="{Binding SavedControlPointY}"
                                            SavedMaxLux="{Binding SavedMaxLux}"
-                                           ShowSavedCurve="{Binding ShowSavedCurve}" />
+                                           ShowSavedCurve="{Binding ShowSavedCurve}"
+                                           CurrentLux="{Binding CurrentLux}" />
 
         <Border Grid.Row="1" Grid.Column="1"
                 BorderBrush="LightGray"
