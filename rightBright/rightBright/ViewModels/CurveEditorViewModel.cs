@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using rightBright.Brightness;
 using rightBright.Models.Monitors;
 using rightBright.Services.Logging;
 using rightBright.Settings;
@@ -12,8 +13,12 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
 {
     private readonly ILoggingService _logger;
     private readonly ISettings _settings;
+    private readonly IBrightnessController? _brightnessController;
 
     public Action? closeView;
+
+    [ObservableProperty]
+    private int _currentLux;
 
     [ObservableProperty]
     private int _minBrightness;
@@ -53,12 +58,18 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
         _logger = new LoggingService();
         SeedDesignTimeData();
         _settings = null!;
+        _currentLux = 150;
     }
 
-    public CurveEditorViewModel(ILoggingService logger, ISettings settings)
+    public CurveEditorViewModel(ILoggingService logger, ISettings settings,
+        IBrightnessController brightnessController)
     {
         _logger = logger;
         _settings = settings;
+        _brightnessController = brightnessController;
+
+        SubscribeToSensor(brightnessController.ConnectedSensor);
+        brightnessController.PropertyChanged += OnBrightnessControllerPropertyChanged;
     }
 
     [RelayCommand]
@@ -138,5 +149,34 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
         ControlPointX = 300;
         ControlPointY = 45;
         MaxLux = 800;
+    }
+
+    private void OnBrightnessControllerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IBrightnessController.ConnectedSensor))
+            SubscribeToSensor(_brightnessController?.ConnectedSensor);
+    }
+
+    private Models.Sensors.AmbientLightSensor? _subscribedSensor;
+
+    private void SubscribeToSensor(Models.Sensors.AmbientLightSensor? sensor)
+    {
+        if (_subscribedSensor != null)
+            _subscribedSensor.PropertyChanged -= OnSensorPropertyChanged;
+
+        _subscribedSensor = sensor;
+
+        if (sensor != null)
+        {
+            sensor.PropertyChanged += OnSensorPropertyChanged;
+            CurrentLux = sensor.CurrentValue;
+        }
+    }
+
+    private void OnSensorPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Models.Sensors.AmbientLightSensor.CurrentValue) &&
+            _subscribedSensor != null)
+            CurrentLux = _subscribedSensor.CurrentValue;
     }
 }

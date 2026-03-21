@@ -26,8 +26,11 @@ public class BezierCurveEditorControl : Control
     private static readonly Color PointP0Color = Color.Parse("#4CAF50");
     private static readonly Color PointP1Color = Color.Parse("#5A60B4");
     private static readonly Color PointP2Color = Color.Parse("#E57373");
+    private static readonly Color CurrentLuxIndicatorColor = Color.Parse("#FFA726");
 
     private DragTarget _dragTarget = DragTarget.None;
+    private double _maxLuxScaleDuringDrag = 0;
+    private const int MinLuxScale = 800;
 
     private enum DragTarget { None, P0, P1, P2 }
 
@@ -63,6 +66,9 @@ public class BezierCurveEditorControl : Control
 
     public static readonly StyledProperty<bool> ShowSavedCurveProperty =
         AvaloniaProperty.Register<BezierCurveEditorControl, bool>(nameof(ShowSavedCurve));
+
+    public static readonly StyledProperty<int> CurrentLuxProperty =
+        AvaloniaProperty.Register<BezierCurveEditorControl, int>(nameof(CurrentLux), defaultValue: -1);
 
     public int MinBrightness
     {
@@ -118,6 +124,12 @@ public class BezierCurveEditorControl : Control
         set => SetValue(ShowSavedCurveProperty, value);
     }
 
+    public int CurrentLux
+    {
+        get => GetValue(CurrentLuxProperty);
+        set => SetValue(CurrentLuxProperty, value);
+    }
+
     #endregion
 
     static BezierCurveEditorControl()
@@ -125,7 +137,7 @@ public class BezierCurveEditorControl : Control
         AffectsRender<BezierCurveEditorControl>(
             MinBrightnessProperty, ControlPointXProperty, ControlPointYProperty, MaxLuxProperty,
             SavedMinBrightnessProperty, SavedControlPointXProperty, SavedControlPointYProperty,
-            SavedMaxLuxProperty, ShowSavedCurveProperty);
+            SavedMaxLuxProperty, ShowSavedCurveProperty, CurrentLuxProperty);
     }
 
     public BezierCurveEditorControl()
@@ -159,6 +171,7 @@ public class BezierCurveEditorControl : Control
             0, MinBrightness, ControlPointX, ControlPointY, MaxLux, 100,
             CurveColor, CurveFill);
 
+        DrawCurrentLuxIndicator(context, chartRect, xMax);
         DrawControlPoints(context, chartRect, xMax);
     }
 
@@ -166,6 +179,14 @@ public class BezierCurveEditorControl : Control
     {
         double max = Math.Max(MaxLux, 100);
         if (ShowSavedCurve) max = Math.Max(max, SavedMaxLux);
+
+        // During P2 drag, keep the scale at the maximum reached during this drag
+        if (_dragTarget == DragTarget.P2 && _maxLuxScaleDuringDrag > 0)
+        {
+            max = Math.Max(max, _maxLuxScaleDuringDrag);
+        }
+
+        max = Math.Max(max, MinLuxScale);
         return max * 1.05;
     }
 
@@ -188,8 +209,8 @@ public class BezierCurveEditorControl : Control
             new Point(chart.Left, chart.Bottom),
             new Point(chart.Right, chart.Bottom));
 
-        // Y grid lines and labels (0%, 25%, 50%, 75%, 100%)
-        for (int pct = 0; pct <= 100; pct += 25)
+        // Y grid lines and labels (0%, 20%, 40%, 60%, 80%, 100%)
+        for (int pct = 0; pct <= 100; pct += 20)
         {
             double py = ChartToPixelY(chart, pct);
             if (pct > 0 && pct < 100)
@@ -260,15 +281,103 @@ public class BezierCurveEditorControl : Control
         context.DrawGeometry(null, new Pen(new SolidColorBrush(strokeColor), 2), strokeGeometry);
     }
 
+    private void DrawCurrentLuxIndicator(DrawingContext context, Rect chart, double xMax)
+    {
+        int lux = CurrentLux;
+        if (lux < 0) return;
+
+        double brightness = EvaluateBrightness(lux);
+        var pointPixel = ChartToPixel(chart, lux, brightness, xMax);
+
+        var indicatorPen = new Pen(new SolidColorBrush(Color.FromArgb(120, 255, 167, 38)), 1,
+            new DashStyle(new[] { 3.0, 3.0 }, 0));
+
+        context.DrawLine(indicatorPen, pointPixel, new Point(pointPixel.X, chart.Bottom));
+        context.DrawLine(indicatorPen, new Point(chart.Left, pointPixel.Y), pointPixel);
+
+        const double radius = 5;
+        var brush = new SolidColorBrush(CurrentLuxIndicatorColor);
+        context.DrawEllipse(brush, new Pen(Brushes.White, 1.5), pointPixel, radius, radius);
+
+        var typeface = new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold);
+        var label = new FormattedText($"{lux} lx", CultureInfo.InvariantCulture,
+            FlowDirection.LeftToRight, typeface, 10, brush);
+        context.DrawText(label, new Point(pointPixel.X - label.Width / 2, chart.Bottom + 4));
+    }
+
+    private double EvaluateBrightness(double lux)
+    {
+        double minBrightness = MinBrightness;
+        double p1x = ControlPointX;
+        double p1y = ControlPointY;
+        double maxLux = MaxLux;
+
+        if (lux <= 0) return minBrightness;
+        if (lux >= maxLux) return 100;
+
+        var (c1, c2) = ComputeSegmentControlPoints(0, minBrightness, p1x, p1y, maxLux, 100);
+
+        if (lux <= p1x)
+        {
+            double t = SolveQuadraticBezierX(lux, 0, c1.x, p1x);
+            double u = 1 - t;
+            return u * u * minBrightness + 2 * u * t * c1.y + t * t * p1y;
+        }
+        else
+        {
+            double t = SolveQuadraticBezierX(lux, p1x, c2.x, maxLux);
+            double u = 1 - t;
+            return u * u * p1y + 2 * u * t * c2.y + t * t * 100;
+        }
+    }
+
+    /// <summary>
+    /// Solves the quadratic Bezier X(t) = (1-t)^2*x0 + 2(1-t)t*cx + t^2*x1 for t given a target X.
+    /// </summary>
+    private static double SolveQuadraticBezierX(double targetX, double x0, double cx, double x1)
+    {
+        double a = x0 - 2 * cx + x1;
+        double b = 2 * (cx - x0);
+        double c = x0 - targetX;
+
+        if (Math.Abs(a) < 1e-9)
+        {
+            if (Math.Abs(b) < 1e-9) return 0;
+            return Math.Clamp(-c / b, 0, 1);
+        }
+
+        double discriminant = b * b - 4 * a * c;
+        if (discriminant < 0) return 0;
+
+        double sqrtD = Math.Sqrt(discriminant);
+        double t1 = (-b + sqrtD) / (2 * a);
+        double t2 = (-b - sqrtD) / (2 * a);
+
+        if (t1 >= 0 && t1 <= 1) return t1;
+        if (t2 >= 0 && t2 <= 1) return t2;
+
+        return Math.Clamp(t1, 0, 1);
+    }
+
     private void DrawControlPoints(DrawingContext context, Rect chart, double xMax)
     {
-        DrawPoint(context, chart, 0, MinBrightness, xMax, PointP0Color, "P0");
-        DrawPoint(context, chart, ControlPointX, ControlPointY, xMax, PointP1Color, "P1");
-        DrawPoint(context, chart, MaxLux, 100, xMax, PointP2Color, "P2");
+        DrawPoint(context, chart, 0, MinBrightness, xMax, PointP0Color, "P0", false);
+
+        // Draw crosshairs for P1 (only towards the axes)
+        var p1Pixel = ChartToPixel(chart, ControlPointX, ControlPointY, xMax);
+        var crosshairPen = new Pen(new SolidColorBrush(Color.FromArgb(80, 90, 96, 180)), 1,
+            new DashStyle(new[] { 3.0, 3.0 }, 0));
+        // Horizontal line (from P1 to Y-axis)
+        context.DrawLine(crosshairPen, new Point(chart.Left, p1Pixel.Y), new Point(p1Pixel.X, p1Pixel.Y));
+        // Vertical line (from P1 to X-axis)
+        context.DrawLine(crosshairPen, new Point(p1Pixel.X, p1Pixel.Y), new Point(p1Pixel.X, chart.Bottom));
+
+        DrawPoint(context, chart, ControlPointX, ControlPointY, xMax, PointP1Color, "P1", false);
+        DrawPoint(context, chart, MaxLux, 100, xMax, PointP2Color, "P2", true);
     }
 
     private void DrawPoint(DrawingContext context, Rect chart,
-        double cx, double cy, double xMax, Color color, string label)
+        double cx, double cy, double xMax, Color color, string label, bool labelBelow)
     {
         var px = ChartToPixel(chart, cx, cy, xMax);
         var brush = new SolidColorBrush(color);
@@ -280,7 +389,12 @@ public class BezierCurveEditorControl : Control
         var typeface = new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold);
         var text = new FormattedText(label, CultureInfo.InvariantCulture,
             FlowDirection.LeftToRight, typeface, 10, brush);
-        context.DrawText(text, new Point(px.X - text.Width / 2, px.Y - ControlPointRadius - text.Height - 2));
+
+        double labelY = labelBelow
+            ? px.Y + ControlPointRadius + 2
+            : px.Y - ControlPointRadius - text.Height - 2;
+
+        context.DrawText(text, new Point(px.X - text.Width / 2, labelY));
     }
 
     #endregion
@@ -382,7 +496,10 @@ public class BezierCurveEditorControl : Control
         else if (Distance(pos, p0) < HitTestRadius)
             _dragTarget = DragTarget.P0;
         else if (Distance(pos, p2) < HitTestRadius)
+        {
             _dragTarget = DragTarget.P2;
+            _maxLuxScaleDuringDrag = Math.Max(MaxLux, MinLuxScale);
+        }
         else
             _dragTarget = DragTarget.None;
 
@@ -414,7 +531,10 @@ public class BezierCurveEditorControl : Control
                 ControlPointY = Math.Clamp(Math.Round(cy, 1), 0, 100);
                 break;
             case DragTarget.P2:
-                MaxLux = (int)Math.Clamp(Math.Round(cx), 100, 5000);
+                int newMaxLux = (int)Math.Clamp(Math.Round(cx), 100, 5000);
+                MaxLux = newMaxLux;
+                // Track the maximum scale reached during this drag
+                _maxLuxScaleDuringDrag = Math.Max(_maxLuxScaleDuringDrag, newMaxLux);
                 break;
         }
 
@@ -426,6 +546,13 @@ public class BezierCurveEditorControl : Control
         base.OnPointerReleased(e);
         if (_dragTarget != DragTarget.None)
         {
+            // If P2 was dragged, reset the scale lock so it can shrink on release
+            if (_dragTarget == DragTarget.P2)
+            {
+                _maxLuxScaleDuringDrag = 0;
+                InvalidateVisual(); // Trigger re-render to apply the new scale
+            }
+
             _dragTarget = DragTarget.None;
             e.Pointer.Capture(null);
             Cursor = Cursor.Default;

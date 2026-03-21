@@ -35,7 +35,8 @@
                                            SavedControlPointX="{Binding SavedControlPointX}"
                                            SavedControlPointY="{Binding SavedControlPointY}"
                                            SavedMaxLux="{Binding SavedMaxLux}"
-                                           ShowSavedCurve="{Binding ShowSavedCurve}" />
+                                           ShowSavedCurve="{Binding ShowSavedCurve}"
+                                           CurrentLux="{Binding CurrentLux}" />
 
         <Border Grid.Row="1" Grid.Column="1"
                 BorderBrush="LightGray"
@@ -49,7 +50,7 @@
                     Aktiv
                 </CheckBox>
 
-                <TextBlock Text="P0 (Min. Helligkeit %)"
+                <TextBlock Text="Min. Helligkeit % (P0)"
                            Margin="0,5,0,3"
                            FontSize="12" />
                 <NumericUpDown Value="{Binding MinBrightness}"
@@ -60,7 +61,7 @@
                                Width="120"
                                HorizontalAlignment="Left" />
 
-                <TextBlock Text="P2 (Max. Lux)"
+                <TextBlock Text="100% bei Lux (P2)"
                            Margin="0,10,0,3"
                            FontSize="12" />
                 <NumericUpDown Value="{Binding MaxLux}"
