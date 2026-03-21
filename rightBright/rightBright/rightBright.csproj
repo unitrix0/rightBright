@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
@@ -7,6 +7,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <IsPackable>false</IsPackable>
+        <Version>0.9.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,6 +30,7 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Tmds.DBus" Version="0.21.2" />
         <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
+        <PackageReference Include="Velopack" Version="0.0.1298" />
         <PackageReference Include="Yoctopuce.YoctoLib" Version="2.0.64286" />
     </ItemGroup>
 
