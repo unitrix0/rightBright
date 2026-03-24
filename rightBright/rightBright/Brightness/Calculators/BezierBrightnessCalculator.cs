@@ -1,11 +1,19 @@
 using System;
 using rightBright.Models.Monitors;
+using rightBright.Services.Logging;
 using rightBright.Views.Controls;
 
 namespace rightBright.Brightness.Calculators
 {
     public class BezierBrightnessCalculator : IBrightnessCalculator
     {
+        private readonly ILoggingService _logger;
+
+        public BezierBrightnessCalculator(ILoggingService logger)
+        {
+            _logger = logger;
+        }
+
         public double Calculate(double lux, BrightnessCalculationParameters p)
         {
             double p1x = p.ControlPointX;
@@ -13,8 +21,16 @@ namespace rightBright.Brightness.Calculators
             double minBrightness = p.MinBrightness;
             double maxLux = p.MaxLux;
 
-            if (lux <= 0) return minBrightness;
-            if (lux >= maxLux) return 100;
+            if (lux <= 0)
+            {
+                _logger.WriteInformation($"[Calculator] lux={lux:F1} <= 0, returning minBrightness={minBrightness}");
+                return minBrightness;
+            }
+            if (lux >= maxLux)
+            {
+                _logger.WriteInformation($"[Calculator] lux={lux:F1} >= maxLux={maxLux}, returning 100");
+                return 100;
+            }
 
             var (c1, c2) = BezierCurveEditorControl.ComputeSegmentControlPoints(
                 0, minBrightness, p1x, p1y, maxLux, 100);
@@ -33,7 +49,10 @@ namespace rightBright.Brightness.Calculators
                 brightness = u * u * p1y + 2 * u * t * c2.y + t * t * 100;
             }
 
-            return Math.Round(Math.Clamp(brightness, 0, 100), 1);
+            var result = Math.Round(Math.Clamp(brightness, 0, 100), 1);
+            _logger.WriteInformation(
+                $"[Calculator] lux={lux:F1}, params(min={minBrightness}, cpX={p1x:F1}, cpY={p1y:F1}, maxLux={maxLux}) -> brightness={result:F1}");
+            return result;
         }
 
         /// <summary>

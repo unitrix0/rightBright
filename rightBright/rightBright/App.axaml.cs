@@ -76,7 +76,7 @@ public class App : Application
         serviceCollection.AddSingleton<MainWindowViewModel>();
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? new SetBrightnessServiceLinux()
+                ? new SetBrightnessServiceLinux(servies.GetRequiredService<ILoggingService>())
                 : new SetBrightnessServiceWin(servies.GetRequiredService<ILoggingService>()));
 
         serviceCollection.AddSingleton<IMonitorChangedNotificationService>(_ =>

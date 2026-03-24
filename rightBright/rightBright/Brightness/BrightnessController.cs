@@ -192,10 +192,14 @@ namespace rightBright.Brightness
         {
             try
             {
-                //Debug.Print($"****** Sensor Update: {e} lx ******");
+                _logger.WriteInformation($"[SensorUpdate] Lux: {e:F1}");
 
                 ConnectedSensor!.CurrentValue = (int)Math.Round(e);
-                if (PauseSettingBrightness) return;
+                if (PauseSettingBrightness)
+                {
+                    _logger.WriteInformation("[SensorUpdate] Paused — skipping brightness update");
+                    return;
+                }
 
                 List<DisplayInfo> activeDisplays;
                 try
@@ -211,13 +215,23 @@ namespace rightBright.Brightness
                     _loadingMonitorStateService.IsLoading = false;
                 }
 
+                _logger.WriteInformation($"[SensorUpdate] Active displays: {activeDisplays.Count}");
+
                 foreach (var display in activeDisplays)
                 {
-                    if (_updatingStopped) return;
+                    if (_updatingStopped)
+                    {
+                        _logger.WriteWarning("[SensorUpdate] Updating stopped — aborting loop");
+                        return;
+                    }
 
-                    var newBrightness = (int)Math.Round(
-                        _brightnessCalculator.Calculate(e, display.CalculationParameters));
+                    var p = display.CalculationParameters;
+                    var rawBrightness = _brightnessCalculator.Calculate(e, p);
+                    var newBrightness = (int)Math.Round(rawBrightness);
                     newBrightness = Math.Min(newBrightness, 100);
+
+                    _logger.WriteInformation(
+                        $"[SensorUpdate] '{display.ModelName}': params(min={p.MinBrightness}, cpX={p.ControlPointX:F1}, cpY={p.ControlPointY:F1}, maxLux={p.MaxLux}) -> raw={rawBrightness:F2}, rounded={newBrightness}%");
 
                     bool successful;
                     var trycount = 0;
@@ -225,19 +239,29 @@ namespace rightBright.Brightness
                     {
                         if (trycount > 0)
                         {
-                            _logger.WriteInformation($"Setting Brightness {newBrightness} for {display.ModelName} try {trycount + 1}");
+                            _logger.WriteWarning($"[SensorUpdate] '{display.ModelName}': retry {trycount + 1} for brightness {newBrightness}");
                             Task.Delay(250).Wait();
                         }
                         successful = await _brightnessService.SetBrightness(display, newBrightness);
                         trycount++;
                     } while (!successful && trycount < 4);
 
-                    if (successful) display.LastBrightnessSet = newBrightness;
+                    if (successful)
+                    {
+                        _logger.WriteInformation(
+                            $"[SensorUpdate] '{display.ModelName}': SetBrightness succeeded, updating LastBrightnessSet {display.LastBrightnessSet} -> {newBrightness}");
+                        display.LastBrightnessSet = newBrightness;
+                    }
+                    else
+                    {
+                        _logger.WriteError(
+                            $"[SensorUpdate] '{display.ModelName}': SetBrightness failed after {trycount} attempts, LastBrightnessSet remains {display.LastBrightnessSet}");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                _logger.WriteError($"Error setting Brightness: {ex.Message}");
+                _logger.WriteError($"[SensorUpdate] Exception: {ex.Message}\n{ex.StackTrace}");
             }
         }
     }

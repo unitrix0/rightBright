@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -30,6 +29,8 @@ namespace rightBright.Services.Brightness
 
         private bool SetBrightnessInternal(DisplayInfo monitor, int newValue)
         {
+            _logger.WriteInformation($"[SetBrightness:Win] '{monitor.ModelName}' (dev={monitor.DeviceName}): requested={newValue}%");
+
             uint maxValue = 0;
             uint minValue = 0;
             newValue = newValue > 100 ? 100 : newValue;
@@ -42,9 +43,12 @@ namespace rightBright.Services.Brightness
             PHYSICAL_MONITOR[] monitors = GetPhysicalMonitors(monitorHandleInfo.Handle);
             var getMonBrightness = DxvaImports.GetMonitorBrightness(monitors[0].hPhysicalMonitor, ref minValue,
                 ref currentBrightness, ref maxValue);
-                
-            newValue = (int)((maxValue - minValue) * newValue / 100 + minValue);
-                
+
+            var hwValue = (int)((maxValue - minValue) * newValue / 100 + minValue);
+
+            _logger.WriteInformation(
+                $"[SetBrightness:Win] '{monitor.ModelName}': DXVA min={minValue}, current={currentBrightness}, max={maxValue}, converted hwValue={hwValue}");
+
             if (!getMonBrightness)
             {
                 var lastWin32Error = Marshal.GetLastWin32Error();
@@ -52,15 +56,20 @@ namespace rightBright.Services.Brightness
                 if (ex.HResult != -2147467259)
                 {
                     _logger.WriteError(
-                        $"{nameof(DxvaImports.GetMonitorBrightness)} for {monitor.DeviceName} ({lastWin32Error}) Error: 0x{ex.HResult:X} {ex.Message} - {ex.HResult}");
-                    _logger.WriteError($"Returned brightness: {currentBrightness}");
+                        $"[SetBrightness:Win] {nameof(DxvaImports.GetMonitorBrightness)} for '{monitor.ModelName}' (dev={monitor.DeviceName}) ({lastWin32Error}) Error: 0x{ex.HResult:X} {ex.Message} - {ex.HResult}");
+                    _logger.WriteError($"[SetBrightness:Win] Returned brightness: {currentBrightness}");
                 }
             }
 
-            if (currentBrightness == newValue) return true;
+            if (currentBrightness == (uint)hwValue)
+            {
+                _logger.WriteInformation($"[SetBrightness:Win] '{monitor.ModelName}': skipped — already at {hwValue}");
+                return true;
+            }
 
-            var result = DxvaImports.SetMonitorBrightness(monitors[0].hPhysicalMonitor, (uint)newValue);
-            Debug.Print($"{nameof(SetBrightness)} FROM:{currentBrightness} TO: {newValue} => success: {result}");
+            var result = DxvaImports.SetMonitorBrightness(monitors[0].hPhysicalMonitor, (uint)hwValue);
+            _logger.WriteInformation(
+                $"[SetBrightness:Win] '{monitor.ModelName}': SetMonitorBrightness from {currentBrightness} to {hwValue}, success={result}");
             return result;
         }
 
