@@ -10,21 +10,31 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        VelopackApp.Build()
-            .OnAfterInstallFastCallback((v) =>
-            {
-                using var key = Registry.CurrentUser.OpenSubKey(
-                    @"Software\Microsoft\Windows\CurrentVersion\Run", true);
-                key?.SetValue("rightBright",
-                    $"\"{Environment.ProcessPath}\"");
-            })
-            .OnBeforeUninstallFastCallback((v) =>
-            {
-                using var key = Registry.CurrentUser.OpenSubKey(
-                    @"Software\Microsoft\Windows\CurrentVersion\Run", true);
-                key?.DeleteValue("rightBright", throwOnMissingValue: false);
-            })
-            .Run();
+        if (OperatingSystem.IsWindows())
+        {
+            VelopackApp.Build()
+                .OnAfterInstallFastCallback((v) =>
+                {
+                    if (!OperatingSystem.IsWindows())
+                        return;
+
+                    using var key = Registry.CurrentUser.OpenSubKey(
+                        @"Software\Microsoft\Windows\CurrentVersion\Run", true);
+                    key?.SetValue("rightBright",
+                        $"\"{Environment.ProcessPath}\"");
+                })
+                .OnBeforeUninstallFastCallback((v) =>
+                {
+                    if (!OperatingSystem.IsWindows())
+                        return;
+
+                    using var key = Registry.CurrentUser.OpenSubKey(
+                        @"Software\Microsoft\Windows\CurrentVersion\Run", true);
+                    key?.DeleteValue("rightBright", throwOnMissingValue: false);
+                })
+                .Run();
+        }
+
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

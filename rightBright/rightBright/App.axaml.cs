@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.IO;
-using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -91,19 +90,19 @@ public class App : Application
 
         serviceCollection.AddSingleton<MainWindowViewModel>();
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? new SetBrightnessServiceLinux(servies.GetRequiredService<Serilog.ILogger>())
-                : new SetBrightnessServiceWin(servies.GetRequiredService<Serilog.ILogger>()));
+            OperatingSystem.IsWindows()
+                ? new SetBrightnessServiceWin(servies.GetRequiredService<Serilog.ILogger>())
+                : new SetBrightnessServiceLinux(servies.GetRequiredService<Serilog.ILogger>()));
 
         serviceCollection.AddSingleton<IMonitorChangedNotificationService>(_ =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? new LinuxMonitorChangedNotificationService()
-                : new WinMonitorChangedNotificationService());
+            OperatingSystem.IsWindows()
+                ? new WinMonitorChangedNotificationService()
+                : new LinuxMonitorChangedNotificationService());
 
         serviceCollection.AddSingleton<IPowerNotificationService>(_ =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? new LinuxPowerNotificationService()
-                : new WinPowerNotificationService());
+            OperatingSystem.IsWindows()
+                ? new WinPowerNotificationService()
+                : new LinuxPowerNotificationService());
 
         serviceCollection.AddSingleton<IBrightnessCalculator, BezierBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
@@ -113,9 +112,9 @@ public class App : Application
         {
             var logger = services.GetRequiredService<Serilog.ILogger>();
             var changeNotificationService = services.GetRequiredService<IMonitorChangedNotificationService>();
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? new LinuxMonitorEnumService(logger, changeNotificationService)
-                : new WinMonitorEnumService(logger, changeNotificationService);
+            return OperatingSystem.IsWindows()
+                ? new WinMonitorEnumService(logger, changeNotificationService)
+                : new LinuxMonitorEnumService(logger, changeNotificationService);
         });
 
         serviceCollection.AddSingleton<ContentViewFactory>();

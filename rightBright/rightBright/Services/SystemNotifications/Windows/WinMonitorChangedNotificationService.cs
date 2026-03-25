@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
@@ -8,11 +8,11 @@ using rightBright.WindowsApi.WindowMessages.Enums;
 
 namespace rightBright.Services.SystemNotifications.Windows
 {
+    [SupportedOSPlatform("windows")]
     public class WinMonitorChangedNotificationService : WindowsNotificationServiceBase, IMonitorChangedNotificationService
     {
         public event EventHandler? DeviceChangedMessage;
 
-        [SupportedOSPlatform("windows")]
         public WinMonitorChangedNotificationService()
         {
             SystemEvents.DisplaySettingsChanged += (_, _) => Debug.WriteLine("@@@@@@@@@@@@@@@@ AppSettings Changed");

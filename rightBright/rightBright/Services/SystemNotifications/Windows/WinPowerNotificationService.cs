@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -10,6 +10,7 @@ using rightBright.WindowsApi.WindowMessages.Enums;
 
 namespace rightBright.Services.SystemNotifications.Windows
 {
+    [SupportedOSPlatform("windows")]
     public class WinPowerNotificationService : WindowsNotificationServiceBase, IPowerNotificationService
     {
         public event EventHandler? ScreensPoweredOff;
@@ -18,7 +19,6 @@ namespace rightBright.Services.SystemNotifications.Windows
         public event EventHandler? SystemSuspending;
         public event EventHandler? SystemResuming;
 
-        [SupportedOSPlatform("windows")]
         public WinPowerNotificationService()
         {
             SystemEvents.PowerModeChanged += OnPowerModeChanged;
