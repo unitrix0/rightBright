@@ -1,44 +1,49 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using rightBright.Brightness;
 using rightBright.Models.Sensors;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
+using rightBright.Services.SystemNotifications;
 using rightBright.Settings;
+using Serilog;
 
 namespace rightBright.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly IMonitorEnummerationService _monitosService = null!;
+    private readonly IMonitorEnummerationService _monitorsService = null!;
     private readonly ISensorService _sensorService = null!;
     private readonly IBrightnessController _brightnessController = null!;
+    private readonly IMonitorChangedNotificationService _monitorChangedNotificationService = null!;
     private readonly ContentViewFactory _contentViewFactory = null!;
     private readonly ISettings _settings;
     private readonly ApplicationViewModel _applicationViewModel;
 
-    [ObservableProperty]
-    private ObservableCollection<AmbientLightSensor> _availableSensors = [];
+    private CancellationTokenSource? _refreshDisplaysCts;
+    private readonly Lock _refreshDisplaysLock = new();
+    private readonly SemaphoreSlim _refreshDisplaysSemaphore = new(1, 1);
 
-    [ObservableProperty]
-    private ObservableCollection<DisplayInfo> _displays = [];
+    [ObservableProperty] private ObservableCollection<AmbientLightSensor> _availableSensors = [];
 
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(ConnectSensorCommand))]
+    [ObservableProperty] private ObservableCollection<DisplayInfo> _displays = [];
+
+    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(ConnectSensorCommand))]
     private AmbientLightSensor? _selectedSensor;
 
-    [ObservableProperty]
-    private MainWindowContentViewModel _currentContent = null!;
+    [ObservableProperty] private MainWindowContentViewModel _currentContent = null!;
 
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(ConnectSensorCommand))]
+    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(ConnectSensorCommand))]
     private bool _sensorConnected;
 
     [ObservableProperty] private string _selectedScreenDeviceName = "";
@@ -46,7 +51,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private DisplayInfo? _selectedScreenItem;
 
     public ApplicationViewModel ApplicationViewModel => _applicationViewModel;
-    
+
     public bool IsNotLoadingDisplays => !_applicationViewModel.IsLoadingDisplays;
 
     public MainWindowViewModel()
@@ -56,16 +61,18 @@ public partial class MainWindowViewModel : ViewModelBase
         _settings = new AppSettings();
     }
 
-    public MainWindowViewModel(IMonitorEnummerationService monitosService,
+    public MainWindowViewModel(IMonitorEnummerationService monitorsService,
         ISensorService sensorService,
         IBrightnessController brightnessController,
+        IMonitorChangedNotificationService monitorChangedNotificationService,
         ContentViewFactory contentViewFactory,
         ISettings settings,
         ApplicationViewModel applicationViewModel)
     {
-        _monitosService = monitosService;
+        _monitorsService = monitorsService;
         _sensorService = sensorService;
         _brightnessController = brightnessController;
+        _monitorChangedNotificationService = monitorChangedNotificationService;
         _contentViewFactory = contentViewFactory;
         _settings = settings;
         _applicationViewModel = applicationViewModel;
@@ -82,8 +89,35 @@ public partial class MainWindowViewModel : ViewModelBase
         // Subscribe to BrightnessController's property changes to update SelectedSensor
         _brightnessController.PropertyChanged += OnBrightnessControllerPropertyChanged;
 
+        _monitorChangedNotificationService.DeviceChangedMessage += (_, _) => ScheduleRefreshDisplays();
         _ = UpdateMonitors();
         UpdateSensors();
+    }
+
+    private void ScheduleRefreshDisplays()
+    {
+        lock (_refreshDisplaysLock)
+        {
+            _refreshDisplaysCts?.Cancel();
+            _refreshDisplaysCts?.Dispose();
+            _refreshDisplaysCts = new CancellationTokenSource();
+            var token = _refreshDisplaysCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(500, token);
+                    if (token.IsCancellationRequested) return;
+                    Log.Information("[UI] Device changed -> refreshing Displays");
+                    await RefreshDisplaysAsync();
+                }
+                catch (TaskCanceledException)
+                {
+                    // Expected for debouncing.
+                }
+            }, token);
+        }
     }
 
     private void UpdateSensors()
@@ -98,7 +132,7 @@ public partial class MainWindowViewModel : ViewModelBase
             SelectedSensor = AvailableSensors
                 .SingleOrDefault(s =>
                     s.SerialNumber == _brightnessController.ConnectedSensor?.SerialNumber);
-        
+
             UpdateNoSelectionText(_sensorService.Error);
         }
         catch (Exception ex)
@@ -148,25 +182,50 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task UpdateMonitors()
     {
+        await RefreshDisplaysAsync();
+    }
+
+    private async Task RefreshDisplaysAsync()
+    {
+        await _refreshDisplaysSemaphore.WaitAsync();
         try
         {
-            _applicationViewModel.IsLoadingDisplays = true;
+            // Capture selection before collection replacement so we can restore it after refresh.
+            var oldSelection = SelectedScreenItem;
+            var oldDeviceName = oldSelection?.DeviceName;
+            var oldModelName = oldSelection?.ModelName;
 
-            List<DisplayInfo> displays = await _monitosService.GetDisplays();
-            foreach (var display in displays)
+            await Dispatcher.UIThread.InvokeAsync(() => _applicationViewModel.IsLoadingDisplays = true);
+
+            List<DisplayInfo> displays;
+            try
             {
-                Displays.Add(display);
+                displays = await _monitorsService.GetDisplays();
             }
+            catch
+            {
+                displays = [];
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                Displays.Clear();
+                foreach (var display in displays)
+                {
+                    Displays.Add(display);
+                }
+                
+                SelectedScreenItem = Displays.SingleOrDefault(d => d.DeviceName == oldDeviceName) ??
+                                     Displays.SingleOrDefault(d => d.ModelName == oldModelName);
+
+                _applicationViewModel.IsLoadingDisplays = false;
+                Log.Information("[UI] Displays refreshed. Count={Count}", Displays.Count);
+            });
         }
         finally
         {
-            _applicationViewModel.IsLoadingDisplays = false;
+            _refreshDisplaysSemaphore.Release();
         }
-    }
-
-    [RelayCommand]
-    private void EditMonitorSettings(int monitorId)
-    {
     }
 
     [RelayCommand(CanExecute = nameof(CanConnectSensor))]
@@ -175,7 +234,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SensorConnected = _brightnessController.Run(SelectedSensor!);
         UpdateNoSelectionText(_sensorService.Error);
         if (!SensorConnected) return;
-        
+
         _settings.LastUsedSensor = SelectedSensor!;
         _settings.Save();
     }
@@ -211,12 +270,13 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (e.PropertyName == nameof(SelectedScreenItem))
         {
-            var curveEditorViewModel = (CurveEditorViewModel)_contentViewFactory.GetMainWindowContentViewModel<CurveEditorViewModel>();
+            var curveEditorViewModel =
+                (CurveEditorViewModel)_contentViewFactory.GetMainWindowContentViewModel<CurveEditorViewModel>();
             curveEditorViewModel.SelectedScreen = SelectedScreenItem!;
             curveEditorViewModel.closeView += () => CurrentContent = new NoSelectionContentViewModel();
             CurrentContent = curveEditorViewModel;
         }
-        
+
         base.OnPropertyChanged(e);
     }
 }
