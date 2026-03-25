@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using rightBright.Services.DBus.ddcutil;
-using rightBright.Services.Logging;
+using Serilog;
 using rightBright.Services.SystemNotifications;
 using Tmds.DBus.Protocol;
 using Address = Tmds.DBus.Address;
@@ -13,14 +13,14 @@ namespace rightBright.Services.Monitors.Enummerators;
 
 public class LinuxMonitorEnumService : IMonitorEnummerationService
 {
-    private readonly ILoggingService _logger;
+    private readonly ILogger _logger;
     private readonly IMonitorChangedNotificationService _monitorChangedNotificationService;
     private readonly Connection _dbusSession;
     private const string BusName = "com.ddcutil.DdcutilService";
     private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
     private List<DisplayInfo> _monitors = [];
 
-    public LinuxMonitorEnumService(ILoggingService logger, IMonitorChangedNotificationService monitorChangedNotificationService)
+    public LinuxMonitorEnumService(ILogger logger, IMonitorChangedNotificationService monitorChangedNotificationService)
     {
         _logger = logger;
         
@@ -57,7 +57,7 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
         }
         catch (Exception ex)
         {
-            _logger.WriteError($"Error getting displays: {ex.Message}");
+            _logger.Error($"Error getting displays: {ex.Message}");
             return [];
         }
         finally
@@ -91,7 +91,7 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
         }
         catch (Exception ex)
         {
-            _logger.WriteError($"Error updating displays cache: {ex.Message}");
+            _logger.Error($"Error updating displays cache: {ex.Message}");
         }
         finally
         {

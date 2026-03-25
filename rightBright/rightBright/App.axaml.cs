@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.IO;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
@@ -11,7 +12,6 @@ using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
 using rightBright.Services.Brightness;
 using rightBright.Services.LoadingState;
-using rightBright.Services.Logging;
 using rightBright.Services.Monitors;
 using rightBright.Services.Monitors.Enummerators;
 using rightBright.Services.Sensors;
@@ -21,6 +21,7 @@ using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
 using rightBright.ViewModels;
 using rightBright.Views;
+using Serilog;
 
 namespace rightBright;
 
@@ -66,6 +67,20 @@ public class App : Application
         // Without this line you will get duplicate validations from both Avalonia and CT
         BindingPlugins.DataValidators.RemoveAt(0);
 
+        // Serilog file logging (with rolling file rotation) for runtime debugging.
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.File(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "rightbright-.log"),
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 7,
+                outputTemplate:
+                    "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .WriteTo.Debug()
+            .CreateLogger();
+
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<CurveEditorViewModel>();
         serviceCollection.AddSingleton<ISettings>(_ => AppSettings.Load());
@@ -76,8 +91,8 @@ public class App : Application
         serviceCollection.AddSingleton<MainWindowViewModel>();
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? new SetBrightnessServiceLinux(servies.GetRequiredService<ILoggingService>())
-                : new SetBrightnessServiceWin(servies.GetRequiredService<ILoggingService>()));
+                ? new SetBrightnessServiceLinux(servies.GetRequiredService<Serilog.ILogger>())
+                : new SetBrightnessServiceWin(servies.GetRequiredService<Serilog.ILogger>()));
 
         serviceCollection.AddSingleton<IMonitorChangedNotificationService>(_ =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
@@ -91,11 +106,11 @@ public class App : Application
 
         serviceCollection.AddSingleton<IBrightnessCalculator, BezierBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
-        serviceCollection.AddSingleton<ILoggingService, LoggingService>();
         serviceCollection.AddSingleton<ISensorService, YoctoSensorService>();
+        serviceCollection.AddSingleton<Serilog.ILogger>(Log.Logger);
         serviceCollection.AddSingleton<IMonitorEnummerationService>(services =>
         {
-            var logger = services.GetRequiredService<ILoggingService>();
+            var logger = services.GetRequiredService<Serilog.ILogger>();
             var changeNotificationService = services.GetRequiredService<IMonitorChangedNotificationService>();
             return RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                 ? new LinuxMonitorEnumService(logger, changeNotificationService)

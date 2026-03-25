@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
 using rightBright.Models.Sensors;
-using rightBright.Services.Logging;
+using Serilog;
 using rightBright.Settings;
 
 namespace rightBright.Services.Sensors
 {
     public class YoctoSensorService : ISensorService
     {
-        private readonly ILoggingService _logger;
+        private readonly ILogger _logger;
         private readonly Timer _handleYapiEventsTimer = new();
         private readonly ISensorRepo _sensorRepo;
         private YLightSensor? _sensorDevice;
@@ -26,7 +26,7 @@ namespace rightBright.Services.Sensors
 
         public Queue<double> ValueHistory { get; }
 
-        public YoctoSensorService(ISensorRepo sensorRepo, ISettings settings, ILoggingService logger)
+        public YoctoSensorService(ISensorRepo sensorRepo, ISettings settings, ILogger logger)
         {
             _sensorRepo = sensorRepo;
             _logger = logger;
@@ -55,7 +55,7 @@ namespace rightBright.Services.Sensors
         {
             if (_sensorDevice == null) throw new Exception("Sensor device is null");
 
-            _logger.WriteInformation("Starting sensor polling timer");
+            _logger.Information("Starting sensor polling timer");
             if (_sensorDevice.isOnline())
                 Update?.Invoke(this, _sensorDevice.get_currentValue());
 
@@ -64,7 +64,7 @@ namespace rightBright.Services.Sensors
 
         public void StopPollTimer()
         {
-            _logger.WriteInformation("Stopping sensor polling timer");
+            _logger.Information("Stopping sensor polling timer");
             _handleYapiEventsTimer.Stop();
         }
 
@@ -96,7 +96,7 @@ namespace rightBright.Services.Sensors
             }
 
             YAPI.HandleEvents(ref _error);
-            if (!string.IsNullOrEmpty(_error)) _logger.WriteError($"YAPI.HandleEvents error: {_error}");
+            if (!string.IsNullOrEmpty(_error)) _logger.Error($"YAPI.HandleEvents error: {_error}");
         }
     }
 }

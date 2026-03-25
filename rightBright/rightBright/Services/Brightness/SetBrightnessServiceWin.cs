@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using rightBright.Services.Logging;
+using Serilog;
 using rightBright.WindowsApi;
 using rightBright.WindowsApi.Monitor;
 using rightBright.WindowsApi.Monitor.Structs;
@@ -14,10 +14,10 @@ namespace rightBright.Services.Brightness
 {
     public class SetBrightnessServiceWin : ISetBrightnessService
     {
-        private readonly ILoggingService _logger;
+        private readonly ILogger _logger;
 
 
-        public SetBrightnessServiceWin(ILoggingService logger)
+        public SetBrightnessServiceWin(ILogger logger)
         {
             _logger = logger;
         }
@@ -29,7 +29,7 @@ namespace rightBright.Services.Brightness
 
         private bool SetBrightnessInternal(DisplayInfo monitor, int newValue)
         {
-            _logger.WriteInformation($"[SetBrightness:Win] '{monitor.ModelName}' (dev={monitor.DeviceName}): requested={newValue}%");
+            _logger.Information($"[SetBrightness:Win] '{monitor.ModelName}' (dev={monitor.DeviceName}): requested={newValue}%");
 
             uint maxValue = 0;
             uint minValue = 0;
@@ -46,7 +46,7 @@ namespace rightBright.Services.Brightness
 
             var hwValue = (int)((maxValue - minValue) * newValue / 100 + minValue);
 
-            _logger.WriteInformation(
+            _logger.Information(
                 $"[SetBrightness:Win] '{monitor.ModelName}': DXVA min={minValue}, current={currentBrightness}, max={maxValue}, converted hwValue={hwValue}");
 
             if (!getMonBrightness)
@@ -55,20 +55,20 @@ namespace rightBright.Services.Brightness
                 var ex = new Win32Exception(lastWin32Error);
                 if (ex.HResult != -2147467259)
                 {
-                    _logger.WriteError(
+                    _logger.Error(
                         $"[SetBrightness:Win] {nameof(DxvaImports.GetMonitorBrightness)} for '{monitor.ModelName}' (dev={monitor.DeviceName}) ({lastWin32Error}) Error: 0x{ex.HResult:X} {ex.Message} - {ex.HResult}");
-                    _logger.WriteError($"[SetBrightness:Win] Returned brightness: {currentBrightness}");
+                    _logger.Error($"[SetBrightness:Win] Returned brightness: {currentBrightness}");
                 }
             }
 
             if (currentBrightness == (uint)hwValue)
             {
-                _logger.WriteInformation($"[SetBrightness:Win] '{monitor.ModelName}': skipped — already at {hwValue}");
+                _logger.Information($"[SetBrightness:Win] '{monitor.ModelName}': skipped — already at {hwValue}");
                 return true;
             }
 
             var result = DxvaImports.SetMonitorBrightness(monitors[0].hPhysicalMonitor, (uint)hwValue);
-            _logger.WriteInformation(
+            _logger.Information(
                 $"[SetBrightness:Win] '{monitor.ModelName}': SetMonitorBrightness from {currentBrightness} to {hwValue}, success={result}");
             return result;
         }
@@ -87,7 +87,7 @@ namespace rightBright.Services.Brightness
                 {
                     //TODO Error Handling
                     var err = Marshal.GetLastWin32Error();
-                    _logger.WriteError($"GetMonitorInfo failed: {err}");
+                    _logger.Error($"GetMonitorInfo failed: {err}");
                     return false;
                 }
 
@@ -97,7 +97,7 @@ namespace rightBright.Services.Brightness
                 {
                     //TODO Error Handling
                     var err = Marshal.GetLastWin32Error();
-                    _logger.WriteError($"EnumDisplayDevices failed: {err}");
+                    _logger.Error($"EnumDisplayDevices failed: {err}");
                 }
 
                 var di = new MonitorHandleInfo(mi.DeviceName, hMonitor);

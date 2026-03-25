@@ -10,7 +10,7 @@ using rightBright.Brightness.Calculators;
 using rightBright.Models.Sensors;
 using rightBright.Services.Brightness;
 using rightBright.Services.LoadingState;
-using rightBright.Services.Logging;
+using Serilog;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
 using rightBright.Services.SystemNotifications;
@@ -26,7 +26,7 @@ namespace rightBright.Brightness
         private readonly IMonitorEnummerationService _monitorService;
         private readonly IBrightnessCalculator _brightnessCalculator;
         private readonly ISettings _settings;
-        private readonly ILoggingService _logger;
+        private readonly ILogger _logger;
         private readonly ILoadingMonitorStateService _loadingMonitorStateService;
         private AmbientLightSensor? _connectedSensor;
         private bool _pauseSettingBrightness;
@@ -56,7 +56,7 @@ namespace rightBright.Brightness
             ISettings settings,
             IMonitorChangedNotificationService monitorNotificationService,
             IPowerNotificationService powerNotificationService,
-            ILoggingService logger,
+            ILogger logger,
             ILoadingMonitorStateService loadingMonitorStateService)
         {
             _sensorService = sensorService;
@@ -114,20 +114,20 @@ namespace rightBright.Brightness
                 if (!_sensorService.ConnectToSensor(sensor.FriendlyName)) return false;
                 
                 ConnectedSensor = sensor;
-                _logger.WriteInformation($"Sensor {sensor.FriendlyName} connected");
+                _logger.Information($"Sensor {sensor.FriendlyName} connected");
                 return true;
 
             }
             catch (Exception ex)
             {
-                _logger.WriteError($"Connection to '{ConnectedSensor?.FriendlyName}' failed: {ex.Message}");
+                _logger.Error($"Connection to '{ConnectedSensor?.FriendlyName}' failed: {ex.Message}");
                 return false;
             }
         }
 
         private async Task LoadMonitorSettings()
         {
-            _logger.WriteInformation("Loading monitor settings");
+            _logger.Information("Loading monitor settings");
 
             try
             {
@@ -153,7 +153,7 @@ namespace rightBright.Brightness
 
         private void ResetPollingRestartTimer()
         {
-            _logger.WriteInformation(nameof(ResetPollingRestartTimer));
+            _logger.Information(nameof(ResetPollingRestartTimer));
             _pollingRestartTimer.Stop();
             _pollingRestartTimer.Start();
         }
@@ -171,13 +171,13 @@ namespace rightBright.Brightness
 
         private void OnPollingRestartTimerElapsed(object? sender, ElapsedEventArgs e)
         {
-            _logger.WriteInformation("******** Trying  to restart polling ********");
+            _logger.Information("******** Trying  to restart polling ********");
             Dispatcher.UIThread.InvokeAsync(Run, DispatcherPriority.Normal);
         }
 
         private void OnDeviceChangedMessage(object? sender, EventArgs e)
         {
-            _logger.WriteInformation(nameof(OnDeviceChangedMessage));
+            _logger.Information(nameof(OnDeviceChangedMessage));
             _ = LoadMonitorSettings();
         }
 
@@ -192,12 +192,12 @@ namespace rightBright.Brightness
         {
             try
             {
-                _logger.WriteInformation($"[SensorUpdate] Lux: {e:F1}");
+                _logger.Information($"[SensorUpdate] Lux: {e:F1}");
 
                 ConnectedSensor!.CurrentValue = (int)Math.Round(e);
                 if (PauseSettingBrightness)
                 {
-                    _logger.WriteInformation("[SensorUpdate] Paused — skipping brightness update");
+                    _logger.Information("[SensorUpdate] Paused — skipping brightness update");
                     return;
                 }
 
@@ -215,13 +215,13 @@ namespace rightBright.Brightness
                     _loadingMonitorStateService.IsLoading = false;
                 }
 
-                _logger.WriteInformation($"[SensorUpdate] Active displays: {activeDisplays.Count}");
+                _logger.Information($"[SensorUpdate] Active displays: {activeDisplays.Count}");
 
                 foreach (var display in activeDisplays)
                 {
                     if (_updatingStopped)
                     {
-                        _logger.WriteWarning("[SensorUpdate] Updating stopped — aborting loop");
+                        _logger.Warning("[SensorUpdate] Updating stopped — aborting loop");
                         return;
                     }
 
@@ -230,7 +230,7 @@ namespace rightBright.Brightness
                     var newBrightness = (int)Math.Round(rawBrightness);
                     newBrightness = Math.Min(newBrightness, 100);
 
-                    _logger.WriteInformation(
+                    _logger.Information(
                         $"[SensorUpdate] '{display.ModelName}': params(min={p.MinBrightness}, cpX={p.ControlPointX:F1}, cpY={p.ControlPointY:F1}, maxLux={p.MaxLux}) -> raw={rawBrightness:F2}, rounded={newBrightness}%");
 
                     bool successful;
@@ -239,7 +239,7 @@ namespace rightBright.Brightness
                     {
                         if (trycount > 0)
                         {
-                            _logger.WriteWarning($"[SensorUpdate] '{display.ModelName}': retry {trycount + 1} for brightness {newBrightness}");
+                            _logger.Warning($"[SensorUpdate] '{display.ModelName}': retry {trycount + 1} for brightness {newBrightness}");
                             Task.Delay(250).Wait();
                         }
                         successful = await _brightnessService.SetBrightness(display, newBrightness);
@@ -248,20 +248,20 @@ namespace rightBright.Brightness
 
                     if (successful)
                     {
-                        _logger.WriteInformation(
+                        _logger.Information(
                             $"[SensorUpdate] '{display.ModelName}': SetBrightness succeeded, updating LastBrightnessSet {display.LastBrightnessSet} -> {newBrightness}");
                         display.LastBrightnessSet = newBrightness;
                     }
                     else
                     {
-                        _logger.WriteError(
+                        _logger.Error(
                             $"[SensorUpdate] '{display.ModelName}': SetBrightness failed after {trycount} attempts, LastBrightnessSet remains {display.LastBrightnessSet}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.WriteError($"[SensorUpdate] Exception: {ex.Message}\n{ex.StackTrace}");
+                _logger.Error($"[SensorUpdate] Exception: {ex.Message}\n{ex.StackTrace}");
             }
         }
     }

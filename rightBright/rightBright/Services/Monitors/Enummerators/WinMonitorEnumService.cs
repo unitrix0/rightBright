@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using rightBright.Services.Logging;
+using Serilog;
 using rightBright.Services.SystemNotifications;
 using rightBright.WindowsApi.Monitor;
 using rightBright.WindowsApi.Monitor.Structs;
@@ -13,12 +13,12 @@ namespace rightBright.Services.Monitors
 {
     public class WinMonitorEnumService : IMonitorEnummerationService
     {
-        private readonly ILoggingService _logger;
+        private readonly ILogger _logger;
         private readonly IMonitorChangedNotificationService _monitorChangedNotificationService;
         private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
         private readonly List<DisplayInfo> _displays = [];
 
-        public WinMonitorEnumService(ILoggingService logger, IMonitorChangedNotificationService monitorChangedNotificationService)
+        public WinMonitorEnumService(ILogger logger, IMonitorChangedNotificationService monitorChangedNotificationService)
         {
             _logger = logger;
             _monitorChangedNotificationService = monitorChangedNotificationService;
@@ -50,7 +50,7 @@ namespace rightBright.Services.Monitors
                         if (!success)
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.WriteError($"Failed to get monitor info: {err}");
+                            _logger.Error($"Failed to get monitor info: {err}");
                             return false;
                         }
 
@@ -59,7 +59,7 @@ namespace rightBright.Services.Monitors
                         if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.WriteError($"Failed to enumerate display device: {err}");
+                            _logger.Error($"Failed to enumerate display device: {err}");
                         }
 
                         var di = new DisplayInfo
@@ -106,7 +106,7 @@ namespace rightBright.Services.Monitors
                         if (!success)
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.WriteError($"Failed to get monitor info during update: {err}");
+                            _logger.Error($"Failed to get monitor info during update: {err}");
                             return false;
                         }
 
@@ -115,7 +115,7 @@ namespace rightBright.Services.Monitors
                         if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.WriteError($"Failed to enumerate display device during update: {err}");
+                            _logger.Error($"Failed to enumerate display device during update: {err}");
                         }
 
                         var di = new DisplayInfo
@@ -137,7 +137,7 @@ namespace rightBright.Services.Monitors
             }
             catch (Exception ex)
             {
-                _logger.WriteError($"Error updating displays cache: {ex.Message}");
+                _logger.Error($"Error updating displays cache: {ex.Message}");
             }
             finally
             {

@@ -4,14 +4,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using rightBright.Brightness;
 using rightBright.Models.Monitors;
-using rightBright.Services.Logging;
+using Serilog;
 using rightBright.Settings;
 
 namespace rightBright.ViewModels;
 
 public partial class CurveEditorViewModel : MainWindowContentViewModel
 {
-    private readonly ILoggingService _logger;
+    private readonly ILogger _logger;
     private readonly ISettings _settings;
     private readonly IBrightnessController? _brightnessController;
 
@@ -55,13 +55,13 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
 
     public CurveEditorViewModel()
     {
-        _logger = new LoggingService();
+        _logger = Log.Logger;
         SeedDesignTimeData();
         _settings = null!;
         _currentLux = 150;
     }
 
-    public CurveEditorViewModel(ILoggingService logger, ISettings settings,
+    public CurveEditorViewModel(ILogger logger, ISettings settings,
         IBrightnessController brightnessController)
     {
         _logger = logger;
@@ -108,7 +108,7 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
         }
         catch (Exception ex)
         {
-            _logger.WriteError($"Error in curve editor property change: {ex}");
+            _logger.Error($"Error in curve editor property change: {ex}");
         }
     }
 

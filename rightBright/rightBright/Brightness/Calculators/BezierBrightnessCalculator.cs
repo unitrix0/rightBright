@@ -1,15 +1,15 @@
 using System;
 using rightBright.Models.Monitors;
-using rightBright.Services.Logging;
+using Serilog;
 using rightBright.Views.Controls;
 
 namespace rightBright.Brightness.Calculators
 {
     public class BezierBrightnessCalculator : IBrightnessCalculator
     {
-        private readonly ILoggingService _logger;
+        private readonly ILogger _logger;
 
-        public BezierBrightnessCalculator(ILoggingService logger)
+        public BezierBrightnessCalculator(ILogger logger)
         {
             _logger = logger;
         }
@@ -23,12 +23,12 @@ namespace rightBright.Brightness.Calculators
 
             if (lux <= 0)
             {
-                _logger.WriteInformation($"[Calculator] lux={lux:F1} <= 0, returning minBrightness={minBrightness}");
+                _logger.Information($"[Calculator] lux={lux:F1} <= 0, returning minBrightness={minBrightness}");
                 return minBrightness;
             }
             if (lux >= maxLux)
             {
-                _logger.WriteInformation($"[Calculator] lux={lux:F1} >= maxLux={maxLux}, returning 100");
+                _logger.Information($"[Calculator] lux={lux:F1} >= maxLux={maxLux}, returning 100");
                 return 100;
             }
 
@@ -50,7 +50,7 @@ namespace rightBright.Brightness.Calculators
             }
 
             var result = Math.Round(Math.Clamp(brightness, 0, 100), 1);
-            _logger.WriteInformation(
+            _logger.Information(
                 $"[Calculator] lux={lux:F1}, params(min={minBrightness}, cpX={p1x:F1}, cpY={p1y:F1}, maxLux={maxLux}) -> brightness={result:F1}");
             return result;
         }
