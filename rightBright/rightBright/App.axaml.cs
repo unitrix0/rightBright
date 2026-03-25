@@ -73,11 +73,12 @@ public class App : Application
             .WriteTo.File(
                 Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "rightbright-.log"),
+                    "rightBright",
+                    "rightBright.log"),
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 7,
                 outputTemplate:
-                    "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
             .WriteTo.Debug()
             .CreateLogger();
 
@@ -121,7 +122,8 @@ public class App : Application
         serviceCollection.AddScoped<Func<Type, MainWindowContentViewModel>>(services => requestedType =>
             requestedType switch
             {
-                _ when requestedType == typeof(CurveEditorViewModel) => services.GetRequiredService<CurveEditorViewModel>(),
+                _ when requestedType == typeof(CurveEditorViewModel) => services
+                    .GetRequiredService<CurveEditorViewModel>(),
                 _ => throw new InvalidOperationException($"Page of type {requestedType.FullName} has no view model")
             });
 
