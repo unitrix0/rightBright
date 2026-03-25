@@ -1,7 +1,6 @@
 using System;
 using Avalonia;
-using Microsoft.Win32;
-using Velopack;
+using rightBright.Updates;
 
 namespace rightBright;
 
@@ -12,27 +11,17 @@ sealed class Program
     {
         if (OperatingSystem.IsWindows())
         {
-            VelopackApp.Build()
-                .OnAfterInstallFastCallback((v) =>
-                {
-                    if (!OperatingSystem.IsWindows())
-                        return;
-
-                    using var key = Registry.CurrentUser.OpenSubKey(
-                        @"Software\Microsoft\Windows\CurrentVersion\Run", true);
-                    key?.SetValue("rightBright",
-                        $"\"{Environment.ProcessPath}\"");
-                })
-                .OnBeforeUninstallFastCallback((v) =>
-                {
-                    if (!OperatingSystem.IsWindows())
-                        return;
-
-                    using var key = Registry.CurrentUser.OpenSubKey(
-                        @"Software\Microsoft\Windows\CurrentVersion\Run", true);
-                    key?.DeleteValue("rightBright", throwOnMissingValue: false);
-                })
-                .Run();
+            // Best-effort automated updates; never block UI startup.
+            try
+            {
+                UpdateManager.CheckAndApplyUpdatesAsync()
+                    .GetAwaiter()
+                    .GetResult();
+            }
+            catch
+            {
+                // Ignore update failures and continue starting the app.
+            }
         }
 
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

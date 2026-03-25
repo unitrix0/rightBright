@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -15,6 +15,7 @@ namespace rightBright.Settings
         public string HubUrl { get; set; } = "USB";
         public int YapiEventsTimerInterval { get; set; } = 5000;
         public AmbientLightSensor LastUsedSensor { get; set; } = new();
+        public DateTime? LastUpdateCheckUtc { get; set; }
 
         public Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; } =
             new();
@@ -51,7 +52,7 @@ namespace rightBright.Settings
             }
         }
 
-        public static ISettings Load()
+        public static AppSettings Load()
         {
             var jsonFile = Path.Combine(SettingsFolder, "settings.json");
             if (!File.Exists(jsonFile)) return new AppSettings();
