@@ -11,6 +11,15 @@ param(
     [string]$Version
 )
 
+# Self-elevate if not running as Administrator
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
+        ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Start-Process powershell.exe `
+        -Verb RunAs `
+        -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $(if ($Version) { "-Version $Version" })"
+    exit
+}
+
 $ErrorActionPreference = "Stop"
 
 $projectDir = "$PSScriptRoot/rightBright"
