@@ -158,7 +158,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (!string.IsNullOrEmpty(error))
         {
-            CurrentContent = new NoSelectionContentViewModel
+            CurrentContent = new NoSelectionViewModel
             {
                 Message = $"Sensoren konnte nicht abgefragt werden:\n {error}"
             };
@@ -167,17 +167,29 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (AvailableSensors.Count == 0)
         {
-            CurrentContent = new NoSelectionContentViewModel { Message = "Keine Sensoren gefunden" };
+            CurrentContent = new NoSelectionViewModel { Message = "Keine Sensoren gefunden" };
             return;
         }
 
         if (SelectedSensor == null)
         {
-            CurrentContent = new NoSelectionContentViewModel { Message = "Kein Sensor verbunden" };
+            CurrentContent = new NoSelectionViewModel { Message = "Kein Sensor verbunden" };
             return;
         }
 
-        CurrentContent = new NoSelectionContentViewModel() { Message = "Kein Bildschirm ausgewählt" };
+        ShowLuxHistory();
+    }
+
+    private void ShowLuxHistory()
+    {
+        DetachCurrentContent();
+        CurrentContent = new LuxHistoryViewModel(_sensorService);
+    }
+
+    private void DetachCurrentContent()
+    {
+        if (CurrentContent is LuxHistoryViewModel luxHistory)
+            luxHistory.Detach();
     }
 
     private async Task UpdateMonitors()
@@ -247,6 +259,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void SeedDesignetimeData()
     {
+        CurrentContent = new NoSelectionViewModel() { Message = "Editor Preview"};
         AvailableSensors =
         [
             new AmbientLightSensor()
@@ -272,6 +285,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             if (SelectedScreenItem != null)
             {
+                DetachCurrentContent();
                 var curveEditorViewModel =
                     (CurveEditorViewModel)_contentViewFactory.GetMainWindowContentViewModel<CurveEditorViewModel>();
                 curveEditorViewModel.SelectedScreen = SelectedScreenItem;
@@ -280,7 +294,7 @@ public partial class MainWindowViewModel : ViewModelBase
             }
             else
             {
-                CurrentContent = new NoSelectionContentViewModel { Message = "Kein Bildschirm ausgewählt" };
+                ShowLuxHistory();
             }
         }
 

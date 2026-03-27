@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using rightBright.Models.Sensors;
 
@@ -11,7 +11,8 @@ namespace rightBright.Services.Sensors
         string Error { get; }
         string FriendlyName { get; }
         string Unit { get; }
-        Queue<double> ValueHistory { get; }
+        Queue<LuxReading> ValueHistory { get; }
+        LuxReading[] GetValueHistorySnapshot();
         bool ConnectToSensor(string sensorFriendlyName);
         void StartPollTimer();
         public List<AmbientLightSensor> GetSensors(bool forceUpdate = false);
