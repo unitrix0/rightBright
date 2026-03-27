@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Product
+    Id="*"
+    Name="rightBright"
+    Language="1033"
+    Version="$(var.ProductVersion)"
+    Manufacturer="rightBright"
+    UpgradeCode="{8C3D5A77-1F2B-4D5A-BE62-6B0D1C0C7A5B}">
+
+    <Package
+      InstallScope="perMachine"
+      InstallerVersion="500"
+      Compressed="yes" />
+
+    <!-- Major upgrade via UpgradeCode. -->
+    <MajorUpgrade
+      DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <MediaTemplate />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLDIR" Name="rightBright">
+          <!-- Files are installed by the harvested ComponentGroup -->
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="Complete" Title="rightBright" Level="1">
+      <ComponentGroupRef Id="PublishedComponents" />
+      <ComponentRef Id="RegistryRunKey" />
+    </Feature>
+
+    <Component Id="RegistryRunKey" Guid="{CBEA7B7E-4C6E-4B7D-A7C5-5B7B9FADCC9E}">
+      <RegistryKey
+        Root="HKCU"
+        Key="Software\Microsoft\Windows\CurrentVersion\Run"
+        Action="createAndRemoveOnUninstall">
+        <RegistryValue
+          Type="string"
+          Name="rightBright"
+          Value="&quot;[INSTALLDIR]rightBright.exe&quot;" />
+      </RegistryKey>
+    </Component>
+
+    <!-- Launch after install/upgrade completes. -->
+    <CustomAction
+      Id="LaunchRightBrightExe"
+      Execute="immediate"
+      Impersonate="no"
+      Return="asyncNoWait"
+      FileRef="$(var.RightBrightExeFileId)"
+      ExeCommand=""
+    />
+
+    <InstallExecuteSequence>
+      <!-- Installed is true for repairs; UPGRADINGPRODUCTCODE is true for major upgrades. -->
+      <Custom
+        Action="LaunchRightBrightExe"
+        After="InstallFinalize"
+        Condition="NOT Installed OR UPGRADINGPRODUCTCODE" />
+    </InstallExecuteSequence>
+
+  </Product>
+</Wix>
+
