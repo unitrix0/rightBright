@@ -24,7 +24,7 @@
                  IsVisible="{Binding IsNotLoadingDisplays}">
             <ListBox.Styles>
                 <Style Selector="ListBoxItem">
-                    <Setter Property="Margin" Value="0,7"></Setter>
+                    <Setter Property="Margin" Value="0,5"></Setter>
                     <Setter Property="Padding" Value="0"></Setter>
                 </Style>
                 <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
@@ -34,7 +34,7 @@
                     <Setter Property="Background" Value="#6e44ff" />
                 </Style>
                 <Style Selector="ListBoxItem:selected Border.screenCard">
-                    <Setter Property="Background" Value="#5F33FF" />
+                    <Setter Property="Background" Value="#4F1FFF" />
                 </Style>
                 <Style Selector="ListBoxItem:pointerover Border.screenCard">
                     <Setter Property="Background" Value="#5F33FF" />
