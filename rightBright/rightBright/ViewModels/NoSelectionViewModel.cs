@@ -2,7 +2,7 @@
 
 namespace rightBright.ViewModels;
 
-public partial class NoSelectionContentViewModel : MainWindowContentViewModel
+public partial class NoSelectionViewModel : MainWindowContentViewModel
 {
     [ObservableProperty] private string _message = "";
 }

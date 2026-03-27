@@ -16,6 +16,7 @@ namespace rightBright.Services.Sensors
         private YLightSensor? _sensorDevice;
         private string _error = "";
         private bool _sensorInitialized;
+        private readonly object _historyLock = new();
 
         public event EventHandler<double>? Update;
 
@@ -24,7 +25,7 @@ namespace rightBright.Services.Sensors
         public string Unit => _sensorDevice?.get_unit() ?? "";
         public bool SensorDeviceOnline => _sensorDevice?.isOnline() ?? false;
 
-        public Queue<double> ValueHistory { get; }
+        public Queue<LuxReading> ValueHistory { get; }
 
         public YoctoSensorService(ISensorRepo sensorRepo, ISettings settings, ILogger logger)
         {
@@ -32,7 +33,7 @@ namespace rightBright.Services.Sensors
             _logger = logger;
             _handleYapiEventsTimer.Elapsed += HandleYapiEventsTimerOnElapsed;
             _handleYapiEventsTimer.Interval = settings.YapiEventsTimerInterval;
-            ValueHistory = new Queue<double>(17280);
+            ValueHistory = new Queue<LuxReading>(17280);
 
             YAPI.RegisterHub(settings.HubUrl, ref _error);
         }
@@ -42,8 +43,13 @@ namespace rightBright.Services.Sensors
         {
             _sensorDevice = YLightSensor.FindLightSensor(sensorFriendlyName);
             _sensorDevice.registerTimedReportCallback(TimedReport);
-            ValueHistory.Clear();
+            lock (_historyLock) { ValueHistory.Clear(); }
             return true;
+        }
+
+        public LuxReading[] GetValueHistorySnapshot()
+        {
+            lock (_historyLock) { return ValueHistory.ToArray(); }
         }
 
         public List<AmbientLightSensor> GetSensors(bool forceUpdate = false)
@@ -73,8 +79,11 @@ namespace rightBright.Services.Sensors
             var currentValue = sensor.get_currentValue();
             Update?.Invoke(this, currentValue);
 
-            if (ValueHistory.Count == 17280) ValueHistory.Dequeue();
-            ValueHistory.Enqueue(currentValue);
+            lock (_historyLock)
+            {
+                if (ValueHistory.Count == 17280) ValueHistory.Dequeue();
+                ValueHistory.Enqueue(new LuxReading(DateTime.Now, currentValue));
+            }
         }
 
         private void HandleYapiEventsTimerOnElapsed(object? sender, ElapsedEventArgs e)

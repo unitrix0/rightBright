@@ -5,10 +5,10 @@
              xmlns:viewModels="clr-namespace:rightBright.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="rightBright.Views.NoSelectionView"
-             x:DataType="viewModels:NoSelectionContentViewModel">
+             x:DataType="viewModels:NoSelectionViewModel">
     
     <Design.DataContext>
-        <viewModels:NoSelectionContentViewModel/>
+        <viewModels:NoSelectionViewModel/>
     </Design.DataContext>
     
     <Label HorizontalAlignment="Center" VerticalAlignment="Center"
