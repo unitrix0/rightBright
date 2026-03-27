@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -27,10 +27,22 @@
                     <Setter Property="Margin" Value="0,7"></Setter>
                     <Setter Property="Padding" Value="0"></Setter>
                 </Style>
+                <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                    <Setter Property="Background" Value="Transparent" />
+                </Style>
+                <Style Selector="Border.screenCard">
+                    <Setter Property="Background" Value="#6e44ff" />
+                </Style>
+                <Style Selector="ListBoxItem:selected Border.screenCard">
+                    <Setter Property="Background" Value="#5F33FF" />
+                </Style>
+                <Style Selector="ListBoxItem:pointerover Border.screenCard">
+                    <Setter Property="Background" Value="#5F33FF" />
+                </Style>
             </ListBox.Styles>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Border Background="#6e44ff" Margin="0" CornerRadius="5" Padding="3">
+                    <Border Classes="screenCard" Margin="0" CornerRadius="5" Padding="3">
                         <Grid ColumnDefinitions="Auto,*" RowDefinitions="*,*" Margin="0,0,5,0">
                             <Label Grid.Column="0" Grid.Row="0" FontSize="35" Margin="4,0"
                                    Foreground="White"
