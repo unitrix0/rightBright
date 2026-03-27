@@ -9,10 +9,10 @@ namespace rightBright.Views.Controls;
 
 public class BezierCurveEditorControl : Control
 {
-    private const double Padding_Left = 50;
-    private const double Padding_Bottom = 30;
-    private const double Padding_Top = 15;
-    private const double Padding_Right = 15;
+    private const double PaddingLeft = 50;
+    private const double PaddingBottom = 30;
+    private const double PaddingTop = 15;
+    private const double PaddingRight = 15;
     private const double ControlPointRadius = 7;
     private const double HitTestRadius = 14;
 
@@ -30,7 +30,7 @@ public class BezierCurveEditorControl : Control
 
     private DragTarget _dragTarget = DragTarget.None;
     private double _maxLuxScaleDuringDrag = 0;
-    private const int MinLuxScale = 800;
+    private const int MinLuxScale = 1099;
 
     private enum DragTarget { None, P0, P1, P2 }
 
@@ -49,7 +49,7 @@ public class BezierCurveEditorControl : Control
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
     public static readonly StyledProperty<int> MaxLuxProperty =
-        AvaloniaProperty.Register<BezierCurveEditorControl, int>(nameof(MaxLux), defaultValue: 800,
+        AvaloniaProperty.Register<BezierCurveEditorControl, int>(nameof(MaxLux), defaultValue: 1099,
             defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
     public static readonly StyledProperty<int> SavedMinBrightnessProperty =
@@ -62,7 +62,7 @@ public class BezierCurveEditorControl : Control
         AvaloniaProperty.Register<BezierCurveEditorControl, double>(nameof(SavedControlPointY), defaultValue: 50);
 
     public static readonly StyledProperty<int> SavedMaxLuxProperty =
-        AvaloniaProperty.Register<BezierCurveEditorControl, int>(nameof(SavedMaxLux), defaultValue: 800);
+        AvaloniaProperty.Register<BezierCurveEditorControl, int>(nameof(SavedMaxLux), defaultValue: 1099);
 
     public static readonly StyledProperty<bool> ShowSavedCurveProperty =
         AvaloniaProperty.Register<BezierCurveEditorControl, bool>(nameof(ShowSavedCurve));
@@ -150,9 +150,9 @@ public class BezierCurveEditorControl : Control
         base.Render(context);
 
         var bounds = Bounds;
-        var chartRect = new Rect(Padding_Left, Padding_Top,
-            bounds.Width - Padding_Left - Padding_Right,
-            bounds.Height - Padding_Top - Padding_Bottom);
+        var chartRect = new Rect(PaddingLeft, PaddingTop,
+            bounds.Width - PaddingLeft - PaddingRight,
+            bounds.Height - PaddingTop - PaddingBottom);
 
         if (chartRect.Width <= 0 || chartRect.Height <= 0) return;
 
@@ -562,9 +562,9 @@ public class BezierCurveEditorControl : Control
 
     private Rect GetChartRect()
     {
-        return new Rect(Padding_Left, Padding_Top,
-            Bounds.Width - Padding_Left - Padding_Right,
-            Bounds.Height - Padding_Top - Padding_Bottom);
+        return new Rect(PaddingLeft, PaddingTop,
+            Bounds.Width - PaddingLeft - PaddingRight,
+            Bounds.Height - PaddingTop - PaddingBottom);
     }
 
     private static double Distance(Point a, Point b)
