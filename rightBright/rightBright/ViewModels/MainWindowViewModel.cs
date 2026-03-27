@@ -270,11 +270,18 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (e.PropertyName == nameof(SelectedScreenItem))
         {
-            var curveEditorViewModel =
-                (CurveEditorViewModel)_contentViewFactory.GetMainWindowContentViewModel<CurveEditorViewModel>();
-            curveEditorViewModel.SelectedScreen = SelectedScreenItem!;
-            curveEditorViewModel.closeView += () => CurrentContent = new NoSelectionContentViewModel();
-            CurrentContent = curveEditorViewModel;
+            if (SelectedScreenItem != null)
+            {
+                var curveEditorViewModel =
+                    (CurveEditorViewModel)_contentViewFactory.GetMainWindowContentViewModel<CurveEditorViewModel>();
+                curveEditorViewModel.SelectedScreen = SelectedScreenItem;
+                curveEditorViewModel.closeView += () => SelectedScreenItem = null;
+                CurrentContent = curveEditorViewModel;
+            }
+            else
+            {
+                CurrentContent = new NoSelectionContentViewModel { Message = "Kein Bildschirm ausgewählt" };
+            }
         }
 
         base.OnPropertyChanged(e);
