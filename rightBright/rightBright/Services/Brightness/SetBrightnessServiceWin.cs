@@ -29,7 +29,7 @@ namespace rightBright.Services.Brightness
 
         private bool SetBrightnessInternal(DisplayInfo monitor, int newValue)
         {
-            _logger.Information($"[SetBrightness:Win] '{monitor.ModelName}' (dev={monitor.DeviceName}): requested={newValue}%");
+            _logger.Debug($"[SetBrightness:Win] '{monitor.ModelName}' (dev={monitor.DeviceName}): requested={newValue}%");
 
             uint maxValue = 0;
             uint minValue = 0;
@@ -46,7 +46,7 @@ namespace rightBright.Services.Brightness
 
             var hwValue = (int)((maxValue - minValue) * newValue / 100 + minValue);
 
-            _logger.Information(
+            _logger.Debug(
                 $"[SetBrightness:Win] '{monitor.ModelName}': DXVA min={minValue}, current={currentBrightness}, max={maxValue}, converted hwValue={hwValue}");
 
             if (!getMonBrightness)
@@ -63,12 +63,12 @@ namespace rightBright.Services.Brightness
 
             if (currentBrightness == (uint)hwValue)
             {
-                _logger.Information($"[SetBrightness:Win] '{monitor.ModelName}': skipped — already at {hwValue}");
+                _logger.Debug($"[SetBrightness:Win] '{monitor.ModelName}': skipped — already at {hwValue}");
                 return true;
             }
 
             var result = DxvaImports.SetMonitorBrightness(monitors[0].hPhysicalMonitor, (uint)hwValue);
-            _logger.Information(
+            _logger.Debug(
                 $"[SetBrightness:Win] '{monitor.ModelName}': SetMonitorBrightness from {currentBrightness} to {hwValue}, success={result}");
             return result;
         }

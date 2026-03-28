@@ -23,12 +23,12 @@ namespace rightBright.Brightness.Calculators
 
             if (lux <= 0)
             {
-                _logger.Information($"[Calculator] lux={lux:F1} <= 0, returning minBrightness={minBrightness}");
+                _logger.Debug($"[Calculator] lux={lux:F1} <= 0, returning minBrightness={minBrightness}");
                 return minBrightness;
             }
             if (lux >= maxLux)
             {
-                _logger.Information($"[Calculator] lux={lux:F1} >= maxLux={maxLux}, returning 100");
+                _logger.Debug($"[Calculator] lux={lux:F1} >= maxLux={maxLux}, returning 100");
                 return 100;
             }
 
@@ -50,7 +50,7 @@ namespace rightBright.Brightness.Calculators
             }
 
             var result = Math.Round(Math.Clamp(brightness, 0, 100), 1);
-            _logger.Information(
+            _logger.Debug(
                 $"[Calculator] lux={lux:F1}, params(min={minBrightness}, cpX={p1x:F1}, cpY={p1y:F1}, maxLux={maxLux}) -> brightness={result:F1}");
             return result;
         }

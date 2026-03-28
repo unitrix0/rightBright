@@ -192,12 +192,12 @@ namespace rightBright.Brightness
         {
             try
             {
-                _logger.Information($"[SensorUpdate] Lux: {e:F1}");
+                _logger.Debug($"[SensorUpdate] Lux: {e:F1}");
 
                 ConnectedSensor!.CurrentValue = (int)Math.Round(e);
                 if (PauseSettingBrightness)
                 {
-                    _logger.Information("[SensorUpdate] Paused — skipping brightness update");
+                    _logger.Debug("[SensorUpdate] Paused — skipping brightness update");
                     return;
                 }
 
@@ -215,7 +215,7 @@ namespace rightBright.Brightness
                     _loadingMonitorStateService.IsLoading = false;
                 }
 
-                _logger.Information($"[SensorUpdate] Active displays: {activeDisplays.Count}");
+                _logger.Debug($"[SensorUpdate] Active displays: {activeDisplays.Count}");
 
                 foreach (var display in activeDisplays)
                 {
@@ -230,7 +230,7 @@ namespace rightBright.Brightness
                     var newBrightness = (int)Math.Round(rawBrightness);
                     newBrightness = Math.Min(newBrightness, 100);
 
-                    _logger.Information(
+                    _logger.Debug(
                         $"[SensorUpdate] '{display.ModelName}': params(min={p.MinBrightness}, cpX={p.ControlPointX:F1}, cpY={p.ControlPointY:F1}, maxLux={p.MaxLux}) -> raw={rawBrightness:F2}, rounded={newBrightness}%");
 
                     bool successful;
@@ -248,7 +248,7 @@ namespace rightBright.Brightness
 
                     if (successful)
                     {
-                        _logger.Information(
+                        _logger.Debug(
                             $"[SensorUpdate] '{display.ModelName}': SetBrightness succeeded, updating LastBrightnessSet {display.LastBrightnessSet} -> {newBrightness}");
                         display.LastBrightnessSet = newBrightness;
                     }

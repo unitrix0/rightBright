@@ -22,7 +22,7 @@ public class SetBrightnessServiceLinux : ISetBrightnessService
     {
         try
         {
-            _logger.Information($"[SetBrightness:Linux] '{monitor.ModelName}' (dev={monitor.DeviceName}): requested={newValue}%");
+            _logger.Debug($"[SetBrightness:Linux] '{monitor.ModelName}' (dev={monitor.DeviceName}): requested={newValue}%");
 
             const int minValue = 1;
             await _dbusConnection.ConnectAsync();
@@ -34,17 +34,17 @@ public class SetBrightnessServiceLinux : ISetBrightnessService
             var maxValue = currentVcp.VcpMaxValue;
             var hwValue = (maxValue - minValue) * newValue / 100 + minValue;
 
-            _logger.Information(
+            _logger.Debug(
                 $"[SetBrightness:Linux] '{monitor.ModelName}': VCP current={currentVcp.VcpCurrentValue}, max={maxValue}, converted hwValue={hwValue}");
 
             if (currentVcp.VcpCurrentValue == hwValue)
             {
-                _logger.Information($"[SetBrightness:Linux] '{monitor.ModelName}': skipped — already at {hwValue}");
+                _logger.Debug($"[SetBrightness:Linux] '{monitor.ModelName}': skipped — already at {hwValue}");
                 return true;
             }
 
             var result = await ddcUtil.SetVcpAsync(displayNumber, "", 16, (ushort)hwValue, 0x0);
-            _logger.Information(
+            _logger.Debug(
                 $"[SetBrightness:Linux] '{monitor.ModelName}': SetVcp to {hwValue}, ErrorStatus={result.ErrorStatus}");
             return true;
         }
