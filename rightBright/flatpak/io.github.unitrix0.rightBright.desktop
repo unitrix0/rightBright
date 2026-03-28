@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=rightBright
+Comment=Ambient light driven display brightness control
+Exec=rightBright
+Icon=io.github.unitrix0.rightBright
+Type=Application
+Categories=Utility;Settings;
+StartupWMClass=rightBright

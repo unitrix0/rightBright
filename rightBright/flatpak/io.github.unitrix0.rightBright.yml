@@ -1,0 +1,61 @@
+app-id: io.github.unitrix0.rightBright
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+
+command: rightBright
+
+finish-args:
+  # Display
+  - --socket=x11
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+
+  # Yoctopuce USB sensor access
+  - --device=all
+
+  # D-Bus: ddcutil brightness control
+  - --talk-name=com.ddcutil.DdcutilService
+
+  # D-Bus: KDE screen-brightness monitor notifications
+  - --talk-name=org.kde.ScreenBrightness
+
+  # Yoctopuce network hub support
+  - --share=network
+
+modules:
+  - name: rightBright
+    buildsystem: simple
+    build-commands:
+      - install -d /app/lib/rightBright
+      - cp -r publish/. /app/lib/rightBright/
+      - chmod +x /app/lib/rightBright/rightBright
+
+      # Wrapper script so the Flatpak command resolves to /app/bin/
+      - install -d /app/bin
+      - printf '#!/bin/sh\nexec /app/lib/rightBright/rightBright "$@"\n' > /app/bin/rightBright
+      - chmod +x /app/bin/rightBright
+
+      # Desktop entry, metainfo, and icon
+      - install -Dm644 io.github.unitrix0.rightBright.desktop
+          /app/share/applications/io.github.unitrix0.rightBright.desktop
+      - install -Dm644 io.github.unitrix0.rightBright.metainfo.xml
+          /app/share/metainfo/io.github.unitrix0.rightBright.metainfo.xml
+      - install -Dm644 io.github.unitrix0.rightBright.svg
+          /app/share/icons/hicolor/scalable/apps/io.github.unitrix0.rightBright.svg
+
+    sources:
+      - type: dir
+        path: ../publish/linux-x64
+        dest: publish
+
+      - type: file
+        path: io.github.unitrix0.rightBright.desktop
+
+      - type: file
+        path: io.github.unitrix0.rightBright.metainfo.xml
+
+      - type: file
+        path: ../rightBright/Assets/AppIcon New.svg
+        dest-filename: io.github.unitrix0.rightBright.svg

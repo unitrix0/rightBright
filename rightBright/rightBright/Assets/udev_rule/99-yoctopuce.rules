@@ -1,0 +1,4 @@
+# udev rules to allow write access to all users for Yoctopuce USB devices
+#SUBSYSTEM=="usb", ATTR{idVendor}=="24e0", ATTR{idProduct}=="0050",  MODE="0666"
+SUBSYSTEM=="usb", ATTR{idVendor}=="24e0", ATTR{idProduct}=="0050",  TAG+="uaccess"
+
