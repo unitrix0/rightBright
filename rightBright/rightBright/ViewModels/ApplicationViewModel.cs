@@ -2,13 +2,17 @@ using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.Win32;
 using Avalonia.Controls;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using rightBright.Brightness;
+using rightBright.Services.Autostart;
 using rightBright.Services.LoadingState;
+using rightBright.Settings;
+using Serilog;
 
 namespace rightBright.ViewModels;
 
@@ -16,6 +20,8 @@ public partial class ApplicationViewModel : ViewModelBase
 {
     private readonly IBrightnessController? _brightnessController;
     private readonly ILoadingMonitorStateService _loadingMonitorStateService;
+    private readonly IAutostartService? _autostartService;
+    private readonly ISettings? _settings;
     private WindowIcon? _normalIcon;
     private WindowIcon? _loadingIcon;
 
@@ -36,6 +42,10 @@ public partial class ApplicationViewModel : ViewModelBase
 
     [ObservableProperty] private bool _isLoadingDisplays;
 
+    [ObservableProperty] private bool _autostartEnabled;
+
+    public bool IsAutostartSupported => _autostartService?.IsSupported ?? false;
+
     public ApplicationViewModel()
     {
         SetAppIcon();
@@ -43,10 +53,15 @@ public partial class ApplicationViewModel : ViewModelBase
     }
 
     public ApplicationViewModel(IBrightnessController brightnessController,
-        ILoadingMonitorStateService loadingMonitorStateService)
+        ILoadingMonitorStateService loadingMonitorStateService,
+        IAutostartService autostartService,
+        ISettings settings)
     {
         _brightnessController = brightnessController;
         _loadingMonitorStateService = loadingMonitorStateService;
+        _autostartService = autostartService;
+        _settings = settings;
+        _autostartEnabled = settings.AutostartEnabled;
         SetAppIcon();
         SubscribeToLoadingState();
     }
@@ -138,6 +153,33 @@ public partial class ApplicationViewModel : ViewModelBase
     private void ToggleSuspendUpdating()
     {
         Suspend = !Suspend;
+    }
+
+    [RelayCommand]
+    private async Task ToggleAutostartAsync()
+    {
+        if (_autostartService is null || _settings is null) return;
+
+        var desired = !AutostartEnabled;
+        var granted = await _autostartService.SetAutostartAsync(desired);
+        AutostartEnabled = granted && desired;
+        _settings.AutostartEnabled = AutostartEnabled;
+        _settings.Save();
+    }
+
+    public async Task SyncAutostartWithPortalAsync()
+    {
+        if (_autostartService is not { IsSupported: true } || _settings is null) return;
+        if (!_settings.AutostartEnabled) return;
+
+        var granted = await _autostartService.SetAutostartAsync(true);
+        if (!granted)
+        {
+            Log.Warning("[Autostart] Portal denied re-registration on startup; disabling setting");
+            AutostartEnabled = false;
+            _settings.AutostartEnabled = false;
+            _settings.Save();
+        }
     }
 
     [RelayCommand]

@@ -9,6 +9,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
+using rightBright.Services.Autostart;
 using rightBright.Services.Brightness;
 using rightBright.Services.LoadingState;
 using rightBright.Services.Monitors;
@@ -64,6 +65,8 @@ public class App : Application
             DataContext = appViewModel;
             var brightnessController = services.GetRequiredService<IBrightnessController>();
             brightnessController.Run();
+
+            _ = appViewModel.SyncAutostartWithPortalAsync();
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -112,6 +115,11 @@ public class App : Application
             OperatingSystem.IsWindows()
                 ? new WinPowerNotificationService()
                 : new LinuxPowerNotificationService());
+
+        serviceCollection.AddSingleton<IAutostartService>(_ =>
+            !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FLATPAK_ID"))
+                ? new FlatpakAutostartService(Log.Logger)
+                : new NoOpAutostartService());
 
         serviceCollection.AddSingleton<IBrightnessCalculator, BezierBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
