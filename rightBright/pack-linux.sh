@@ -47,7 +47,16 @@ fi
 echo "=== Building rightBright v$VERSION for Linux (linux-x64) ==="
 
 # ---------------------------------------------------------------------------
-# 1. dotnet publish
+# 1. Stamp version into metainfo.xml
+# ---------------------------------------------------------------------------
+METAINFO="$FLATPAK_DIR/io.github.unitrix0.rightBright.metainfo.xml"
+TODAY=$(date +%Y-%m-%d)
+echo ""
+echo "--- Updating metainfo.xml (version=$VERSION, date=$TODAY) ---"
+sed -i "s/<release version=\"[^\"]*\" date=\"[^\"]*\"/<release version=\"$VERSION\" date=\"$TODAY\"/" "$METAINFO"
+
+# ---------------------------------------------------------------------------
+# 2. dotnet publish
 # ---------------------------------------------------------------------------
 echo ""
 echo "--- dotnet publish ---"
@@ -58,7 +67,7 @@ dotnet publish "$CSPROJ" \
     -o "$PUBLISH_DIR"
 
 # ---------------------------------------------------------------------------
-# 2. Ensure Flatpak runtime & SDK are installed
+# 3. Ensure Flatpak runtime & SDK are installed
 # ---------------------------------------------------------------------------
 echo ""
 echo "--- Checking Flatpak runtime & SDK ---"
@@ -72,14 +81,14 @@ if ! flatpak info "$SDK" &>/dev/null; then
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Build the Flatpak
+# 4. Build the Flatpak
 # ---------------------------------------------------------------------------
 echo ""
 echo "--- flatpak-builder ---"
 flatpak-builder --force-clean --disable-rofiles-fuse "$BUILD_DIR" "$MANIFEST"
 
 # ---------------------------------------------------------------------------
-# 4. Export to local repo & create bundle
+# 5. Export to local repo & create bundle
 # ---------------------------------------------------------------------------
 echo ""
 echo "--- Exporting to local repo ---"
