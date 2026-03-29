@@ -7,7 +7,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <IsPackable>false</IsPackable>
-        <Version>0.9.0</Version>
+        <Version>0.9.4</Version>
         <!-- Yoctopuce.YoctoLib ships identical native libs under contentFiles and build; SDK 6+ flags duplicate publish paths (NETSDK1152). -->
         <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     </PropertyGroup>

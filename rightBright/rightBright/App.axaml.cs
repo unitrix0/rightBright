@@ -33,6 +33,15 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        Avalonia.Threading.Dispatcher.UIThread.UnhandledException += (_, e) =>
+        {
+            if (e.Exception is Tmds.DBus.Protocol.DBusException)
+            {
+                Log.Warning(e.Exception, "Non-fatal D-Bus error (tray icon may be unavailable)");
+                e.Handled = true;
+            }
+        };
+
         var services = InitializeDependencyInjection();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
