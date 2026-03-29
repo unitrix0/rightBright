@@ -76,14 +76,14 @@ fi
 # ---------------------------------------------------------------------------
 echo ""
 echo "--- flatpak-builder ---"
-flatpak-builder --force-clean "$BUILD_DIR" "$MANIFEST"
+flatpak-builder --force-clean --disable-rofiles-fuse "$BUILD_DIR" "$MANIFEST"
 
 # ---------------------------------------------------------------------------
 # 4. Export to local repo & create bundle
 # ---------------------------------------------------------------------------
 echo ""
 echo "--- Exporting to local repo ---"
-flatpak-builder --repo="$REPO_DIR" --force-clean "$BUILD_DIR" "$MANIFEST"
+flatpak-builder --repo="$REPO_DIR" --force-clean --disable-rofiles-fuse "$BUILD_DIR" "$MANIFEST"
 
 mkdir -p "$RELEASES_DIR"
 BUNDLE_PATH="$RELEASES_DIR/rightBright-${VERSION}-linux-x64.flatpak"
@@ -92,27 +92,6 @@ echo ""
 echo "--- Creating bundle ---"
 flatpak build-bundle "$REPO_DIR" "$BUNDLE_PATH" "$APP_ID"
 
-# ---------------------------------------------------------------------------
-# 5. Install udev rule for Yoctopuce USB sensors
-# ---------------------------------------------------------------------------
-UDEV_RULE="$PROJECT_DIR/Assets/udev_rule/99-yoctopuce.rules"
-echo ""
-echo "--- Installing udev rule (requires sudo) ---"
-sudo install -Dm644 "$UDEV_RULE" /etc/udev/rules.d/99-yoctopuce.rules
-sudo udevadm control --reload-rules
-sudo udevadm trigger
-
-# ---------------------------------------------------------------------------
-# 6. Install the Flatpak bundle & launch the app
-# ---------------------------------------------------------------------------
-echo ""
-echo "--- Installing Flatpak bundle ---"
-flatpak install --user -y "$BUNDLE_PATH"
-
 echo ""
 echo "=== Done! ==="
 echo "Flatpak bundle: $BUNDLE_PATH"
-
-echo ""
-echo "--- Launching rightBright ---"
-flatpak run "$APP_ID" &
