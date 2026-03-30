@@ -24,6 +24,13 @@ public partial class ApplicationViewModel : ViewModelBase
     private readonly ISettings? _settings;
     private WindowIcon? _normalIcon;
     private WindowIcon? _loadingIcon;
+    [ObservableProperty] private WindowIcon? _appIcon;
+    [ObservableProperty] private bool _isLoadingDisplays;
+    [ObservableProperty] private bool _autostartEnabled;
+
+    public Action? OnOpenMainWindow;
+    public bool IsAutostartSupported => _autostartService?.IsSupported ?? false;
+
 
     public bool Suspend
     {
@@ -37,14 +44,6 @@ public partial class ApplicationViewModel : ViewModelBase
         }
     }
 
-    public Action? OnOpenMainWindow;
-    [ObservableProperty] private WindowIcon? _appIcon;
-
-    [ObservableProperty] private bool _isLoadingDisplays;
-
-    [ObservableProperty] private bool _autostartEnabled;
-
-    public bool IsAutostartSupported => _autostartService?.IsSupported ?? false;
 
     public ApplicationViewModel()
     {
