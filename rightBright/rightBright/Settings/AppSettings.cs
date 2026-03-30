@@ -20,6 +20,8 @@ namespace rightBright.Settings
         public Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; } =
             new();
 
+        public bool AutostartEnabled { get; set; }
+
 
         public void Save()
         {

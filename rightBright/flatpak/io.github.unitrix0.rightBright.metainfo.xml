@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.unitrix0.rightBright</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <!-- TODO: set to actual project license (e.g. MIT, GPL-3.0-or-later) -->
+  <project_license>LicenseRef-proprietary</project_license>
+
+  <name>rightBright</name>
+  <summary>Ambient light driven display brightness control</summary>
+
+  <description>
+    <p>
+      rightBright automatically adjusts your display brightness based on ambient
+      light levels measured by a Yoctopuce sensor. Define custom brightness
+      curves per monitor and let the application continuously adapt your screens
+      to changing lighting conditions.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.unitrix0.rightBright.desktop</launchable>
+
+  <url type="homepage">https://github.com/unitrix0/rightBright</url>
+  <url type="bugtracker">https://github.com/unitrix0/rightBright/issues</url>
+
+  <provides>
+    <binary>rightBright</binary>
+  </provides>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release version="0.9.4" date="2026-03-30">
+      <description>
+        <p>Initial Flatpak release.</p>
+      </description>
+    </release>
+  </releases>
+</component>

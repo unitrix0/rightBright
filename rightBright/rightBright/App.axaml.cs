@@ -9,6 +9,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
+using rightBright.Services.Autostart;
 using rightBright.Services.Brightness;
 using rightBright.Services.LoadingState;
 using rightBright.Services.Monitors;
@@ -33,6 +34,15 @@ public class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        Avalonia.Threading.Dispatcher.UIThread.UnhandledException += (_, e) =>
+        {
+            if (e.Exception is Tmds.DBus.Protocol.DBusException)
+            {
+                Log.Warning(e.Exception, "Non-fatal D-Bus error (tray icon may be unavailable)");
+                e.Handled = true;
+            }
+        };
+
         var services = InitializeDependencyInjection();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -55,6 +65,8 @@ public class App : Application
             DataContext = appViewModel;
             var brightnessController = services.GetRequiredService<IBrightnessController>();
             brightnessController.Run();
+
+            _ = appViewModel.SyncAutostartWithPortalAsync();
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -103,6 +115,11 @@ public class App : Application
             OperatingSystem.IsWindows()
                 ? new WinPowerNotificationService()
                 : new LinuxPowerNotificationService());
+
+        serviceCollection.AddSingleton<IAutostartService>(_ =>
+            !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FLATPAK_ID"))
+                ? new FlatpakAutostartService(Log.Logger)
+                : new NoOpAutostartService());
 
         serviceCollection.AddSingleton<IBrightnessCalculator, BezierBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();

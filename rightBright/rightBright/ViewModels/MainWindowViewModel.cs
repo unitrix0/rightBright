@@ -29,6 +29,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ContentViewFactory _contentViewFactory = null!;
     private readonly ISettings _settings;
     private readonly ApplicationViewModel _applicationViewModel;
+    private readonly ILogger _logger;
 
     private CancellationTokenSource? _refreshDisplaysCts;
     private readonly Lock _refreshDisplaysLock = new();
@@ -59,6 +60,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Design.IsDesignMode) SeedDesignetimeData();
         _applicationViewModel = new ApplicationViewModel();
         _settings = new AppSettings();
+        _logger = Log.Logger;
     }
 
     public MainWindowViewModel(IMonitorEnummerationService monitorsService,
@@ -67,7 +69,8 @@ public partial class MainWindowViewModel : ViewModelBase
         IMonitorChangedNotificationService monitorChangedNotificationService,
         ContentViewFactory contentViewFactory,
         ISettings settings,
-        ApplicationViewModel applicationViewModel)
+        ApplicationViewModel applicationViewModel,
+        ILogger logger)
     {
         _monitorsService = monitorsService;
         _sensorService = sensorService;
@@ -76,6 +79,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _contentViewFactory = contentViewFactory;
         _settings = settings;
         _applicationViewModel = applicationViewModel;
+        _logger = logger;
 
         // Subscribe to ApplicationViewModel's property changes to update IsNotLoadingDisplays
         _applicationViewModel.PropertyChanged += (_, e) =>
@@ -158,9 +162,11 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (!string.IsNullOrEmpty(error))
         {
+            var message = $"Sensoren konnte nicht abgefragt werden:\n {error}";
+            _logger.Error(message);
             CurrentContent = new NoSelectionViewModel
             {
-                Message = $"Sensoren konnte nicht abgefragt werden:\n {error}"
+                Message = message
             };
             return;
         }
