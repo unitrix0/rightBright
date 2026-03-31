@@ -64,6 +64,7 @@ dotnet publish "$CSPROJ" \
     -c Release \
     -r linux-x64 \
     --self-contained \
+    -p:Version="$VERSION" \
     -o "$PUBLISH_DIR"
 
 # ---------------------------------------------------------------------------

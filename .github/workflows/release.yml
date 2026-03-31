@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]*.[0-9]*.[0-9]*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+
+      - name: Install Flatpak
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo flatpak install -y --noninteractive flathub \
+            org.freedesktop.Platform//24.08 \
+            org.freedesktop.Sdk//24.08
+
+      - name: Build Flatpak
+        run: ./pack-linux.sh --version "${GITHUB_REF_NAME}"
+        working-directory: rightBright
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-flatpak
+          path: rightBright/releases/*.flatpak
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+
+      - name: Compute MSI-compatible version
+        id: version
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          NUMERIC="${TAG%%-RC.*}"
+          if [[ "$TAG" =~ -RC\.([0-9]+)$ ]]; then
+            echo "msi_version=${NUMERIC}.${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "msi_version=$NUMERIC" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build WiX installer
+        run: .\pack-windows.ps1 -Version "${{ steps.version.outputs.msi_version }}"
+        working-directory: rightBright
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: |
+            rightBright/releases/rightBrightSetup.exe
+            rightBright/releases/rightBright.msi
+
+  release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Determine release type
+        id: meta
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [[ "$TAG" == *-RC.* ]]; then
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "title=v${TAG} (Release Candidate)" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "title=v${TAG}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ steps.meta.outputs.title }}
+          prerelease: ${{ steps.meta.outputs.is_prerelease }}
+          generate_release_notes: true
+          files: |
+            artifacts/linux-flatpak/*
+            artifacts/windows-installer/*

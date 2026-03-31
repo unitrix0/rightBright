@@ -11,8 +11,9 @@ param(
     [string]$Version
 )
 
-# Self-elevate if not running as Administrator
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
+# Self-elevate if not running as Administrator (skipped in CI environments)
+if (-not $env:CI -and
+    -not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
         ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Start-Process powershell.exe `
         -Verb RunAs `
@@ -47,6 +48,7 @@ dotnet publish "$projectDir/rightBright.csproj" `
     -c Release `
     -r win-x64 `
     --self-contained `
+    -p:Version=$Version `
     -o $publishDir
 
 if ($LASTEXITCODE -ne 0) { Write-Error "dotnet publish failed"; exit 1 }
