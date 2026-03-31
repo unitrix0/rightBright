@@ -1,58 +1,55 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 
-using System.Timers;
-using Timer = System.Timers.Timer;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using NetworkManager.DBus;
+using POCLinux.dbus.ddcutil;
+using ScreenBrightness.DBus;
+using Tmds.DBus;
+using Connection = Tmds.DBus.Protocol.Connection;
 
-Timer handleYapiEventsTimer = new();
-var error = "";
-bool init= false;
+var dbusConnection = new Connection(Address.Session);
+await dbusConnection.ConnectAsync();
 
-if (YAPI.RegisterHub("usb", ref error) == YAPI.SUCCESS)
+// await WatchAddDisplay(dbusConnection);
+await DdcUtilSetBrightness(dbusConnection);
+
+SensorTests.Run();
+
+async Task WatchAddDisplay(Connection connection)
 {
-    handleYapiEventsTimer.Interval = 2000;
-    handleYapiEventsTimer.Elapsed += HandleYapiEventsTimerOnElapsed;
-    
-    var sensor =  YLightSensor.FindLightSensor("LIGHTMK3-17AE3E.lightSensor");
-    sensor.clearCache();
-    sensor.registerTimedReportCallback(TimedReport);
-    handleYapiEventsTimer.Start();
-    
+    var screenBrightnessSvc = new ScreenBrightnessService(connection, "org.kde.ScreenBrightness");
+    var screenBrightness = screenBrightnessSvc.CreateScreenBrightness("/org/kde/ScreenBrightness");
+
+    var names = await screenBrightness.GetDisplaysDBusNamesAsync();
+    foreach (string name in names)
+    {
+        Console.WriteLine(name);
+    }
+
+    await screenBrightness.WatchDisplayAddedAsync((exception, s) => { Console.WriteLine($"Added: {s}"); });
+    await screenBrightness.WatchDisplayRemovedAsync((exception, s) => { Console.WriteLine($"Removed: {s}"); });
+
     do
     {
-        if (sensor.isOnline())
-        {
-            
-            if (!init)
-            {
-                sensor.stopDataLogger();
-                sensor.set_logFrequency("OFF");
-                init = true;
-            }
-            // Console.WriteLine($"\r{DateTime.Now.ToShortTimeString()} - {sensor.get_currentValue()}");
-        }
-        else
-        {
-            Console.WriteLine("\rOffline\t\t\t");
-        }
-        
-        Thread.Sleep(1000);
-    } while (!(Console.KeyAvailable&& Console.ReadKey(true).Key == ConsoleKey.Q));
-}
-else
-{
-    Console.WriteLine(error);
+        // Console.Write($"\r{DateTime.Now}");
+        // System.Threading.Thread.Sleep(500);
+        await Task.Delay(50);
+    } while (Console.KeyAvailable == false);
 }
 
-void TimedReport(YLightSensor func, YMeasure measure)
+async Task DdcUtilSetBrightness(Connection dbusConnection1)
 {
-    var currentValue = func.get_currentValue();
-    Console.WriteLine($"\r{DateTime.Now.ToShortTimeString()} - {currentValue} - timer");
+    var ddcutilSvc = new DdcutilService(dbusConnection1, DdcutilService.BusName);
+    var ddcutil = ddcutilSvc.CreateDdcutilInterface("/com/ddcutil/DdcutilObject");
     
-}
-
-void HandleYapiEventsTimerOnElapsed(object? sender, ElapsedEventArgs e)
-{
-    string errmsg = "";
-    YAPI.HandleEvents(ref errmsg);
+    var detected = await ddcutil.ListDetectedAsync(0x0);
+    
+    var result = await ddcutil.DetectAsync(0x0);
+    var attributes = await ddcutil.GetAttributesReturnedByDetectAsync();
+    var resultSet = await ddcutil.SetVcpAsync(2, "", 0x10, 38, 0x0);
+    // await ddcutil.SetVcpAsync(2, "", 0x10, 52, 0x0);
+    Console.WriteLine("done");
+    
 }

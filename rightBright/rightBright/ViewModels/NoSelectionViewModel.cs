@@ -1,0 +1,8 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace rightBright.ViewModels;
+
+public partial class NoSelectionViewModel : MainWindowContentViewModel
+{
+    [ObservableProperty] private string _message = "";
+}

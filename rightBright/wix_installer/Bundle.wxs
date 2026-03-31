@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+
+  <Bundle
+    Name="rightBrightSetup"
+    Version="$(var.ProductVersion)"
+    UpgradeCode="{6E7AF3F0-0B0C-4AF7-8E4E-6DBF3EED1F2C}">
+
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication
+        LicenseUrl=""
+        Theme="hyperlinkLicense" />
+    </BootstrapperApplication>
+
+    <Chain>
+      <!-- The chained MSI contains the actual application files and upgrade logic. -->
+      <MsiPackage
+        Id="RightBrightMsi"
+        SourceFile="$(var.MsiPath)"
+        DisplayInternalUI="no"
+        Vital="yes" />
+    </Chain>
+
+  </Bundle>
+
+</Wix>
+

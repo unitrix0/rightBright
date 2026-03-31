@@ -1,0 +1,69 @@
+app-id: io.github.unitrix0.rightBright
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+
+command: rightBright
+
+finish-args:
+  # Display (Avalonia 11.x requires X11; native Wayland arrives in Avalonia 12)
+  - --socket=x11
+  - --share=ipc
+
+  # Yoctopuce USB sensor access
+  - --device=all
+
+  # D-Bus session bus access: ddcutil brightness control, KDE screen-brightness
+  # notifications, and Avalonia's StatusNotifierItem tray icon (which requires
+  # owning dynamic bus names that Flatpak's filtered proxy cannot express).
+  - --socket=session-bus
+
+  # Yoctopuce network hub support
+  - --share=network
+
+modules:
+  # libyapi-amd64.so (Yoctopuce native) links against libusb-1.0, which the
+  # freedesktop.Platform runtime does not ship.
+  - name: libusb
+    buildsystem: autotools
+    config-opts:
+      - --disable-static
+    sources:
+      - type: archive
+        url: https://github.com/libusb/libusb/releases/download/v1.0.27/libusb-1.0.27.tar.bz2
+        sha256: ffaa41d741a8a3bee244ac8e54a72ea05bf2879663c098c82fc5757853441575
+
+  - name: rightBright
+    buildsystem: simple
+    build-commands:
+      - install -d /app/lib/rightBright
+      - cp -r publish/. /app/lib/rightBright/
+      - chmod +x /app/lib/rightBright/rightBright
+
+      # Wrapper script so the Flatpak command resolves to /app/bin/
+      - install -d /app/bin
+      - printf '#!/bin/sh\nexec /app/lib/rightBright/rightBright "$@"\n' > /app/bin/rightBright
+      - chmod +x /app/bin/rightBright
+
+      # Desktop entry, metainfo, and icon
+      - install -Dm644 io.github.unitrix0.rightBright.desktop
+          /app/share/applications/io.github.unitrix0.rightBright.desktop
+      - install -Dm644 io.github.unitrix0.rightBright.metainfo.xml
+          /app/share/metainfo/io.github.unitrix0.rightBright.metainfo.xml
+      - install -Dm644 io.github.unitrix0.rightBright.svg
+          /app/share/icons/hicolor/scalable/apps/io.github.unitrix0.rightBright.svg
+
+    sources:
+      - type: dir
+        path: ../publish/linux-x64
+        dest: publish
+
+      - type: file
+        path: io.github.unitrix0.rightBright.desktop
+
+      - type: file
+        path: io.github.unitrix0.rightBright.metainfo.xml
+
+      - type: file
+        path: ../rightBright/Assets/AppIcon New.svg
+        dest-filename: io.github.unitrix0.rightBright.svg

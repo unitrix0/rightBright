@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "unitrix0.rightbright", "unitrix0.rightbright\unitrix0.rightbright.csproj", "{FC5A996A-690B-4B64-A809-C31198ECDCE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rightBright", "rightBright\rightBright.csproj", "{01B2CAD5-4DEB-48D9-9D11-18420293C83C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,9 +14,11 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FC5A996A-690B-4B64-A809-C31198ECDCE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FC5A996A-690B-4B64-A809-C31198ECDCE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC5A996A-690B-4B64-A809-C31198ECDCE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FC5A996A-690B-4B64-A809-C31198ECDCE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01B2CAD5-4DEB-48D9-9D11-18420293C83C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01B2CAD5-4DEB-48D9-9D11-18420293C83C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01B2CAD5-4DEB-48D9-9D11-18420293C83C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01B2CAD5-4DEB-48D9-9D11-18420293C83C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
