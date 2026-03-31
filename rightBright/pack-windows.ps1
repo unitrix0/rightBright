@@ -85,7 +85,7 @@ Write-Host "`n--- wix build (Bundle) ---" -ForegroundColor Yellow
 wix build `
     -d ProductVersion=$Version `
     -d MsiPath=$msiPath `
-    -ext WixToolset.Bal.wixext `
+    -ext WixToolset.BootstrapperApplications.wixext `
     -o $setupExePath `
     $bundleWxsPath
 
