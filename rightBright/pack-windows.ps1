@@ -89,7 +89,7 @@ Write-Host "`n--- candle (MSI) ---" -ForegroundColor Yellow
 & candle -nologo `
     -dProductVersion=$Version `
     -dRightBrightExeFileId=$rightBrightExeFileId `
-    -out $objDir `
+    -out "$objDir\" `
     $productWxsPath `
     $publishedWxsPath
 
@@ -114,7 +114,7 @@ if (-not (Test-Path $bundleObjDir)) {
 & candle -nologo `
     -dProductVersion=$Version `
     -dMsiPath=$msiPath `
-    -out $bundleObjDir `
+    -out "$bundleObjDir\" `
     $bundleWxsPath
 
 if ($LASTEXITCODE -ne 0) { Write-Error "candle (Bundle) failed"; exit 1 }
