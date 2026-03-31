@@ -54,6 +54,13 @@ dotnet publish "$projectDir/rightBright.csproj" `
 
 if ($LASTEXITCODE -ne 0) { Write-Error "dotnet publish failed"; exit 1 }
 
+$amd64Yapi = Join-Path $publishDir "amd64\yapi.dll"
+if (Test-Path $amd64Yapi) {
+    Write-Host "Replacing 32-bit yapi.dll with 64-bit variant" -ForegroundColor Yellow
+    Copy-Item $amd64Yapi -Destination (Join-Path $publishDir "yapi.dll") -Force
+    Remove-Item (Join-Path $publishDir "amd64") -Recurse -Force
+}
+
 Write-Host "`n--- WiX harvest published files ---" -ForegroundColor Yellow
 if (-not (Test-Path $releasesDir)) {
     New-Item -ItemType Directory -Path $releasesDir | Out-Null
