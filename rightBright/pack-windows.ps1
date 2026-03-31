@@ -1,9 +1,10 @@
 <#
 .SYNOPSIS
-    Builds and packages rightBright for Windows using WiX.
+    Builds and packages rightBright for Windows using WiX v4.
 .DESCRIPTION
-    Publishes the app as a self-contained win-x64 binary, then uses WiX to
-    produce an MSI + a Burn bundle bootstrapper (rightBrightSetup.exe).
+    Publishes the app as a self-contained win-x64 binary, then uses the WiX v4
+    CLI (wix build) to produce an MSI and a Burn bundle bootstrapper
+    (rightBrightSetup.exe).
 .PARAMETER Version
     Semantic version for this release (default: reads from .csproj Version property).
 #>
@@ -64,68 +65,31 @@ if (-not (Test-Path $wixDir)) {
 }
 
 $publishedWxsPath = Join-Path $wixDir "PublishedFiles.wxs"
-& "$wixDir\\HarvestPublishedFiles.ps1" -PublishDir $publishDir -OutFile $publishedWxsPath
-if ($LASTEXITCODE -ne 0) { Write-Error "heat harvest failed"; exit 1 }
-
-Write-Host "`n--- Detect rightBright.exe File Id (for CustomAction FileRef) ---" -ForegroundColor Yellow
-$publishedWxsContent = Get-Content $publishedWxsPath -Raw
-$fileIdMatch = [regex]::Match($publishedWxsContent, '<File\s+Id="([^"]+)"[^>]*rightBright\.exe', 'IgnoreCase')
-if (-not $fileIdMatch.Success) {
-    Write-Error "Failed to detect File Id for rightBright.exe in $publishedWxsPath"
-    exit 1
-}
-$rightBrightExeFileId = $fileIdMatch.Groups[1].Value
-Write-Host "Detected FileRef id: $rightBrightExeFileId" -ForegroundColor Green
-
-$objDir = Join-Path $wixDir "obj"
-if (-not (Test-Path $objDir)) {
-    New-Item -ItemType Directory -Path $objDir | Out-Null
-}
+& "$wixDir/HarvestPublishedFiles.ps1" -PublishDir $publishDir -OutFile $publishedWxsPath
+if ($LASTEXITCODE -ne 0) { Write-Error "Harvest failed"; exit 1 }
 
 $productWxsPath = Join-Path $wixDir "Product.wxs"
 $bundleWxsPath = Join-Path $wixDir "Bundle.wxs"
 
-Write-Host "`n--- candle (MSI) ---" -ForegroundColor Yellow
-& candle -nologo `
-    -dProductVersion=$Version `
-    -dRightBrightExeFileId=$rightBrightExeFileId `
-    -out "$objDir\" `
+Write-Host "`n--- wix build (MSI) ---" -ForegroundColor Yellow
+wix build `
+    -d ProductVersion=$Version `
+    -b $publishDir `
+    -o $msiPath `
     $productWxsPath `
     $publishedWxsPath
 
-if ($LASTEXITCODE -ne 0) { Write-Error "candle (MSI) failed"; exit 1 }
+if ($LASTEXITCODE -ne 0) { Write-Error "wix build (MSI) failed"; exit 1 }
 
-Write-Host "`n--- light (MSI) ---" -ForegroundColor Yellow
-$productObj = Join-Path $objDir "Product.wixobj"
-$publishedObj = Join-Path $objDir "PublishedFiles.wixobj"
-& light -nologo `
-    -out $msiPath `
-    $productObj `
-    $publishedObj
-
-if ($LASTEXITCODE -ne 0) { Write-Error "light (MSI) failed"; exit 1 }
-
-Write-Host "`n--- candle (Bundle) ---" -ForegroundColor Yellow
-$bundleObjDir = Join-Path $wixDir "bundle_obj"
-if (-not (Test-Path $bundleObjDir)) {
-    New-Item -ItemType Directory -Path $bundleObjDir | Out-Null
-}
-
-& candle -nologo `
-    -dProductVersion=$Version `
-    -dMsiPath=$msiPath `
-    -out "$bundleObjDir\" `
+Write-Host "`n--- wix build (Bundle) ---" -ForegroundColor Yellow
+wix build `
+    -d ProductVersion=$Version `
+    -d MsiPath=$msiPath `
+    -ext WixToolset.Bal.wixext `
+    -o $setupExePath `
     $bundleWxsPath
 
-if ($LASTEXITCODE -ne 0) { Write-Error "candle (Bundle) failed"; exit 1 }
-
-Write-Host "`n--- light (Bundle) ---" -ForegroundColor Yellow
-$bundleObj = Join-Path $bundleObjDir "Bundle.wixobj"
-& light -nologo `
-    -out $setupExePath `
-    $bundleObj
-
-if ($LASTEXITCODE -ne 0) { Write-Error "light (Bundle) failed"; exit 1 }
+if ($LASTEXITCODE -ne 0) { Write-Error "wix build (Bundle) failed"; exit 1 }
 
 if (-not (Test-Path $setupExePath)) { Write-Error "Build did not produce $setupExePath"; exit 1 }
 

@@ -18,11 +18,9 @@
       <MsiPackage
         Id="RightBrightMsi"
         SourceFile="$(var.MsiPath)"
-        DisplayInternalUI="no"
         Vital="yes" />
     </Chain>
 
   </Bundle>
 
 </Wix>
-

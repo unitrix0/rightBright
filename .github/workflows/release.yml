@@ -45,6 +45,11 @@ jobs:
         with:
           dotnet-version: '9.0'
 
+      - name: Install WiX Toolset
+        run: |
+          dotnet tool install --global wix
+          wix extension add -g WixToolset.Bal.wixext
+
       - name: Compute MSI-compatible version
         id: version
         shell: bash
