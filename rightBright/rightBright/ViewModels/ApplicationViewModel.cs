@@ -162,12 +162,6 @@ public partial class ApplicationViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ToggleSuspendUpdating()
-    {
-        Suspend = !Suspend;
-    }
-
-    [RelayCommand]
     private async Task ToggleAutostartAsync()
     {
         if (_autostartService is null || _settings is null) return;
