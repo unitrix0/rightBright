@@ -12,6 +12,12 @@ namespace rightBright.Settings
         private static readonly string SettingsFolder =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "rightBright");
 
+        /// <summary>
+        /// Used to detect the app's first run so we can sync initial auto-start state
+        /// with platform defaults (installer behavior) before the user has configured it.
+        /// </summary>
+        [JsonIgnore] public bool SettingsFileExisted { get; private set; }
+
         public string HubUrl { get; set; } = "USB";
         public int YapiEventsTimerInterval { get; set; } = 5000;
         public AmbientLightSensor LastUsedSensor { get; set; } = new();
@@ -57,9 +63,14 @@ namespace rightBright.Settings
         public static AppSettings Load()
         {
             var jsonFile = Path.Combine(SettingsFolder, "settings.json");
-            if (!File.Exists(jsonFile)) return new AppSettings();
+            if (!File.Exists(jsonFile))
+            {
+                return new AppSettings { SettingsFileExisted = false };
+            }
 
-            return JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText(jsonFile)) ?? new AppSettings();
+            var settings = JsonConvert.DeserializeObject<AppSettings>(File.ReadAllText(jsonFile)) ?? new AppSettings();
+            settings.SettingsFileExisted = true;
+            return settings;
         }
     }
 }

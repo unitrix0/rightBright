@@ -60,7 +60,20 @@ public partial class ApplicationViewModel : ViewModelBase
         _loadingMonitorStateService = loadingMonitorStateService;
         _autostartService = autostartService;
         _settings = settings;
+
         _autostartEnabled = settings.AutostartEnabled;
+
+        // Preserve installer default on Windows: on first run (no settings.json yet),
+        // sync the tray toggle state with the current `Run` registry entry.
+        if (OperatingSystem.IsWindows() &&
+            _autostartService is WindowsAutostartService windowsAutostartService &&
+            settings is AppSettings appSettings &&
+            !appSettings.SettingsFileExisted)
+        {
+            _autostartEnabled = windowsAutostartService.GetAutostartEnabled();
+            _settings.AutostartEnabled = _autostartEnabled;
+            _settings.Save();
+        }
         SetAppIcon();
         SubscribeToLoadingState();
     }
@@ -168,11 +181,35 @@ public partial class ApplicationViewModel : ViewModelBase
 
     public async Task SyncAutostartWithPortalAsync()
     {
-        if (_autostartService is not { IsSupported: true } || _settings is null) return;
+        if (_autostartService is null || _settings is null) return;
+
+        // Windows: best-effort reconciliation on every startup, including removal
+        // when the user disables the toggle.
+        if (_autostartService is WindowsAutostartService windowsAutostartService)
+        {
+            var desired = _settings.AutostartEnabled;
+            var granted = await windowsAutostartService.SetAutostartAsync(desired);
+
+            if (!desired) return;
+
+            if (!granted)
+            {
+                Log.Warning("[Autostart][Windows] Failed to re-register on startup; disabling setting");
+                AutostartEnabled = false;
+                _settings.AutostartEnabled = false;
+                _settings.Save();
+            }
+
+            return;
+        }
+
+        // Flatpak: keep portal behavior (only re-register when enabled) to avoid
+        // unnecessary portal calls.
+        if (_autostartService is not { IsSupported: true }) return;
         if (!_settings.AutostartEnabled) return;
 
-        var granted = await _autostartService.SetAutostartAsync(true);
-        if (!granted)
+        var portalGranted = await _autostartService.SetAutostartAsync(true);
+        if (!portalGranted)
         {
             Log.Warning("[Autostart] Portal denied re-registration on startup; disabling setting");
             AutostartEnabled = false;

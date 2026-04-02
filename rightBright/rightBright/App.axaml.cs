@@ -117,9 +117,11 @@ public class App : Application
                 : new LinuxPowerNotificationService());
 
         serviceCollection.AddSingleton<IAutostartService>(_ =>
-            !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FLATPAK_ID"))
-                ? new FlatpakAutostartService(Log.Logger)
-                : new NoOpAutostartService());
+            OperatingSystem.IsWindows()
+                ? new WindowsAutostartService(Log.Logger)
+                : !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FLATPAK_ID"))
+                    ? new FlatpakAutostartService(Log.Logger)
+                    : new NoOpAutostartService());
 
         serviceCollection.AddSingleton<IBrightnessCalculator, BezierBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
