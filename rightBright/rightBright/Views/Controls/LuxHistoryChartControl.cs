@@ -22,7 +22,8 @@ public class LuxHistoryChartControl : Control
     private static readonly Color LabelColor = Color.Parse("#A0A0A0");
     private static readonly Color CurrentLuxColor = Color.Parse("#FFA726");
 
-    private static readonly TimeSpan ChartSpan = TimeSpan.FromHours(12);
+    private static readonly TimeSpan ChartSpan = TimeSpan.FromHours(8);
+    private readonly DateTime _appStart;
 
     public static readonly StyledProperty<IReadOnlyList<LuxReading>?> ReadingsProperty =
         AvaloniaProperty.Register<LuxHistoryChartControl, IReadOnlyList<LuxReading>?>(nameof(Readings));
@@ -49,6 +50,7 @@ public class LuxHistoryChartControl : Control
 
     public LuxHistoryChartControl()
     {
+        _appStart = DateTime.Now;
         ClipToBounds = true;
     }
 
@@ -63,16 +65,16 @@ public class LuxHistoryChartControl : Control
 
         if (chart.Width <= 0 || chart.Height <= 0) return;
 
-        var now = DateTime.Now;
-        var timeStart = now - ChartSpan;
+        var timeStart = _appStart;
+        var timeEnd = _appStart + ChartSpan;
 
         var readings = Readings;
         double luxMax = ComputeLuxMax(readings);
 
-        DrawGridAndAxes(context, chart, timeStart, now, luxMax);
+        DrawGridAndAxes(context, chart, timeStart, timeEnd, luxMax);
 
         if (readings is { Count: > 0 })
-            DrawLuxLine(context, chart, readings, timeStart, now, luxMax);
+            DrawLuxLine(context, chart, readings, timeStart, timeEnd, luxMax);
 
         DrawCurrentLuxBadge(context, chart);
     }

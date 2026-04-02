@@ -9,9 +9,10 @@ namespace rightBright.ViewModels;
 
 public partial class LuxHistoryViewModel : MainWindowContentViewModel
 {
-    private static readonly TimeSpan HistoryWindow = TimeSpan.FromHours(12);
+    private static readonly TimeSpan HistoryWindow = TimeSpan.FromHours(8);
 
     private readonly ISensorService _sensorService;
+    private readonly DateTime _appStart;
 
     [ObservableProperty] private IReadOnlyList<LuxReading> _readings = [];
     [ObservableProperty] private double _currentLux = -1;
@@ -19,6 +20,7 @@ public partial class LuxHistoryViewModel : MainWindowContentViewModel
     public LuxHistoryViewModel(ISensorService sensorService)
     {
         _sensorService = sensorService;
+        _appStart = DateTime.Now;
         _sensorService.Update += OnSensorUpdate;
         RefreshReadings();
     }
@@ -34,9 +36,9 @@ public partial class LuxHistoryViewModel : MainWindowContentViewModel
 
     private void RefreshReadings()
     {
-        var cutoff = DateTime.Now - HistoryWindow;
+        var windowEnd = _appStart + HistoryWindow;
         var snapshot = _sensorService.GetValueHistorySnapshot();
-        Readings = Array.FindAll(snapshot, r => r.Timestamp >= cutoff);
+        Readings = Array.FindAll(snapshot, r => r.Timestamp >= _appStart && r.Timestamp <= windowEnd);
     }
 
     public void Detach()
