@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using rightBright.Brightness;
@@ -16,6 +18,11 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
     private readonly IBrightnessController? _brightnessController;
 
     public Action? closeView;
+
+    /// <summary>
+    /// Set by <see cref="MainWindowViewModel"/> to supply currently detected displays for bulk apply.
+    /// </summary>
+    public Func<IEnumerable<DisplayInfo>>? GetCurrentDisplays { get; set; }
 
     [ObservableProperty]
     private int _currentLux;
@@ -92,6 +99,59 @@ public partial class CurveEditorViewModel : MainWindowContentViewModel
         _settings.Save();
 
         SnapshotSavedCurve(SelectedScreen.CalculationParameters);
+    }
+
+    [RelayCommand]
+    private void ApplyCurveToAllActiveScreens()
+    {
+        if (GetCurrentDisplays == null)
+        {
+            _logger.Warning("GetCurrentDisplays is not set; cannot apply curve to all active screens");
+            return;
+        }
+
+        var source = BrightnessCalculationParametersFromUi();
+        var targets = GetCurrentDisplays()
+            .Where(d => d.CalculationParameters.Active && !string.IsNullOrEmpty(d.ModelName))
+            .ToList();
+
+        if (targets.Count == 0)
+        {
+            _logger.Information("No active screens with a model name to apply curve settings to");
+            return;
+        }
+
+        foreach (var display in targets)
+        {
+            CopyParametersTo(source, display.CalculationParameters);
+            _settings.BrightnessCalculationParameters[display.ModelName] =
+                new BrightnessCalculationParameters(source);
+        }
+
+        _settings.Save();
+        SnapshotSavedCurve(source);
+    }
+
+    private BrightnessCalculationParameters BrightnessCalculationParametersFromUi()
+    {
+        return new BrightnessCalculationParameters
+        {
+            MinBrightness = MinBrightness,
+            ControlPointX = ControlPointX,
+            ControlPointY = ControlPointY,
+            MaxLux = MaxLux,
+            Active = Active
+        };
+    }
+
+    private static void CopyParametersTo(BrightnessCalculationParameters source,
+        BrightnessCalculationParameters target)
+    {
+        target.MinBrightness = source.MinBrightness;
+        target.ControlPointX = source.ControlPointX;
+        target.ControlPointY = source.ControlPointY;
+        target.MaxLux = source.MaxLux;
+        target.Active = source.Active;
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs eventArgs)
