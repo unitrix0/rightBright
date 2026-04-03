@@ -3,8 +3,7 @@
     Builds and packages rightBright for Windows using WiX v4.
 .DESCRIPTION
     Publishes the app as a self-contained win-x64 binary, then uses the WiX v4
-    CLI (wix build) to produce an MSI and a Burn bundle bootstrapper
-    (rightBrightSetup.exe).
+    CLI (wix build) to produce a Burn bundle bootstrapper (rightBrightSetup.exe).
 .PARAMETER Version
     Semantic version for this release (default: reads from .csproj Version property).
 #>
@@ -100,7 +99,7 @@ if ($LASTEXITCODE -ne 0) { Write-Error "wix build (Bundle) failed"; exit 1 }
 
 if (-not (Test-Path $setupExePath)) { Write-Error "Build did not produce $setupExePath"; exit 1 }
 
+Remove-Item $msiPath -Force
+
 Write-Host "`n=== Done! ===" -ForegroundColor Green
-Write-Host "Installer outputs:" -ForegroundColor Green
-Write-Host "  MSI : $msiPath"
-Write-Host "  Setup.exe : $setupExePath"
+Write-Host "Installer: $setupExePath"

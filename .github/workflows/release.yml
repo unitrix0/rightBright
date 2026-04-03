@@ -69,9 +69,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: |
-            rightBright/releases/rightBrightSetup.exe
-            rightBright/releases/rightBright.msi
+          path: rightBright/releases/rightBrightSetup.exe
 
   release:
     needs: [build-linux, build-windows]
