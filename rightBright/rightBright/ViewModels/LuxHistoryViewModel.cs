@@ -17,6 +17,10 @@ public partial class LuxHistoryViewModel : MainWindowContentViewModel
     [ObservableProperty] private IReadOnlyList<LuxReading> _readings = [];
     [ObservableProperty] private double _currentLux = -1;
 
+    public DateTime HistoryRangeStart => _appStart;
+
+    public DateTime HistoryRangeEnd => _appStart + HistoryWindow;
+
     public LuxHistoryViewModel(ISensorService sensorService)
     {
         _sensorService = sensorService;

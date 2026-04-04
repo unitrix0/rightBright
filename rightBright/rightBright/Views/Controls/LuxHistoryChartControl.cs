@@ -22,14 +22,19 @@ public class LuxHistoryChartControl : Control
     private static readonly Color LabelColor = Color.Parse("#A0A0A0");
     private static readonly Color CurrentLuxColor = Color.Parse("#FFA726");
 
-    private static readonly TimeSpan ChartSpan = TimeSpan.FromHours(8);
-    private readonly DateTime _appStart;
+    private static readonly TimeSpan DefaultChartSpan = TimeSpan.FromHours(8);
 
     public static readonly StyledProperty<IReadOnlyList<LuxReading>?> ReadingsProperty =
         AvaloniaProperty.Register<LuxHistoryChartControl, IReadOnlyList<LuxReading>?>(nameof(Readings));
 
     public static readonly StyledProperty<double> CurrentLuxProperty =
         AvaloniaProperty.Register<LuxHistoryChartControl, double>(nameof(CurrentLux), defaultValue: -1);
+
+    public static readonly StyledProperty<DateTime> TimeRangeStartProperty =
+        AvaloniaProperty.Register<LuxHistoryChartControl, DateTime>(nameof(TimeRangeStart));
+
+    public static readonly StyledProperty<DateTime> TimeRangeEndProperty =
+        AvaloniaProperty.Register<LuxHistoryChartControl, DateTime>(nameof(TimeRangeEnd));
 
     public IReadOnlyList<LuxReading>? Readings
     {
@@ -43,14 +48,29 @@ public class LuxHistoryChartControl : Control
         set => SetValue(CurrentLuxProperty, value);
     }
 
+    public DateTime TimeRangeStart
+    {
+        get => GetValue(TimeRangeStartProperty);
+        set => SetValue(TimeRangeStartProperty, value);
+    }
+
+    public DateTime TimeRangeEnd
+    {
+        get => GetValue(TimeRangeEndProperty);
+        set => SetValue(TimeRangeEndProperty, value);
+    }
+
     static LuxHistoryChartControl()
     {
-        AffectsRender<LuxHistoryChartControl>(ReadingsProperty, CurrentLuxProperty);
+        AffectsRender<LuxHistoryChartControl>(
+            ReadingsProperty,
+            CurrentLuxProperty,
+            TimeRangeStartProperty,
+            TimeRangeEndProperty);
     }
 
     public LuxHistoryChartControl()
     {
-        _appStart = DateTime.Now;
         ClipToBounds = true;
     }
 
@@ -65,8 +85,13 @@ public class LuxHistoryChartControl : Control
 
         if (chart.Width <= 0 || chart.Height <= 0) return;
 
-        var timeStart = _appStart;
-        var timeEnd = _appStart + ChartSpan;
+        var timeStart = TimeRangeStart;
+        var timeEnd = TimeRangeEnd;
+        if (timeStart == default || timeEnd == default)
+        {
+            timeStart = DateTime.Now;
+            timeEnd = timeStart + DefaultChartSpan;
+        }
 
         var readings = Readings;
         double luxMax = ComputeLuxMax(readings);
