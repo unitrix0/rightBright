@@ -85,19 +85,20 @@ namespace rightBright.Services.Brightness
                 var success = WindowsMonitorApiImports.GetMonitorInfo(hMonitor, ref mi);
                 if (!success)
                 {
-                    //TODO Error Handling
                     var err = Marshal.GetLastWin32Error();
-                    _logger.Error($"GetMonitorInfo failed: {err}");
+                    _logger.Error(
+                        $"GetMonitorInfo failed: {DisplayDeviceEnumerationDiagnostics.FormatGetMonitorInfoFailure(hMonitor, err)}");
                     return false;
                 }
 
+                const uint enumDisplayDevicesFlags = 1; // EDD_GET_DEVICE_INTERFACE_NAME
                 var dev = new DISPLAY_DEVICE();
                 dev.cb = Marshal.SizeOf(dev);
-                if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
+                if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, enumDisplayDevicesFlags))
                 {
-                    //TODO Error Handling
                     var err = Marshal.GetLastWin32Error();
-                    _logger.Error($"EnumDisplayDevices failed: {err}");
+                    _logger.Error(
+                        $"EnumDisplayDevices failed: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, enumDisplayDevicesFlags, err)}");
                 }
 
                 var di = new MonitorHandleInfo(mi.DeviceName, hMonitor);

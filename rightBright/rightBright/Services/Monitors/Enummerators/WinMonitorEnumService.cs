@@ -50,16 +50,19 @@ namespace rightBright.Services.Monitors
                         if (!success)
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.Error($"Failed to get monitor info: {err}");
+                            _logger.Error(
+                                $"Failed to get monitor info: {DisplayDeviceEnumerationDiagnostics.FormatGetMonitorInfoFailure(hMonitor, err)}");
                             return false;
                         }
 
+                        const uint enumDisplayDevicesFlags = 1; // EDD_GET_DEVICE_INTERFACE_NAME
                         var dev = new DISPLAY_DEVICE();
                         dev.cb = Marshal.SizeOf(dev);
-                        if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
+                        if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, enumDisplayDevicesFlags))
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.Error($"Failed to enumerate display device: {err}");
+                            _logger.Error(
+                                $"Failed to enumerate display device: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, enumDisplayDevicesFlags, err)}");
                         }
 
                         var di = new DisplayInfo
@@ -106,16 +109,19 @@ namespace rightBright.Services.Monitors
                         if (!success)
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.Error($"Failed to get monitor info during update: {err}");
+                            _logger.Error(
+                                $"Failed to get monitor info during update: {DisplayDeviceEnumerationDiagnostics.FormatGetMonitorInfoFailure(hMonitor, err)}");
                             return false;
                         }
 
+                        const uint enumDisplayDevicesFlags = 1; // EDD_GET_DEVICE_INTERFACE_NAME
                         var dev = new DISPLAY_DEVICE();
                         dev.cb = Marshal.SizeOf(dev);
-                        if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
+                        if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, enumDisplayDevicesFlags))
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.Error($"Failed to enumerate display device during update: {err}");
+                            _logger.Error(
+                                $"Failed to enumerate display device during update: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, enumDisplayDevicesFlags, err)}");
                         }
 
                         var di = new DisplayInfo
