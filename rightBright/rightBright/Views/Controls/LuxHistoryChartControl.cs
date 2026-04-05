@@ -188,7 +188,7 @@ public class LuxHistoryChartControl : Control
         var points = new List<Point>(readings.Count);
         foreach (var r in readings)
         {
-            if (r.Timestamp < timeStart) continue;
+            if (r.Timestamp < timeStart || r.Timestamp > timeEnd) continue;
             double frac = (r.Timestamp - timeStart).TotalSeconds / totalSeconds;
             double px = chart.Left + frac * chart.Width;
             double py = LuxToPixelY(chart, r.Lux, luxMax);
