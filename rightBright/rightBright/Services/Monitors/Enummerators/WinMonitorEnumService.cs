@@ -55,14 +55,11 @@ namespace rightBright.Services.Monitors
                             return false;
                         }
 
-                        const uint enumDisplayDevicesFlags = 1; // EDD_GET_DEVICE_INTERFACE_NAME
-                        var dev = new DISPLAY_DEVICE();
-                        dev.cb = Marshal.SizeOf(dev);
-                        if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, enumDisplayDevicesFlags))
+                        if (!DisplayDeviceEnumeration.TryGetDisplayDeviceForMonitor(mi.DeviceName, out var dev,
+                                out var lastFlags, out var lastErr))
                         {
-                            var err = Marshal.GetLastWin32Error();
                             _logger.Error(
-                                $"Failed to enumerate display device: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, enumDisplayDevicesFlags, err)}");
+                                $"Failed to enumerate display device: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
                         }
 
                         var di = new DisplayInfo
@@ -72,7 +69,7 @@ namespace rightBright.Services.Monitors
                             MonitorArea = mi.Monitor,
                             WorkArea = mi.WorkArea,
                             IsPrimaryMonitor = Convert.ToBoolean(mi.Flags),
-                            ModelName = dev.DeviceString,
+                            ModelName = DisplayDeviceEnumeration.ModelNameOrFallback(dev, mi.DeviceName),
                             DeviceName = mi.DeviceName
                         };
 
@@ -114,14 +111,11 @@ namespace rightBright.Services.Monitors
                             return false;
                         }
 
-                        const uint enumDisplayDevicesFlags = 1; // EDD_GET_DEVICE_INTERFACE_NAME
-                        var dev = new DISPLAY_DEVICE();
-                        dev.cb = Marshal.SizeOf(dev);
-                        if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, enumDisplayDevicesFlags))
+                        if (!DisplayDeviceEnumeration.TryGetDisplayDeviceForMonitor(mi.DeviceName, out var dev,
+                                out var lastFlags, out var lastErr))
                         {
-                            var err = Marshal.GetLastWin32Error();
                             _logger.Error(
-                                $"Failed to enumerate display device during update: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, enumDisplayDevicesFlags, err)}");
+                                $"Failed to enumerate display device during update: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
                         }
 
                         var di = new DisplayInfo
@@ -131,7 +125,7 @@ namespace rightBright.Services.Monitors
                             MonitorArea = mi.Monitor,
                             WorkArea = mi.WorkArea,
                             IsPrimaryMonitor = Convert.ToBoolean(mi.Flags),
-                            ModelName = dev.DeviceString,
+                            ModelName = DisplayDeviceEnumeration.ModelNameOrFallback(dev, mi.DeviceName),
                             DeviceName = mi.DeviceName
                         };
 

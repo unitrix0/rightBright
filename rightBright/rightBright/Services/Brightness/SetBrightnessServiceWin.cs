@@ -91,14 +91,11 @@ namespace rightBright.Services.Brightness
                     return false;
                 }
 
-                const uint enumDisplayDevicesFlags = 1; // EDD_GET_DEVICE_INTERFACE_NAME
-                var dev = new DISPLAY_DEVICE();
-                dev.cb = Marshal.SizeOf(dev);
-                if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, enumDisplayDevicesFlags))
+                if (!DisplayDeviceEnumeration.TryGetDisplayDeviceForMonitor(mi.DeviceName, out var dev, out var lastFlags,
+                        out var lastErr))
                 {
-                    var err = Marshal.GetLastWin32Error();
-                    _logger.Error(
-                        $"EnumDisplayDevices failed: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, enumDisplayDevicesFlags, err)}");
+                    _logger.Warning(
+                        $"EnumDisplayDevices failed (brightness path): {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
                 }
 
                 var di = new MonitorHandleInfo(mi.DeviceName, hMonitor);
