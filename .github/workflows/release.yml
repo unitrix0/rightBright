@@ -50,16 +50,6 @@ jobs:
           dotnet tool install --global wix --version 6.0.2
           wix extension add -g WixToolset.BootstrapperApplications.wixext/6.0.1
 
-      - name: Install Sysinternals Streams
-        shell: pwsh
-        run: |
-          $dest = Join-Path $env:RUNNER_TEMP "sysinternals-streams"
-          New-Item -ItemType Directory -Force -Path $dest | Out-Null
-          $zip = Join-Path $env:RUNNER_TEMP "Streams.zip"
-          Invoke-WebRequest -Uri "https://download.sysinternals.com/files/Streams.zip" -OutFile $zip
-          Expand-Archive -Path $zip -DestinationPath $dest -Force
-          Add-Content -Path $env:GITHUB_PATH -Value $dest
-
       - name: Compute MSI-compatible version
         id: version
         shell: bash
@@ -75,13 +65,6 @@ jobs:
       - name: Build WiX installer
         run: .\pack-windows.ps1 -Version "${{ steps.version.outputs.msi_version }}"
         working-directory: rightBright
-
-      - name: Remove alternate data streams from installer
-        shell: pwsh
-        working-directory: rightBright
-        run: |
-          reg add "HKCU\Software\Sysinternals\Streams" /v EulaAccepted /t REG_DWORD /d 1 /f | Out-Null
-          streams.exe -d "releases\rightBrightSetup.exe"
 
       - uses: actions/upload-artifact@v4
         with:
