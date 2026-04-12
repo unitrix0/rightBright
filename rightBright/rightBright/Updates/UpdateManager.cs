@@ -15,7 +15,7 @@ namespace rightBright.Updates;
 
 public static class UpdateManager
 {
-    // Keep in sync with the WiX Burn bundle output name produced in pack-windows.ps1.
+    // Keep in sync with the Inno Setup output name produced in pack-windows.ps1.
     private const string SetupAssetName = "rightBrightSetup.exe";
 
     // Keep in sync with your GitHub repository.
@@ -78,7 +78,7 @@ public static class UpdateManager
         if (string.IsNullOrWhiteSpace(setupPath))
             return;
 
-        // MSI/Burn will own creating the Run key + launching after finalize.
+        // Inno Setup owns the Run key and post-install launch (see rightBright.iss).
         // Exit current process so files aren't locked during upgrade.
         try
         {
