@@ -16,7 +16,7 @@ namespace rightBright.Services.SystemNotifications.Windows
         /// After the last <see cref="WindowMessages.DEVICECHANGE"/>, wait this long before raising
         /// <see cref="DeviceChangedMessage"/> so the display stack can settle (RDP, dock, etc.).
         /// </summary>
-        private const int DeviceChangeDebounceMilliseconds = 400;
+        private const int DeviceChangeDebounceMilliseconds = 1000;
 
         private readonly Timer _deviceChangeDebounceTimer;
         private volatile bool _disposed;
