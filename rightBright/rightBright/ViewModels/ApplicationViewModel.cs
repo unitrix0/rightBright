@@ -63,16 +63,29 @@ public partial class ApplicationViewModel : ViewModelBase
 
         _autostartEnabled = settings.AutostartEnabled;
 
-        // Preserve installer default on Windows: on first run (no settings.json yet),
-        // sync the tray toggle state with the current `Run` registry entry.
+        // Preserve installer / registry autostart on Windows:
+        // - First run: no settings.json yet — mirror Run key into settings.
+        // - Reinstall: Inno recreates the Run key while AppData may still have
+        //   AutostartEnabled=false; without this, startup sync would delete that key.
         if (OperatingSystem.IsWindows() &&
             _autostartService is WindowsAutostartService windowsAutostartService &&
-            settings is AppSettings appSettings &&
-            !appSettings.SettingsFileExisted)
+            settings is AppSettings appSettings)
         {
-            _autostartEnabled = windowsAutostartService.GetAutostartEnabled();
-            _settings.AutostartEnabled = _autostartEnabled;
-            _settings.Save();
+            var regEnabled = windowsAutostartService.GetAutostartEnabled();
+            if (!appSettings.SettingsFileExisted)
+            {
+                _autostartEnabled = regEnabled;
+                _settings.AutostartEnabled = _autostartEnabled;
+                _settings.Save();
+            }
+            else if (regEnabled && !appSettings.AutostartEnabled)
+            {
+                Log.Information(
+                    "[Autostart][Windows] Registry Run key present while settings had autostart off; aligning settings with registry (e.g. after reinstall)");
+                _autostartEnabled = true;
+                _settings.AutostartEnabled = true;
+                _settings.Save();
+            }
         }
         SetAppIcon();
         SubscribeToLoadingState();
