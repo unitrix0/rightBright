@@ -28,7 +28,7 @@ MinVersion=10.0
 Source: "..\publish\win-x64\*"; DestDir: "{app}"; \
   Flags: recursesubdirs ignoreversion createallsubdirs
 
-; #region agent log
+; Debug NDJSON logging (session 6012ca). Do not use #region inside [Code] (Pascal).
 [Code]
 function JsonString(const S: String): String;
 begin
@@ -110,7 +110,6 @@ begin
       '","expectedExePath":"' + JsonString(ExePath) + '"}');
   end;
 end;
-; #endregion
 
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
