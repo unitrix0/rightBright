@@ -80,8 +80,6 @@ public partial class ApplicationViewModel : ViewModelBase
             }
             else if (regEnabled && !appSettings.AutostartEnabled)
             {
-                Log.Information(
-                    "[Autostart][Windows] Registry Run key present while settings had autostart off; aligning settings with registry (e.g. after reinstall)");
                 _autostartEnabled = true;
                 _settings.AutostartEnabled = true;
                 _settings.Save();
