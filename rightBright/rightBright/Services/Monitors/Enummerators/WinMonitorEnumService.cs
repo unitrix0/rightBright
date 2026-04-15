@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Serilog;
 using rightBright.Services.SystemNotifications;
 using rightBright.WindowsApi.Monitor;
 using rightBright.WindowsApi.Monitor.Structs;
+using Serilog;
 
-namespace rightBright.Services.Monitors
+namespace rightBright.Services.Monitors.Enummerators
 {
     public class WinMonitorEnumService : IMonitorEnummerationService
     {
