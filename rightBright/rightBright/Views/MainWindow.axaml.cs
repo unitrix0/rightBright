@@ -9,8 +9,24 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        var version = Assembly.GetEntryAssembly()?.GetName().Version;
-        if (version is not null)
-            Title = $"rightBright - {version.Major}.{version.Minor}.{version.Build}";
+        var versionString = Assembly.GetEntryAssembly()
+            ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion;
+
+        if (versionString is not null)
+        {
+            // Strip build metadata ("+commitHash") but keep prerelease suffix ("-rc.1")
+            var metaIndex = versionString.IndexOf('+');
+            if (metaIndex >= 0)
+                versionString = versionString[..metaIndex];
+
+            Title = $"rightBright - {versionString}";
+        }
+        else
+        {
+            var version = Assembly.GetEntryAssembly()?.GetName().Version;
+            if (version is not null)
+                Title = $"rightBright - {version.Major}.{version.Minor}.{version.Build}";
+        }
     }
 }
