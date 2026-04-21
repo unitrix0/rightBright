@@ -1,10 +1,9 @@
 <#
 .SYNOPSIS
-    Builds and packages rightBright for Windows using WiX v4.
+    Builds and packages rightBright for Windows using Inno Setup.
 .DESCRIPTION
-    Publishes the app as a self-contained win-x64 binary, then uses the WiX v4
-    CLI (wix build) to produce an MSI and a Burn bundle bootstrapper
-    (rightBrightSetup.exe).
+    Publishes the app as a self-contained win-x64 binary, then uses the Inno
+    Setup compiler (iscc) to produce the installer (rightBrightSetup.exe).
 .PARAMETER Version
     Semantic version for this release (default: reads from .csproj Version property).
 #>
@@ -27,11 +26,9 @@ $ErrorActionPreference = "Stop"
 $projectDir = "$PSScriptRoot/rightBright"
 $publishDir = "$PSScriptRoot/publish/win-x64"
 $releasesDir = "$PSScriptRoot/releases"
-$wixDir = "$PSScriptRoot/wix_installer"
+$innoDir = "$PSScriptRoot/inno_installer"
 $setupExeName = "rightBrightSetup.exe"
-$msiName = "rightBright.msi"
 $setupExePath = Join-Path $releasesDir $setupExeName
-$msiPath = Join-Path $releasesDir $msiName
 
 if (-not $Version) {
     [xml]$csproj = Get-Content "$projectDir/rightBright.csproj"
@@ -61,46 +58,22 @@ if (Test-Path $amd64Yapi) {
     Remove-Item (Join-Path $publishDir "amd64") -Recurse -Force
 }
 
-Write-Host "`n--- WiX harvest published files ---" -ForegroundColor Yellow
 if (-not (Test-Path $releasesDir)) {
     New-Item -ItemType Directory -Path $releasesDir | Out-Null
 }
 
-if (-not (Test-Path $wixDir)) {
-    Write-Error "WiX directory does not exist: $wixDir"
+$issPath = Join-Path $innoDir "rightBright.iss"
+if (-not (Test-Path $issPath)) {
+    Write-Error "Inno Setup script not found: $issPath"
     exit 1
 }
 
-$publishedWxsPath = Join-Path $wixDir "PublishedFiles.wxs"
-& "$wixDir/HarvestPublishedFiles.ps1" -PublishDir $publishDir -OutFile $publishedWxsPath
-if ($LASTEXITCODE -ne 0) { Write-Error "Harvest failed"; exit 1 }
+Write-Host "`n--- Inno Setup (iscc) ---" -ForegroundColor Yellow
+iscc /DAppVersion=$Version $issPath
 
-$productWxsPath = Join-Path $wixDir "Product.wxs"
-$bundleWxsPath = Join-Path $wixDir "Bundle.wxs"
-
-Write-Host "`n--- wix build (MSI) ---" -ForegroundColor Yellow
-wix build `
-    -d ProductVersion=$Version `
-    -b $publishDir `
-    -o $msiPath `
-    $productWxsPath `
-    $publishedWxsPath
-
-if ($LASTEXITCODE -ne 0) { Write-Error "wix build (MSI) failed"; exit 1 }
-
-Write-Host "`n--- wix build (Bundle) ---" -ForegroundColor Yellow
-wix build `
-    -d ProductVersion=$Version `
-    -d MsiPath=$msiPath `
-    -ext WixToolset.BootstrapperApplications.wixext `
-    -o $setupExePath `
-    $bundleWxsPath
-
-if ($LASTEXITCODE -ne 0) { Write-Error "wix build (Bundle) failed"; exit 1 }
+if ($LASTEXITCODE -ne 0) { Write-Error "Inno Setup build failed"; exit 1 }
 
 if (-not (Test-Path $setupExePath)) { Write-Error "Build did not produce $setupExePath"; exit 1 }
 
 Write-Host "`n=== Done! ===" -ForegroundColor Green
-Write-Host "Installer outputs:" -ForegroundColor Green
-Write-Host "  MSI : $msiPath"
-Write-Host "  Setup.exe : $setupExePath"
+Write-Host "Installer: $setupExePath"

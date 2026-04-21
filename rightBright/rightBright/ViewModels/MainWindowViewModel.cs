@@ -295,6 +295,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 var curveEditorViewModel =
                     (CurveEditorViewModel)_contentViewFactory.GetMainWindowContentViewModel<CurveEditorViewModel>();
                 curveEditorViewModel.SelectedScreen = SelectedScreenItem;
+                curveEditorViewModel.GetCurrentDisplays = () => Displays;
                 curveEditorViewModel.closeView += () => SelectedScreenItem = null;
                 CurrentContent = curveEditorViewModel;
             }

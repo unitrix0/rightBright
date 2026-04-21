@@ -8,7 +8,7 @@
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="500"
         x:Class="rightBright.Views.MainWindow"
         x:DataType="viewModels:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/app_icon_new.ico"
         Title="rightBright"
         Width="1000" Height="620"
         Background="{DynamicResource PrimaryBackground}">

@@ -34,12 +34,12 @@
                     <NativeMenu>
                         <NativeMenuItem Header="Öffnen" Command="{Binding OpenMainWindowCommand}" />
                         <NativeMenuItem Header="Pause" ToggleType="CheckBox"
-                                        Command="{Binding ToggleSuspendUpdatingCommand}"
                                         IsChecked="{Binding Suspend, Mode=TwoWay}"/>
                         <NativeMenuItem Header="Autostart" ToggleType="CheckBox"
                                         Command="{Binding ToggleAutostartCommand}"
                                         IsChecked="{Binding AutostartEnabled, Mode=TwoWay}"
                                         IsVisible="{Binding IsAutostartSupported}"/>
+                        <NativeMenuItem Header="Check for Updates" Command="{Binding CheckForUpdatesCommand}" />
                         <NativeMenuItemSeparator />
                         <NativeMenuItem Header="Exit" Command="{Binding EndProgramCommand}" />
                     </NativeMenu>

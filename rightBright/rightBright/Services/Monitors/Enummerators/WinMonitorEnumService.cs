@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Serilog;
 using rightBright.Services.SystemNotifications;
 using rightBright.WindowsApi.Monitor;
 using rightBright.WindowsApi.Monitor.Structs;
+using Serilog;
 
-namespace rightBright.Services.Monitors
+namespace rightBright.Services.Monitors.Enummerators
 {
     public class WinMonitorEnumService : IMonitorEnummerationService
     {
@@ -50,16 +50,17 @@ namespace rightBright.Services.Monitors
                         if (!success)
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.Error($"Failed to get monitor info: {err}");
+                            _logger.Error(
+                                $"Failed to get monitor info: {DisplayDeviceEnumerationDiagnostics.FormatGetMonitorInfoFailure(hMonitor, err)}");
                             return false;
                         }
 
-                        var dev = new DISPLAY_DEVICE();
-                        dev.cb = Marshal.SizeOf(dev);
-                        if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
+                        if (!DisplayDeviceEnumeration.TryGetDisplayDeviceForMonitor(mi.DeviceName, out var dev,
+                                out var lastFlags, out var lastErr))
                         {
-                            var err = Marshal.GetLastWin32Error();
-                            _logger.Error($"Failed to enumerate display device: {err}");
+                            _logger.Warning(
+                                $"Skipping unenumerable monitor: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
+                            return true;
                         }
 
                         var di = new DisplayInfo
@@ -106,16 +107,17 @@ namespace rightBright.Services.Monitors
                         if (!success)
                         {
                             var err = Marshal.GetLastWin32Error();
-                            _logger.Error($"Failed to get monitor info during update: {err}");
+                            _logger.Error(
+                                $"Failed to get monitor info during update: {DisplayDeviceEnumerationDiagnostics.FormatGetMonitorInfoFailure(hMonitor, err)}");
                             return false;
                         }
 
-                        var dev = new DISPLAY_DEVICE();
-                        dev.cb = Marshal.SizeOf(dev);
-                        if (!WindowsMonitorApiImports.EnumDisplayDevices(mi.DeviceName, 0, ref dev, 1))
+                        if (!DisplayDeviceEnumeration.TryGetDisplayDeviceForMonitor(mi.DeviceName, out var dev,
+                                out var lastFlags, out var lastErr))
                         {
-                            var err = Marshal.GetLastWin32Error();
-                            _logger.Error($"Failed to enumerate display device during update: {err}");
+                            _logger.Warning(
+                                $"Skipping unenumerable monitor during update: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
+                            return true;
                         }
 
                         var di = new DisplayInfo

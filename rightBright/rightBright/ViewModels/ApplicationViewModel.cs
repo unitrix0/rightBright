@@ -12,6 +12,7 @@ using rightBright.Brightness;
 using rightBright.Services.Autostart;
 using rightBright.Services.LoadingState;
 using rightBright.Settings;
+using rightBright.Updates;
 using Serilog;
 
 namespace rightBright.ViewModels;
@@ -21,6 +22,7 @@ public partial class ApplicationViewModel : ViewModelBase
     private readonly IBrightnessController? _brightnessController;
     private readonly ILoadingMonitorStateService _loadingMonitorStateService;
     private readonly IAutostartService? _autostartService;
+    private readonly IUpdateService? _updateService;
     private readonly ISettings? _settings;
     private WindowIcon? _normalIcon;
     private WindowIcon? _loadingIcon;
@@ -54,13 +56,39 @@ public partial class ApplicationViewModel : ViewModelBase
     public ApplicationViewModel(IBrightnessController brightnessController,
         ILoadingMonitorStateService loadingMonitorStateService,
         IAutostartService autostartService,
+        IUpdateService updateService,
         ISettings settings)
     {
         _brightnessController = brightnessController;
         _loadingMonitorStateService = loadingMonitorStateService;
         _autostartService = autostartService;
+        _updateService = updateService;
         _settings = settings;
+
         _autostartEnabled = settings.AutostartEnabled;
+
+        // Preserve installer / registry autostart on Windows:
+        // - First run: no settings.json yet — mirror Run key into settings.
+        // - Reinstall: Inno recreates the Run key while AppData may still have
+        //   AutostartEnabled=false; without this, startup sync would delete that key.
+        if (OperatingSystem.IsWindows() &&
+            _autostartService is WindowsAutostartService windowsAutostartService &&
+            settings is AppSettings appSettings)
+        {
+            var regEnabled = windowsAutostartService.GetAutostartEnabled();
+            if (!appSettings.SettingsFileExisted)
+            {
+                _autostartEnabled = regEnabled;
+                _settings.AutostartEnabled = _autostartEnabled;
+                _settings.Save();
+            }
+            else if (regEnabled && !appSettings.AutostartEnabled)
+            {
+                _autostartEnabled = true;
+                _settings.AutostartEnabled = true;
+                _settings.Save();
+            }
+        }
         SetAppIcon();
         SubscribeToLoadingState();
     }
@@ -149,12 +177,6 @@ public partial class ApplicationViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ToggleSuspendUpdating()
-    {
-        Suspend = !Suspend;
-    }
-
-    [RelayCommand]
     private async Task ToggleAutostartAsync()
     {
         if (_autostartService is null || _settings is null) return;
@@ -166,13 +188,44 @@ public partial class ApplicationViewModel : ViewModelBase
         _settings.Save();
     }
 
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        if (_updateService is null) return;
+        await _updateService.CheckForUpdatesAsync(force: true);
+    }
+
     public async Task SyncAutostartWithPortalAsync()
     {
-        if (_autostartService is not { IsSupported: true } || _settings is null) return;
+        if (_autostartService is null || _settings is null) return;
+
+        // Windows: best-effort reconciliation on every startup, including removal
+        // when the user disables the toggle.
+        if (_autostartService is WindowsAutostartService windowsAutostartService)
+        {
+            var desired = _settings.AutostartEnabled;
+            var granted = await windowsAutostartService.SetAutostartAsync(desired);
+
+            if (!desired) return;
+
+            if (!granted)
+            {
+                Log.Warning("[Autostart][Windows] Failed to re-register on startup; disabling setting");
+                AutostartEnabled = false;
+                _settings.AutostartEnabled = false;
+                _settings.Save();
+            }
+
+            return;
+        }
+
+        // Flatpak: keep portal behavior (only re-register when enabled) to avoid
+        // unnecessary portal calls.
+        if (_autostartService is not { IsSupported: true }) return;
         if (!_settings.AutostartEnabled) return;
 
-        var granted = await _autostartService.SetAutostartAsync(true);
-        if (!granted)
+        var portalGranted = await _autostartService.SetAutostartAsync(true);
+        if (!portalGranted)
         {
             Log.Warning("[Autostart] Portal denied re-registration on startup; disabling setting");
             AutostartEnabled = false;

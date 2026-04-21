@@ -10,5 +10,7 @@
 
     <controls:LuxHistoryChartControl
         Readings="{Binding Readings}"
-        CurrentLux="{Binding CurrentLux}" />
+        CurrentLux="{Binding CurrentLux}"
+        TimeRangeStart="{Binding HistoryRangeStart}"
+        TimeRangeEnd="{Binding HistoryRangeEnd}" />
 </UserControl>

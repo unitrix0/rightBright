@@ -19,6 +19,7 @@ using rightBright.Services.SystemNotifications;
 using rightBright.Services.SystemNotifications.Linux;
 using rightBright.Services.SystemNotifications.Windows;
 using rightBright.Settings;
+using rightBright.Updates;
 using rightBright.ViewModels;
 using rightBright.Views;
 using Serilog;
@@ -67,6 +68,9 @@ public class App : Application
             brightnessController.Run();
 
             _ = appViewModel.SyncAutostartWithPortalAsync();
+
+            var updateService = services.GetRequiredService<IUpdateService>();
+            updateService.StartPeriodicChecks();
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -117,9 +121,11 @@ public class App : Application
                 : new LinuxPowerNotificationService());
 
         serviceCollection.AddSingleton<IAutostartService>(_ =>
-            !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FLATPAK_ID"))
-                ? new FlatpakAutostartService(Log.Logger)
-                : new NoOpAutostartService());
+            OperatingSystem.IsWindows()
+                ? new WindowsAutostartService(Log.Logger)
+                : !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FLATPAK_ID"))
+                    ? new FlatpakAutostartService(Log.Logger)
+                    : new NoOpAutostartService());
 
         serviceCollection.AddSingleton<IBrightnessCalculator, BezierBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
@@ -134,6 +140,7 @@ public class App : Application
                 : new LinuxMonitorEnumService(logger, changeNotificationService);
         });
 
+        serviceCollection.AddSingleton<IUpdateService, UpdateService>();
         serviceCollection.AddSingleton<ContentViewFactory>();
         serviceCollection.AddScoped<Func<Type, MainWindowContentViewModel>>(services => requestedType =>
             requestedType switch
