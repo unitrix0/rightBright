@@ -224,7 +224,8 @@ public class UpdateService : IUpdateService, IDisposable
         http.DefaultRequestHeaders.UserAgent.ParseAdd("rightBright-updater");
         http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
 
-        var url = $"https://api.github.com/repos/{GitHubOwner}/{GitHubRepo}/releases/latest";
+        // /releases/latest excludes prereleases; list all and pick the first non-draft.
+        var url = $"https://api.github.com/repos/{GitHubOwner}/{GitHubRepo}/releases?per_page=15";
 
         try
         {
@@ -236,7 +237,13 @@ public class UpdateService : IUpdateService, IDisposable
             }
 
             await using var stream = await response.Content.ReadAsStreamAsync(ct);
-            return await JsonSerializer.DeserializeAsync<GitHubRelease>(stream, cancellationToken: ct);
+            var releases = await JsonSerializer.DeserializeAsync<GitHubRelease[]>(stream, cancellationToken: ct);
+
+            var latest = releases?.FirstOrDefault(r => r.draft != true);
+            if (latest is null)
+                _logger.Warning("[UpdateService] No non-draft releases found on GitHub");
+
+            return latest;
         }
         catch (Exception ex)
         {
@@ -287,6 +294,8 @@ public class UpdateService : IUpdateService, IDisposable
     private sealed class GitHubRelease
     {
         public string? tag_name { get; set; }
+        public bool? draft { get; set; }
+        public bool? prerelease { get; set; }
         public GitHubAsset[]? assets { get; set; }
     }
 
