@@ -12,6 +12,7 @@ using rightBright.Brightness;
 using rightBright.Services.Autostart;
 using rightBright.Services.LoadingState;
 using rightBright.Settings;
+using rightBright.Updates;
 using Serilog;
 
 namespace rightBright.ViewModels;
@@ -21,6 +22,7 @@ public partial class ApplicationViewModel : ViewModelBase
     private readonly IBrightnessController? _brightnessController;
     private readonly ILoadingMonitorStateService _loadingMonitorStateService;
     private readonly IAutostartService? _autostartService;
+    private readonly IUpdateService? _updateService;
     private readonly ISettings? _settings;
     private WindowIcon? _normalIcon;
     private WindowIcon? _loadingIcon;
@@ -54,11 +56,13 @@ public partial class ApplicationViewModel : ViewModelBase
     public ApplicationViewModel(IBrightnessController brightnessController,
         ILoadingMonitorStateService loadingMonitorStateService,
         IAutostartService autostartService,
+        IUpdateService updateService,
         ISettings settings)
     {
         _brightnessController = brightnessController;
         _loadingMonitorStateService = loadingMonitorStateService;
         _autostartService = autostartService;
+        _updateService = updateService;
         _settings = settings;
 
         _autostartEnabled = settings.AutostartEnabled;
@@ -182,6 +186,13 @@ public partial class ApplicationViewModel : ViewModelBase
         AutostartEnabled = granted && desired;
         _settings.AutostartEnabled = AutostartEnabled;
         _settings.Save();
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        if (_updateService is null) return;
+        await _updateService.CheckForUpdatesAsync(force: true);
     }
 
     public async Task SyncAutostartWithPortalAsync()

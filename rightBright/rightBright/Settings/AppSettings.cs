@@ -22,6 +22,7 @@ namespace rightBright.Settings
         public int YapiEventsTimerInterval { get; set; } = 5000;
         public AmbientLightSensor LastUsedSensor { get; set; } = new();
         public DateTime? LastUpdateCheckUtc { get; set; }
+        public int UpdateCheckIntervalHours { get; set; } = 6;
 
         public Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; } =
             new();
