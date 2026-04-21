@@ -95,7 +95,8 @@ namespace rightBright.Services.Brightness
                         out var lastErr))
                 {
                     _logger.Warning(
-                        $"EnumDisplayDevices failed (brightness path): {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
+                        $"Skipping unenumerable monitor (brightness path): {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
+                    return true;
                 }
 
                 var di = new MonitorHandleInfo(mi.DeviceName, hMonitor);

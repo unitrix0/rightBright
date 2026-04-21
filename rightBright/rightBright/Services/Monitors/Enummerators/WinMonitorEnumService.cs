@@ -58,8 +58,9 @@ namespace rightBright.Services.Monitors.Enummerators
                         if (!DisplayDeviceEnumeration.TryGetDisplayDeviceForMonitor(mi.DeviceName, out var dev,
                                 out var lastFlags, out var lastErr))
                         {
-                            _logger.Error(
-                                $"Failed to enumerate display device: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
+                            _logger.Warning(
+                                $"Skipping unenumerable monitor: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
+                            return true;
                         }
 
                         var di = new DisplayInfo
@@ -69,7 +70,7 @@ namespace rightBright.Services.Monitors.Enummerators
                             MonitorArea = mi.Monitor,
                             WorkArea = mi.WorkArea,
                             IsPrimaryMonitor = Convert.ToBoolean(mi.Flags),
-                            ModelName = DisplayDeviceEnumeration.ModelNameOrFallback(dev, mi.DeviceName),
+                            ModelName = dev.DeviceString,
                             DeviceName = mi.DeviceName
                         };
 
@@ -114,8 +115,9 @@ namespace rightBright.Services.Monitors.Enummerators
                         if (!DisplayDeviceEnumeration.TryGetDisplayDeviceForMonitor(mi.DeviceName, out var dev,
                                 out var lastFlags, out var lastErr))
                         {
-                            _logger.Error(
-                                $"Failed to enumerate display device during update: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
+                            _logger.Warning(
+                                $"Skipping unenumerable monitor during update: {DisplayDeviceEnumerationDiagnostics.FormatEnumDisplayDevicesFailure(mi.DeviceName, dev, lastFlags, lastErr)}");
+                            return true;
                         }
 
                         var di = new DisplayInfo
@@ -125,7 +127,7 @@ namespace rightBright.Services.Monitors.Enummerators
                             MonitorArea = mi.Monitor,
                             WorkArea = mi.WorkArea,
                             IsPrimaryMonitor = Convert.ToBoolean(mi.Flags),
-                            ModelName = DisplayDeviceEnumeration.ModelNameOrFallback(dev, mi.DeviceName),
+                            ModelName = dev.DeviceString,
                             DeviceName = mi.DeviceName
                         };
 
