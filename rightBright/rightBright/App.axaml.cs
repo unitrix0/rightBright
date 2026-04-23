@@ -110,9 +110,9 @@ public class App : Application
                 ? new SetBrightnessServiceWin(servies.GetRequiredService<Serilog.ILogger>())
                 : new SetBrightnessServiceLinux(servies.GetRequiredService<Serilog.ILogger>()));
 
-        serviceCollection.AddSingleton<IMonitorChangedNotificationService>(_ =>
+        serviceCollection.AddSingleton<IMonitorChangedNotificationService>(services =>
             OperatingSystem.IsWindows()
-                ? new WinMonitorChangedNotificationService()
+                ? new WinMonitorChangedNotificationService(services.GetRequiredService<ISettings>(), services.GetRequiredService<ILogger>())
                 : new LinuxMonitorChangedNotificationService());
 
         serviceCollection.AddSingleton<IPowerNotificationService>(_ =>

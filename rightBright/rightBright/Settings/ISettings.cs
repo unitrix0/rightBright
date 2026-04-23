@@ -12,6 +12,7 @@ namespace rightBright.Settings
         Dictionary<string, BrightnessCalculationParameters> BrightnessCalculationParameters { get; set; }
         int UpdateCheckIntervalHours { get; set; }
         bool AutostartEnabled { get; set; }
+        int DeviceChangeDebounceMilliseconds { get; set; }
         void Save();
     }
 }

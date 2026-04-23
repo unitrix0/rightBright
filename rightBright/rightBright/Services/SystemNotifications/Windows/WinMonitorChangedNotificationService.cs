@@ -4,27 +4,27 @@ using System.Runtime.Versioning;
 using System.Threading;
 using Microsoft.Win32;
 using rightBright.Services.SystemNotifications.Windows.Constants;
+using rightBright.Settings;
 using rightBright.WindowsApi.WindowMessages;
 using rightBright.WindowsApi.WindowMessages.Enums;
+using Serilog;
 
 namespace rightBright.Services.SystemNotifications.Windows
 {
     [SupportedOSPlatform("windows")]
     public class WinMonitorChangedNotificationService : WindowsNotificationServiceBase, IMonitorChangedNotificationService
     {
-        /// <summary>
-        /// After the last <see cref="WindowMessages.DEVICECHANGE"/>, wait this long before raising
-        /// <see cref="DeviceChangedMessage"/> so the display stack can settle (RDP, dock, etc.).
-        /// </summary>
-        private const int DeviceChangeDebounceMilliseconds = 1000;
-
+        private readonly ISettings _settings;
+        private readonly ILogger _logger;
         private readonly Timer _deviceChangeDebounceTimer;
         private volatile bool _disposed;
 
         public event EventHandler? DeviceChangedMessage;
 
-        public WinMonitorChangedNotificationService()
+        public WinMonitorChangedNotificationService(ISettings settings, ILogger logger)
         {
+            _settings = settings;
+            _logger = logger;
             _deviceChangeDebounceTimer = new Timer(OnDeviceChangeDebounceElapsed, null, Timeout.Infinite,
                 Timeout.Infinite);
 
@@ -53,12 +53,12 @@ namespace rightBright.Services.SystemNotifications.Windows
 
         protected override IntPtr WindowProc(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam)
         {
-            Debug.Print($"Window Message: {(WindowMessages)message} params: 0x{wParam:X}");
+            _logger.Debug($"Window Message: {(WindowMessages)message} params: 0x{wParam:X}");
 
             if ((WindowMessages)message != WindowMessages.DEVICECHANGE)
                 return WindowMessageApiImports.DefWindowProc(hWnd, message, wParam, lParam);
 
-            _deviceChangeDebounceTimer.Change(DeviceChangeDebounceMilliseconds, Timeout.Infinite);
+            _deviceChangeDebounceTimer.Change(_settings.DeviceChangeDebounceMilliseconds, Timeout.Infinite);
             return new IntPtr(1);
         }
 
