@@ -29,12 +29,13 @@ namespace rightBright.Services.Monitors.Enummerators
         /// Returns informations about the connect Mointors
         /// </summary>
         /// <returns>collection of Display Info</returns>
-        public async Task<List<DisplayInfo>> GetDisplays()
+        public async Task<List<DisplayInfo>> GetDisplays(bool forceRefresh = false)
         {
             await _cacheLock.WaitAsync();
             try
             {
-                if (_displays.Count > 0) return _displays;
+                if (_displays.Count > 0 && !forceRefresh) return _displays;
+            if (forceRefresh) _displays.Clear();
 
                 return await Task.Factory.StartNew(() =>
                 {

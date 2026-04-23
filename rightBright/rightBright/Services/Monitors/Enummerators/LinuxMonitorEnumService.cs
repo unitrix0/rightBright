@@ -31,12 +31,13 @@ public class LinuxMonitorEnumService : IMonitorEnummerationService
         _dbusSession.ConnectAsync().GetAwaiter();
     }
 
-    public async Task<List<DisplayInfo>> GetDisplays()
+    public async Task<List<DisplayInfo>> GetDisplays(bool forceRefresh = false)
     {
         await _cacheLock.WaitAsync();
         try
         {
-            if (_monitors.Count > 0) return _monitors;
+            if (_monitors.Count > 0 && !forceRefresh) return _monitors;
+            if (forceRefresh) _monitors.Clear();
 
             var ddcutilSvc = new DdcutilService(_dbusSession, BusName);
             var ddcutil = ddcutilSvc.CreateDdcutilInterface("/com/ddcutil/DdcutilObject");

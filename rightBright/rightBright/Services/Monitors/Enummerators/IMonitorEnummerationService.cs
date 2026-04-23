@@ -10,6 +10,6 @@ namespace rightBright.Services.Monitors
         /// Returns informations about the connect Mointors
         /// </summary>
         /// <returns>collection of Display Info</returns>
-        Task<List<DisplayInfo>> GetDisplays();
+        Task<List<DisplayInfo>> GetDisplays(bool forceRefresh = false);
     }
 }
