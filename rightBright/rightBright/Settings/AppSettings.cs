@@ -28,6 +28,7 @@ namespace rightBright.Settings
             new();
 
         public bool AutostartEnabled { get; set; }
+        public int DeviceChangeDebounceMilliseconds { get; set; } = 5000;
 
 
         public void Save()

@@ -203,7 +203,7 @@ public partial class MainWindowViewModel : ViewModelBase
         await RefreshDisplaysAsync();
     }
 
-    private async Task RefreshDisplaysAsync()
+    private async Task RefreshDisplaysAsync(bool forceRefresh = false)
     {
         await _refreshDisplaysSemaphore.WaitAsync();
         try
@@ -218,7 +218,7 @@ public partial class MainWindowViewModel : ViewModelBase
             List<DisplayInfo> displays;
             try
             {
-                displays = await _monitorsService.GetDisplays();
+                displays = await _monitorsService.GetDisplays(forceRefresh);
             }
             catch
             {
@@ -246,6 +246,13 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    private async Task DetectMonitors()
+    {
+        await RefreshDisplaysAsync(forceRefresh: true);
+        await _brightnessController.ReloadMonitorSettingsAsync();
+    }
+
     [RelayCommand(CanExecute = nameof(CanConnectSensor))]
     private void ConnectSensor()
     {
@@ -261,30 +268,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         return SelectedSensor != null && _brightnessController.ConnectedSensor == null && !SensorConnected;
     }
-
-
-    private void SeedDesignetimeData()
-    {
-        CurrentContent = new NoSelectionViewModel() { Message = "Editor Preview"};
-        AvailableSensors =
-        [
-            new AmbientLightSensor()
-            {
-                FriendlyName = "LIGHTMK3-117AE3E.lightSensor",
-                MinValue = 10,
-                CurrentValue = 55,
-                MaxValue = 123
-            }
-        ];
-
-        SelectedSensor = AvailableSensors[0];
-        Displays =
-        [
-            new DisplayInfo() { DeviceName = "Screen 1", ModelName = "Model" },
-            new DisplayInfo() { DeviceName = "Screen 2", ModelName = "Model" }
-        ];
-    }
-
+    
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(SelectedScreenItem))
@@ -306,5 +290,27 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         base.OnPropertyChanged(e);
+    }
+
+    private void SeedDesignetimeData()
+    {
+        CurrentContent = new NoSelectionViewModel() { Message = "Editor Preview"};
+        AvailableSensors =
+        [
+            new AmbientLightSensor()
+            {
+                FriendlyName = "LIGHTMK3-117AE3E.lightSensor",
+                MinValue = 10,
+                CurrentValue = 55,
+                MaxValue = 123
+            }
+        ];
+
+        SelectedSensor = AvailableSensors[0];
+        Displays =
+        [
+            new DisplayInfo() { DeviceName = "Screen 1", ModelName = "Model" },
+            new DisplayInfo() { DeviceName = "Screen 2", ModelName = "Model" }
+        ];
     }
 }

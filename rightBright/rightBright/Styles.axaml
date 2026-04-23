@@ -42,4 +42,8 @@
     <Style Selector="Label.icon">
         <Setter Property="FontFamily" Value="{DynamicResource PhosphorThin}" />
     </Style>
+    
+    <Style Selector="Label.iconRegular">
+        <Setter Property="FontFamily" Value="{DynamicResource PhosphorRegular}" />
+    </Style>
 </Styles>

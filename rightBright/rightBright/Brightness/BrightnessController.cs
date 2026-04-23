@@ -84,7 +84,7 @@ namespace rightBright.Brightness
         public async Task Run()
         {
             _updatingStopped = true;
-            await LoadMonitorSettings();
+            await ReloadMonitorSettingsAsync();
 
             // Get the cached sensor instance from the sensor service instead of using the deserialized settings object
             var sensorToConnect = _sensorService.GetSensors()
@@ -125,7 +125,7 @@ namespace rightBright.Brightness
             }
         }
 
-        private async Task LoadMonitorSettings()
+        public async Task ReloadMonitorSettingsAsync()
         {
             _logger.Information("Loading monitor settings");
 
@@ -178,7 +178,7 @@ namespace rightBright.Brightness
         private void OnDeviceChangedMessage(object? sender, EventArgs e)
         {
             _logger.Information(nameof(OnDeviceChangedMessage));
-            _ = LoadMonitorSettings();
+            _ = ReloadMonitorSettingsAsync();
         }
 
         private void StopUpdating()
