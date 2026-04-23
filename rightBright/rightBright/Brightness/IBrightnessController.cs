@@ -18,6 +18,7 @@ namespace rightBright.Brightness
         /// <returns></returns>
         bool Run(AmbientLightSensor sensor);
 
+        Task ReloadMonitorSettingsAsync();
         bool PauseSettingBrightness { get; set; }
         AmbientLightSensor? ConnectedSensor { get; }
     }

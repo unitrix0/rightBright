@@ -250,6 +250,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task DetectMonitors()
     {
         await RefreshDisplaysAsync(forceRefresh: true);
+        await _brightnessController.ReloadMonitorSettingsAsync();
     }
 
     [RelayCommand(CanExecute = nameof(CanConnectSensor))]
