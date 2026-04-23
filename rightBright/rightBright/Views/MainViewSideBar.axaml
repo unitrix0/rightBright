@@ -17,8 +17,9 @@
                     Command="{Binding DetectMonitorsCommand}"
                     Background="Transparent"
                     VerticalAlignment="Center"
-                    ToolTip.Tip="Monitore erkennen">
-                <Label Classes="icon">&#xE72C;</Label>
+                    ToolTip.Tip="Monitore erkennen"
+                    IsVisible="{Binding IsNotLoadingDisplays}">
+                <Label Classes="icon">&#xE096;</Label>
             </Button>
         </Grid>
         <Label IsVisible="{Binding ApplicationViewModel.IsLoadingDisplays, TargetNullValue=false, FallbackValue=false}"
