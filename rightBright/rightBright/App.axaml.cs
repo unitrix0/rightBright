@@ -107,8 +107,8 @@ public class App : Application
         serviceCollection.AddSingleton<MainWindowViewModel>();
         serviceCollection.AddSingleton<ISetBrightnessService>(servies =>
             OperatingSystem.IsWindows()
-                ? new SetBrightnessServiceWin(servies.GetRequiredService<Serilog.ILogger>())
-                : new SetBrightnessServiceLinux(servies.GetRequiredService<Serilog.ILogger>()));
+                ? new SetBrightnessServiceWin(servies.GetRequiredService<ILogger>())
+                : new SetBrightnessServiceLinux(servies.GetRequiredService<ILogger>()));
 
         serviceCollection.AddSingleton<IMonitorChangedNotificationService>(services =>
             OperatingSystem.IsWindows()
@@ -130,10 +130,10 @@ public class App : Application
         serviceCollection.AddSingleton<IBrightnessCalculator, BezierBrightnessCalculator>();
         serviceCollection.AddSingleton<ISensorRepo, SensorRepo>();
         serviceCollection.AddSingleton<ISensorService, YoctoSensorService>();
-        serviceCollection.AddSingleton<Serilog.ILogger>(Log.Logger);
+        serviceCollection.AddSingleton(Log.Logger);
         serviceCollection.AddSingleton<IMonitorEnummerationService>(services =>
         {
-            var logger = services.GetRequiredService<Serilog.ILogger>();
+            var logger = services.GetRequiredService<ILogger>();
             var changeNotificationService = services.GetRequiredService<IMonitorChangedNotificationService>();
             return OperatingSystem.IsWindows()
                 ? new WinMonitorEnumService(logger, changeNotificationService)
