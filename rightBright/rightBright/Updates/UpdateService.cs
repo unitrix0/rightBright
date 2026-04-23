@@ -27,6 +27,25 @@ public class UpdateService : IUpdateService, IDisposable
     private readonly ISettings _settings;
     private Timer? _periodicTimer;
     private int _checking; // 0 = idle, 1 = running (for reentrancy guard)
+    private int _installing; // 0 = idle, 1 = running
+    private readonly Lock _updateStateLock = new();
+    private string? _availableVersion;
+    private string? _availableSetupDownloadUrl;
+
+    public bool IsUpdateAvailable { get; private set; }
+    public string? AvailableVersion
+    {
+        get
+        {
+            lock (_updateStateLock)
+            {
+                return _availableVersion;
+            }
+        }
+    }
+
+    public bool IsInstallingUpdate => Interlocked.CompareExchange(ref _installing, 0, 0) == 1;
+    public event EventHandler? UpdateAvailabilityChanged;
 
     public UpdateService(ISettings settings, ILogger logger)
     {
@@ -139,6 +158,7 @@ public class UpdateService : IUpdateService, IDisposable
         {
             _logger.Information("[UpdateService] Already up-to-date ({Current} >= {Latest})",
                 currentVersion, latestVersion);
+            SetAvailableUpdateState(isAvailable: false, version: null, setupDownloadUrl: null);
             return;
         }
 
@@ -159,18 +179,47 @@ public class UpdateService : IUpdateService, IDisposable
             return;
         }
 
-        _logger.Information("[UpdateService] Downloading installer from {Url}", setupDownloadUrl);
-        var setupPath = await DownloadFileAsync(setupDownloadUrl, SetupAssetName, ct);
-        if (string.IsNullOrWhiteSpace(setupPath))
+        SetAvailableUpdateState(isAvailable: true, version: latestVersion.ToString(), setupDownloadUrl: setupDownloadUrl);
+        _logger.Information("[UpdateService] Update available and waiting for manual install action");
+    }
+
+    public async Task InstallAvailableUpdateAsync(CancellationToken ct = default)
+    {
+        if (!OperatingSystem.IsWindows())
         {
-            _logger.Error("[UpdateService] Installer download failed");
+            _logger.Debug("[UpdateService] Install skipped (non-Windows OS)");
             return;
         }
 
-        _logger.Information("[UpdateService] Installer downloaded to {Path}", setupPath);
+        if (Interlocked.CompareExchange(ref _installing, 1, 0) != 0)
+        {
+            _logger.Debug("[UpdateService] Install already in progress, skipping");
+            return;
+        }
 
         try
         {
+            string? setupDownloadUrl;
+            lock (_updateStateLock)
+            {
+                setupDownloadUrl = _availableSetupDownloadUrl;
+            }
+
+            if (string.IsNullOrWhiteSpace(setupDownloadUrl))
+            {
+                _logger.Warning("[UpdateService] No pending installer URL available for manual install");
+                return;
+            }
+
+            _logger.Information("[UpdateService] Downloading installer from {Url}", setupDownloadUrl);
+            var setupPath = await DownloadFileAsync(setupDownloadUrl, SetupAssetName, ct);
+            if (string.IsNullOrWhiteSpace(setupPath))
+            {
+                _logger.Error("[UpdateService] Installer download failed");
+                return;
+            }
+
+            _logger.Information("[UpdateService] Installer downloaded to {Path}", setupPath);
             _logger.Information("[UpdateService] Launching installer and exiting application");
             using var process = Process.Start(new ProcessStartInfo
             {
@@ -185,7 +234,46 @@ public class UpdateService : IUpdateService, IDisposable
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "[UpdateService] Failed to launch installer");
+            _logger.Error(ex, "[UpdateService] Failed to install available update");
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _installing, 0);
+            NotifyUpdateAvailabilityChanged();
+        }
+    }
+
+    private void SetAvailableUpdateState(bool isAvailable, string? version, string? setupDownloadUrl)
+    {
+        var changed = false;
+        lock (_updateStateLock)
+        {
+            if (IsUpdateAvailable != isAvailable ||
+                !string.Equals(_availableVersion, version, StringComparison.Ordinal) ||
+                !string.Equals(_availableSetupDownloadUrl, setupDownloadUrl, StringComparison.Ordinal))
+            {
+                IsUpdateAvailable = isAvailable;
+                _availableVersion = version;
+                _availableSetupDownloadUrl = setupDownloadUrl;
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            NotifyUpdateAvailabilityChanged();
+        }
+    }
+
+    private void NotifyUpdateAvailabilityChanged()
+    {
+        try
+        {
+            UpdateAvailabilityChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning(ex, "[UpdateService] Failed to notify update state change");
         }
     }
 

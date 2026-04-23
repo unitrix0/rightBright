@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using Microsoft.Win32;
 using Avalonia.Controls;
 using Avalonia.Platform;
@@ -29,6 +30,9 @@ public partial class ApplicationViewModel : ViewModelBase
     [ObservableProperty] private WindowIcon? _appIcon;
     [ObservableProperty] private bool _isLoadingDisplays;
     [ObservableProperty] private bool _autostartEnabled;
+    [ObservableProperty] private bool _isUpdateAvailable;
+    [ObservableProperty] private string _availableUpdateVersionText = "";
+    [ObservableProperty] private bool _isInstallingUpdate;
 
     public Action? OnOpenMainWindow;
     public bool IsAutostartSupported => _autostartService?.IsSupported ?? false;
@@ -51,6 +55,8 @@ public partial class ApplicationViewModel : ViewModelBase
     {
         SetAppIcon();
         _loadingMonitorStateService = new LoadingMonitorStateService();
+        AvailableUpdateVersionText = "1.2.3";
+        IsUpdateAvailable = true;
     }
 
     public ApplicationViewModel(IBrightnessController brightnessController,
@@ -91,6 +97,7 @@ public partial class ApplicationViewModel : ViewModelBase
         }
         SetAppIcon();
         SubscribeToLoadingState();
+        SubscribeToUpdateState();
     }
 
     private void SubscribeToLoadingState()
@@ -105,6 +112,41 @@ public partial class ApplicationViewModel : ViewModelBase
         {
             IsLoadingDisplays = _loadingMonitorStateService.IsLoading;
         }
+    }
+
+    private void SubscribeToUpdateState()
+    {
+        if (_updateService is null) return;
+
+        _updateService.UpdateAvailabilityChanged += OnUpdateAvailabilityChanged;
+        SyncUpdateStateFromService();
+    }
+
+    private void OnUpdateAvailabilityChanged(object? sender, EventArgs e)
+    {
+        SyncUpdateStateFromService();
+    }
+
+    private void SyncUpdateStateFromService()
+    {
+        if (_updateService is null) return;
+
+        void ApplyState()
+        {
+            IsUpdateAvailable = _updateService.IsUpdateAvailable;
+            IsInstallingUpdate = _updateService.IsInstallingUpdate;
+            AvailableUpdateVersionText = string.IsNullOrWhiteSpace(_updateService.AvailableVersion)
+                ? "Neues Update verfugbar"
+                : $"Update {_updateService.AvailableVersion} verfugbar";
+        }
+
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            ApplyState();
+            return;
+        }
+
+        Dispatcher.UIThread.Post(ApplyState);
     }
 
     private static bool IsWindows11()
@@ -193,6 +235,15 @@ public partial class ApplicationViewModel : ViewModelBase
     {
         if (_updateService is null) return;
         await _updateService.CheckForUpdatesAsync(force: true);
+        SyncUpdateStateFromService();
+    }
+
+    [RelayCommand]
+    private async Task InstallAvailableUpdateAsync()
+    {
+        if (_updateService is null) return;
+        await _updateService.InstallAvailableUpdateAsync();
+        SyncUpdateStateFromService();
     }
 
     public async Task SyncAutostartWithPortalAsync()
