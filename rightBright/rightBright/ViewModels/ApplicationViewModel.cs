@@ -201,7 +201,8 @@ public partial class ApplicationViewModel : ViewModelBase
 
         // Windows: best-effort reconciliation on every startup, including removal
         // when the user disables the toggle.
-        if (_autostartService is WindowsAutostartService windowsAutostartService)
+        if (OperatingSystem.IsWindows() &&
+            _autostartService is WindowsAutostartService windowsAutostartService)
         {
             var desired = _settings.AutostartEnabled;
             var granted = await windowsAutostartService.SetAutostartAsync(desired);

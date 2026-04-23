@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using Serilog;
@@ -11,6 +12,7 @@ namespace rightBright.Services.Autostart;
 /// Manages per-user Windows login autostart via
 /// `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
 /// </summary>
+[SupportedOSPlatform("windows")]
 public class WindowsAutostartService : IAutostartService
 {
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
