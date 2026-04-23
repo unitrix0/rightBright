@@ -19,7 +19,8 @@
                     VerticalAlignment="Center"
                     ToolTip.Tip="Monitore erkennen"
                     IsVisible="{Binding IsNotLoadingDisplays}">
-                <Label Classes="icon">&#xE096;</Label>
+                
+                <Label Classes="iconRegular">&#xE096;</Label>
             </Button>
         </Grid>
         <Label IsVisible="{Binding ApplicationViewModel.IsLoadingDisplays, TargetNullValue=false, FallbackValue=false}"
