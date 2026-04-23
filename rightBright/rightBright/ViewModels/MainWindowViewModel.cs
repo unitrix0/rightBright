@@ -246,6 +246,12 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    private async Task DetectMonitors()
+    {
+        await RefreshDisplaysAsync();
+    }
+
     [RelayCommand(CanExecute = nameof(CanConnectSensor))]
     private void ConnectSensor()
     {
