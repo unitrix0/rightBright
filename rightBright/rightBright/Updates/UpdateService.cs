@@ -303,7 +303,12 @@ public class UpdateService : IUpdateService, IDisposable
         if (parsed is null)
             return null;
 
-        return new Version(parsed.Major, parsed.Minor, Math.Max(parsed.Build, 0));
+        var preReleaseNumber = 0;
+        var preReleaseMatch = Regex.Match(tagName, @"-(?:RC|rc|alpha|beta)\.?(\d+)", RegexOptions.CultureInvariant);
+        if (preReleaseMatch.Success)
+            int.TryParse(preReleaseMatch.Groups[1].Value, out preReleaseNumber);
+
+        return new Version(parsed.Major, parsed.Minor, Math.Max(parsed.Build, 0), preReleaseNumber);
     }
 
     private async Task<GitHubRelease?> GetLatestReleaseAsync(CancellationToken ct)
