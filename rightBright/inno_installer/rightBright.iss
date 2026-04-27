@@ -24,6 +24,9 @@ WizardStyle=classic
 ArchitecturesInstallIn64BitMode=x64compatible
 ArchitecturesAllowed=x64compatible
 MinVersion=10.0
+CloseApplications=force
+CloseApplicationsFilter=rightBright.exe
+RestartApplications=no
 
 [Files]
 Source: "..\publish\win-x64\*"; DestDir: "{app}"; \
@@ -47,3 +50,15 @@ Filename: "{app}\rightBright.exe"; \
 [UninstallRun]
 Filename: "taskkill"; Parameters: "/F /IM rightBright.exe"; \
   Flags: runhidden; RunOnceId: "KillApp"
+
+[Code]
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ResultCode: Integer;
+begin
+  Result := '';
+  NeedsRestart := False;
+  Exec('taskkill', '/F /IM rightBright.exe', '', SW_HIDE,
+       ewWaitUntilTerminated, ResultCode);
+  Sleep(500);
+end;
