@@ -11,6 +11,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using rightBright.Brightness;
+using rightBright.Localization;
 using rightBright.Models.Sensors;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
@@ -30,6 +31,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ISettings _settings;
     private readonly ApplicationViewModel _applicationViewModel;
     private readonly ILogger _logger;
+
+    private MainWindowContentViewModel? _contentBeforeSettings;
 
     private CancellationTokenSource? _refreshDisplaysCts;
     private readonly Lock _refreshDisplaysLock = new();
@@ -162,7 +165,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (!string.IsNullOrEmpty(error))
         {
-            var message = $"Sensoren konnte nicht abgefragt werden:\n {error}";
+            var message = Texts.Format("NoSelectionSensorQueryFailedFormat", Environment.NewLine, error);
             _logger.Error(message);
             CurrentContent = new NoSelectionViewModel
             {
@@ -173,13 +176,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (AvailableSensors.Count == 0)
         {
-            CurrentContent = new NoSelectionViewModel { Message = "Keine Sensoren gefunden" };
+            CurrentContent = new NoSelectionViewModel { Message = Texts.NoSelectionNoSensorsFound };
             return;
         }
 
         if (SelectedSensor == null)
         {
-            CurrentContent = new NoSelectionViewModel { Message = "Kein Sensor verbunden" };
+            CurrentContent = new NoSelectionViewModel { Message = Texts.NoSelectionNoSensorConnected };
             return;
         }
 
@@ -243,6 +246,33 @@ public partial class MainWindowViewModel : ViewModelBase
         finally
         {
             _refreshDisplaysSemaphore.Release();
+        }
+    }
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        if (CurrentContent is SettingsViewModel) return;
+
+        _contentBeforeSettings = CurrentContent;
+        DetachCurrentContent();
+
+        var settingsVm =
+            (SettingsViewModel)_contentViewFactory.GetMainWindowContentViewModel<SettingsViewModel>();
+        settingsVm.CloseView = CloseSettings;
+        CurrentContent = settingsVm;
+    }
+
+    private void CloseSettings()
+    {
+        if (_contentBeforeSettings is not null)
+        {
+            CurrentContent = _contentBeforeSettings;
+            _contentBeforeSettings = null;
+        }
+        else
+        {
+            UpdateNoSelectionText(_sensorService.Error);
         }
     }
 

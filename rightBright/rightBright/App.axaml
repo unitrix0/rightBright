@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="rightBright.App"
              xmlns:local="using:rightBright"
+             xmlns:localization="clr-namespace:rightBright.Localization"
              xmlns:views="clr-namespace:rightBright.Views"
              xmlns:viewModels="clr-namespace:rightBright.ViewModels"
              RequestedThemeVariant="Default"
@@ -32,16 +33,16 @@
             <TrayIcon Icon="{Binding AppIcon}">
                 <TrayIcon.Menu>
                     <NativeMenu>
-                        <NativeMenuItem Header="Öffnen" Command="{Binding OpenMainWindowCommand}" />
-                        <NativeMenuItem Header="Pause" ToggleType="CheckBox"
+                        <NativeMenuItem Header="{x:Static localization:Texts.TrayOpen}" Command="{Binding OpenMainWindowCommand}" />
+                        <NativeMenuItem Header="{x:Static localization:Texts.TrayPause}" ToggleType="CheckBox"
                                         IsChecked="{Binding Suspend, Mode=TwoWay}"/>
-                        <NativeMenuItem Header="Autostart" ToggleType="CheckBox"
+                        <NativeMenuItem Header="{x:Static localization:Texts.TrayAutostart}" ToggleType="CheckBox"
                                         Command="{Binding ToggleAutostartCommand}"
                                         IsChecked="{Binding AutostartEnabled, Mode=TwoWay}"
                                         IsVisible="{Binding IsAutostartSupported}"/>
-                        <NativeMenuItem Header="Check for Updates" Command="{Binding CheckForUpdatesCommand}" />
+                        <NativeMenuItem Header="{x:Static localization:Texts.TrayCheckForUpdates}" Command="{Binding CheckForUpdatesCommand}" />
                         <NativeMenuItemSeparator />
-                        <NativeMenuItem Header="Exit" Command="{Binding EndProgramCommand}" />
+                        <NativeMenuItem Header="{x:Static localization:Texts.TrayExit}" Command="{Binding EndProgramCommand}" />
                     </NativeMenu>
                 </TrayIcon.Menu>
             </TrayIcon>

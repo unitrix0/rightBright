@@ -1,5 +1,6 @@
 using System.Reflection;
 using Avalonia.Controls;
+using rightBright.Localization;
 
 namespace rightBright.Views;
 
@@ -20,13 +21,14 @@ public partial class MainWindow : Window
             if (metaIndex >= 0)
                 versionString = versionString[..metaIndex];
 
-            Title = $"rightBright - {versionString}";
+            Title = Texts.Format(nameof(Texts.MainWindowTitleFormat), versionString);
         }
         else
         {
             var version = Assembly.GetEntryAssembly()?.GetName().Version;
             if (version is not null)
-                Title = $"rightBright - {version.Major}.{version.Minor}.{version.Build}";
+                Title = Texts.Format(nameof(Texts.MainWindowTitleFormat),
+                    $"{version.Major}.{version.Minor}.{version.Build}");
         }
     }
 }

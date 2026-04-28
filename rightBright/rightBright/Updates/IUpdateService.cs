@@ -13,6 +13,7 @@ public interface IUpdateService
 
     void StartPeriodicChecks();
     void StopPeriodicChecks();
+    void RestartPeriodicChecks();
     Task CheckForUpdatesAsync(bool force = false, CancellationToken ct = default);
     Task InstallAvailableUpdateAsync(CancellationToken ct = default);
 }

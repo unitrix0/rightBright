@@ -18,6 +18,7 @@ namespace rightBright.Settings
         /// </summary>
         [JsonIgnore] public bool SettingsFileExisted { get; private set; }
 
+        public string? UiLanguage { get; set; }
         public string HubUrl { get; set; } = "USB";
         public int YapiEventsTimerInterval { get; set; } = 5000;
         public AmbientLightSensor LastUsedSensor { get; set; } = new();

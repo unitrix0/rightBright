@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using rightBright.Localization;
 
 namespace rightBright.Views.Controls;
 
@@ -216,7 +217,7 @@ public class BezierCurveEditorControl : Control
             if (pct > 0 && pct < 100)
                 context.DrawLine(gridPen, new Point(chart.Left, py), new Point(chart.Right, py));
 
-            var text = new FormattedText($"{pct}%", CultureInfo.InvariantCulture,
+            var text = new FormattedText($"{pct}%", CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight, typeface, 11, labelBrush);
             context.DrawText(text, new Point(chart.Left - text.Width - 6, py - text.Height / 2));
         }
@@ -229,17 +230,17 @@ public class BezierCurveEditorControl : Control
             if (lux > 0)
                 context.DrawLine(gridPen, new Point(px, chart.Top), new Point(px, chart.Bottom));
 
-            var text = new FormattedText(lux.ToString(), CultureInfo.InvariantCulture,
+            var text = new FormattedText(lux.ToString(CultureInfo.CurrentCulture), CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight, typeface, 11, labelBrush);
             context.DrawText(text, new Point(px - text.Width / 2, chart.Bottom + 4));
         }
 
         // Axis titles
-        var yTitle = new FormattedText("Brightness", CultureInfo.InvariantCulture,
+        var yTitle = new FormattedText(Texts.ChartBrightnessAxis, CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight, typeface, 10, labelBrush);
         context.DrawText(yTitle, new Point(chart.Left + 4, chart.Top - 14));
 
-        var xTitle = new FormattedText("Lux", CultureInfo.InvariantCulture,
+        var xTitle = new FormattedText(Texts.ChartLuxAxis, CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight, typeface, 10, labelBrush);
         context.DrawText(xTitle, new Point(chart.Right - xTitle.Width, chart.Bottom + 16));
     }
@@ -300,7 +301,7 @@ public class BezierCurveEditorControl : Control
         context.DrawEllipse(brush, new Pen(Brushes.White, 1.5), pointPixel, radius, radius);
 
         var typeface = new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold);
-        var label = new FormattedText($"{lux} lx", CultureInfo.InvariantCulture,
+        var label = new FormattedText(Texts.Format("ChartLuxUnitFormat", lux), CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight, typeface, 10, brush);
         context.DrawText(label, new Point(pointPixel.X - label.Width / 2, chart.Bottom + 4));
     }
@@ -387,7 +388,7 @@ public class BezierCurveEditorControl : Control
         context.DrawEllipse(brush, new Pen(Brushes.White, 1.5), px, ControlPointRadius, ControlPointRadius);
 
         var typeface = new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold);
-        var text = new FormattedText(label, CultureInfo.InvariantCulture,
+        var text = new FormattedText(label, CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight, typeface, 10, brush);
 
         double labelY = labelBelow

@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using rightBright.Models.Sensors;
+using rightBright.Localization;
 
 namespace rightBright.Views.Controls;
 
@@ -152,7 +153,7 @@ public class LuxHistoryChartControl : Control
             if (lux > 0)
                 context.DrawLine(gridPen, new Point(chart.Left, py), new Point(chart.Right, py));
 
-            var text = new FormattedText(lux.ToString(), CultureInfo.InvariantCulture,
+            var text = new FormattedText(lux.ToString(CultureInfo.CurrentCulture), CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight, typeface, 11, labelBrush);
             context.DrawText(text, new Point(chart.Left - text.Width - 6, py - text.Height / 2));
         }
@@ -169,12 +170,12 @@ public class LuxHistoryChartControl : Control
 
             context.DrawLine(gridPen, new Point(px, chart.Top), new Point(px, chart.Bottom));
 
-            var label = new FormattedText(t.ToString("HH:mm"), CultureInfo.InvariantCulture,
+            var label = new FormattedText(t.ToString("HH:mm", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight, typeface, 11, labelBrush);
             context.DrawText(label, new Point(px - label.Width / 2, chart.Bottom + 4));
         }
 
-        var yTitle = new FormattedText("Lux", CultureInfo.InvariantCulture,
+        var yTitle = new FormattedText(Texts.ChartLuxAxis, CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight, typeface, 10, labelBrush);
         context.DrawText(yTitle, new Point(chart.Left + 4, chart.Top - 16));
     }
@@ -228,7 +229,7 @@ public class LuxHistoryChartControl : Control
 
         var typeface = new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold);
         var brush = new SolidColorBrush(CurrentLuxColor);
-        var label = new FormattedText($"{lux:F0} lx", CultureInfo.InvariantCulture,
+        var label = new FormattedText(Texts.Format("ChartLuxUnitFormat", lux), CultureInfo.CurrentUICulture,
             FlowDirection.LeftToRight, typeface, 14, brush);
 
         context.DrawText(label, new Point(chart.Right - label.Width, chart.Top - 18));
