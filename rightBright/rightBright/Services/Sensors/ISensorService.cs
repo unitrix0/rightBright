@@ -17,5 +17,6 @@ namespace rightBright.Services.Sensors
         void StartPollTimer();
         public List<AmbientLightSensor> GetSensors(bool forceUpdate = false);
         void StopPollTimer();
+        void SetPollInterval(int milliseconds);
     }
 }

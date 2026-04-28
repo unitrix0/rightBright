@@ -33,6 +33,11 @@ public static class Texts
     public static string NoSelectionNoSensorConnected => Get(nameof(NoSelectionNoSensorConnected));
     public static string UpdateAvailableGeneric => Get(nameof(UpdateAvailableGeneric));
     public static string MainWindowTitleFormat => Get(nameof(MainWindowTitleFormat));
+    public static string SettingsTitle => Get(nameof(SettingsTitle));
+    public static string SettingsLanguage => Get(nameof(SettingsLanguage));
+    public static string SettingsSensorPolling => Get(nameof(SettingsSensorPolling));
+    public static string SettingsUpdateInterval => Get(nameof(SettingsUpdateInterval));
+    public static string SettingsAutostart => Get(nameof(SettingsAutostart));
 
     public static string Format(string key, params object[] args)
     {

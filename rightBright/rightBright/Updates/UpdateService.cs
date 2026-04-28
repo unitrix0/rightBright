@@ -76,6 +76,14 @@ public class UpdateService : IUpdateService, IDisposable
         _periodicTimer?.Change(Timeout.Infinite, Timeout.Infinite);
     }
 
+    public void RestartPeriodicChecks()
+    {
+        StopPeriodicChecks();
+        _periodicTimer?.Dispose();
+        _periodicTimer = null;
+        StartPeriodicChecks();
+    }
+
     public async Task CheckForUpdatesAsync(bool force = false, CancellationToken ct = default)
     {
         if (!OperatingSystem.IsWindows())

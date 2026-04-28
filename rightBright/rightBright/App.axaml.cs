@@ -112,6 +112,7 @@ public class App : Application
 
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<CurveEditorViewModel>();
+        serviceCollection.AddSingleton<SettingsViewModel>();
         serviceCollection.AddSingleton<ISettings>(_ => AppSettings.Load());
         serviceCollection.AddSingleton<ILoadingMonitorStateService, LoadingMonitorStateService>();
         serviceCollection.AddSingleton<IBrightnessController, BrightnessController>();
@@ -160,6 +161,8 @@ public class App : Application
             {
                 _ when requestedType == typeof(CurveEditorViewModel) => services
                     .GetRequiredService<CurveEditorViewModel>(),
+                _ when requestedType == typeof(SettingsViewModel) => services
+                    .GetRequiredService<SettingsViewModel>(),
                 _ => throw new InvalidOperationException($"Page of type {requestedType.FullName} has no view model")
             });
 
