@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:rightBright.Views.Controls"
+             xmlns:localization="clr-namespace:rightBright.Localization"
              xmlns:vm="clr-namespace:rightBright.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="rightBright.Views.CurveEditorView"
@@ -46,11 +47,10 @@
             <StackPanel>
                 
                 <CheckBox Margin="0,0,0,7"
-                          IsChecked="{Binding Active}">
-                    Aktiv
-                </CheckBox>
+                          IsChecked="{Binding Active}"
+                          Content="{x:Static localization:Texts.CurveActive}" />
 
-                <TextBlock Text="Min. Helligkeit % (P0)"
+                <TextBlock Text="{x:Static localization:Texts.CurveMinBrightnessP0}"
                            Margin="0,5,0,3"
                            FontSize="12" />
                 <NumericUpDown Value="{Binding MinBrightness}"
@@ -61,7 +61,7 @@
                                Width="120"
                                HorizontalAlignment="Left" />
 
-                <TextBlock Text="100% bei Lux (P2)"
+                <TextBlock Text="{x:Static localization:Texts.CurveHundredPercentAtLuxP2}"
                            Margin="0,10,0,3"
                            FontSize="12" />
                 <NumericUpDown Value="{Binding MaxLux}"
@@ -74,11 +74,11 @@
 
                 <SplitButton HorizontalAlignment="Right"
                              Margin="0,10,0,0"
-                             Content="Übernehmen"
+                             Content="{x:Static localization:Texts.CurveApply}"
                              Command="{Binding ApplyCurveCommand}">
                     <SplitButton.Flyout>
                         <MenuFlyout Placement="Bottom">
-                            <MenuItem Header="Auf aktive anwenden"
+                            <MenuItem Header="{x:Static localization:Texts.CurveApplyToActive}"
                                       Command="{Binding ApplyCurveToAllActiveScreensCommand}" />
                         </MenuFlyout>
                     </SplitButton.Flyout>

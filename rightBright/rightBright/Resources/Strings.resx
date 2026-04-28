@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+  <data name="TrayOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="TrayPause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="TrayAutostart" xml:space="preserve">
+    <value>Autostart</value>
+  </data>
+  <data name="TrayCheckForUpdates" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="TrayExit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="MainSensorLabel" xml:space="preserve">
+    <value>Sensor</value>
+  </data>
+  <data name="MainConnectButton" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="SidebarScreens" xml:space="preserve">
+    <value>Screens</value>
+  </data>
+  <data name="SidebarDetectMonitorsTooltip" xml:space="preserve">
+    <value>Detect monitors</value>
+  </data>
+  <data name="SidebarSearchingMonitors" xml:space="preserve">
+    <value>Searching for monitors...</value>
+  </data>
+  <data name="SidebarSensorLabel" xml:space="preserve">
+    <value>Sensor:</value>
+  </data>
+  <data name="SidebarMinLabel" xml:space="preserve">
+    <value>min:</value>
+  </data>
+  <data name="SidebarCurrentLabel" xml:space="preserve">
+    <value>current:</value>
+  </data>
+  <data name="SidebarMaxLabel" xml:space="preserve">
+    <value>max:</value>
+  </data>
+  <data name="SidebarInstallUpdateButton" xml:space="preserve">
+    <value>Install update</value>
+  </data>
+  <data name="CurveActive" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="CurveMinBrightnessP0" xml:space="preserve">
+    <value>Min. brightness % (P0)</value>
+  </data>
+  <data name="CurveHundredPercentAtLuxP2" xml:space="preserve">
+    <value>100% at lux (P2)</value>
+  </data>
+  <data name="CurveApply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="CurveApplyToActive" xml:space="preserve">
+    <value>Apply to active screens</value>
+  </data>
+  <data name="ChartBrightnessAxis" xml:space="preserve">
+    <value>Brightness</value>
+  </data>
+  <data name="ChartLuxAxis" xml:space="preserve">
+    <value>Lux</value>
+  </data>
+  <data name="ChartLuxUnitFormat" xml:space="preserve">
+    <value>{0:F0} lx</value>
+  </data>
+  <data name="NoSelectionSensorQueryFailedFormat" xml:space="preserve">
+    <value>Could not query sensors:{0}{1}</value>
+  </data>
+  <data name="NoSelectionNoSensorsFound" xml:space="preserve">
+    <value>No sensors found</value>
+  </data>
+  <data name="NoSelectionNoSensorConnected" xml:space="preserve">
+    <value>No sensor connected</value>
+  </data>
+  <data name="UpdateAvailableGeneric" xml:space="preserve">
+    <value>New update available</value>
+  </data>
+  <data name="UpdateAvailableVersionFormat" xml:space="preserve">
+    <value>Update {0} available</value>
+  </data>
+  <data name="MainWindowTitleFormat" xml:space="preserve">
+    <value>rightBright - {0}</value>
+  </data>
+</root>
