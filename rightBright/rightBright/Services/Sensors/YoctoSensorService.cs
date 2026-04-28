@@ -74,6 +74,12 @@ namespace rightBright.Services.Sensors
             _handleYapiEventsTimer.Stop();
         }
 
+        public void SetPollInterval(int milliseconds)
+        {
+            _handleYapiEventsTimer.Interval = milliseconds;
+            _logger.Information("Sensor polling interval changed to {Ms}ms", milliseconds);
+        }
+
         private void TimedReport(YLightSensor sensor, YMeasure measure)
         {
             var currentValue = sensor.get_currentValue();

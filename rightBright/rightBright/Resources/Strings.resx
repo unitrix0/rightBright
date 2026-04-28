@@ -99,4 +99,19 @@
   <data name="MainWindowTitleFormat" xml:space="preserve">
     <value>rightBright - {0}</value>
   </data>
+  <data name="SettingsTitle" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SettingsLanguage" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="SettingsSensorPolling" xml:space="preserve">
+    <value>Sensor polling interval</value>
+  </data>
+  <data name="SettingsUpdateInterval" xml:space="preserve">
+    <value>Update check interval (hours)</value>
+  </data>
+  <data name="SettingsAutostart" xml:space="preserve">
+    <value>Start with system</value>
+  </data>
 </root>

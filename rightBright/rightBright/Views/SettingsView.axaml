@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:localization="clr-namespace:rightBright.Localization"
+             xmlns:vm="clr-namespace:rightBright.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
+             x:Class="rightBright.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    <Design.DataContext>
+        <vm:SettingsViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto, *">
+        <Grid ColumnDefinitions="*,Auto" Margin="10,10,10,0">
+            <Label FontSize="18"
+                   Content="{x:Static localization:Texts.SettingsTitle}" />
+            <Button Grid.Column="1"
+                    Command="{Binding RequestCloseCommand}"
+                    Background="Transparent">
+                <Label Classes="icon" FontWeight="Bold">&#xE4F6;</Label>
+            </Button>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Margin="16,20,16,16" Spacing="18">
+
+            <!-- Language -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="{x:Static localization:Texts.SettingsLanguage}" FontSize="13" />
+                <ComboBox ItemsSource="{Binding Languages}"
+                          SelectedItem="{Binding SelectedLanguage}"
+                          Width="200" HorizontalAlignment="Left" />
+            </StackPanel>
+
+            <!-- YapiEventsTimerInterval -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="{x:Static localization:Texts.SettingsSensorPolling}" FontSize="13" />
+                <ComboBox ItemsSource="{Binding YapiIntervalOptions}"
+                          SelectedItem="{Binding SelectedYapiInterval}"
+                          Width="200" HorizontalAlignment="Left" />
+            </StackPanel>
+
+            <!-- UpdateCheckIntervalHours (Windows only) -->
+            <StackPanel Spacing="4"
+                        IsVisible="{Binding IsUpdateCheckVisible}">
+                <TextBlock Text="{x:Static localization:Texts.SettingsUpdateInterval}" FontSize="13" />
+                <NumericUpDown Value="{Binding UpdateCheckIntervalHours}"
+                               Minimum="1"
+                               Maximum="168"
+                               Increment="1"
+                               FormatString="0"
+                               Width="200"
+                               HorizontalAlignment="Left" />
+            </StackPanel>
+
+            <!-- AutostartEnabled -->
+            <StackPanel Spacing="4"
+                        IsVisible="{Binding IsAutostartSupported}">
+                <ToggleSwitch IsChecked="{Binding AutostartEnabled}"
+                              OnContent="{x:Static localization:Texts.SettingsAutostart}"
+                              OffContent="{x:Static localization:Texts.SettingsAutostart}" />
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

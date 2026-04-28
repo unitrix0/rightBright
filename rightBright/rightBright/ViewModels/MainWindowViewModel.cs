@@ -32,6 +32,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ApplicationViewModel _applicationViewModel;
     private readonly ILogger _logger;
 
+    private MainWindowContentViewModel? _contentBeforeSettings;
+
     private CancellationTokenSource? _refreshDisplaysCts;
     private readonly Lock _refreshDisplaysLock = new();
     private readonly SemaphoreSlim _refreshDisplaysSemaphore = new(1, 1);
@@ -244,6 +246,33 @@ public partial class MainWindowViewModel : ViewModelBase
         finally
         {
             _refreshDisplaysSemaphore.Release();
+        }
+    }
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        if (CurrentContent is SettingsViewModel) return;
+
+        _contentBeforeSettings = CurrentContent;
+        DetachCurrentContent();
+
+        var settingsVm =
+            (SettingsViewModel)_contentViewFactory.GetMainWindowContentViewModel<SettingsViewModel>();
+        settingsVm.CloseView = CloseSettings;
+        CurrentContent = settingsVm;
+    }
+
+    private void CloseSettings()
+    {
+        if (_contentBeforeSettings is not null)
+        {
+            CurrentContent = _contentBeforeSettings;
+            _contentBeforeSettings = null;
+        }
+        else
+        {
+            UpdateNoSelectionText(_sensorService.Error);
         }
     }
 
