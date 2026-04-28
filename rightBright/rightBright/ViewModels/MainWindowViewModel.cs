@@ -11,6 +11,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using rightBright.Brightness;
+using rightBright.Localization;
 using rightBright.Models.Sensors;
 using rightBright.Services.Monitors;
 using rightBright.Services.Sensors;
@@ -162,7 +163,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (!string.IsNullOrEmpty(error))
         {
-            var message = $"Sensoren konnte nicht abgefragt werden:\n {error}";
+            var message = Texts.Format("NoSelectionSensorQueryFailedFormat", Environment.NewLine, error);
             _logger.Error(message);
             CurrentContent = new NoSelectionViewModel
             {
@@ -173,13 +174,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
         if (AvailableSensors.Count == 0)
         {
-            CurrentContent = new NoSelectionViewModel { Message = "Keine Sensoren gefunden" };
+            CurrentContent = new NoSelectionViewModel { Message = Texts.NoSelectionNoSensorsFound };
             return;
         }
 
         if (SelectedSensor == null)
         {
-            CurrentContent = new NoSelectionViewModel { Message = "Kein Sensor verbunden" };
+            CurrentContent = new NoSelectionViewModel { Message = Texts.NoSelectionNoSensorConnected };
             return;
         }
 

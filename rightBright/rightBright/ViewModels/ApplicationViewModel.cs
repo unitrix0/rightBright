@@ -10,6 +10,7 @@ using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using rightBright.Brightness;
+using rightBright.Localization;
 using rightBright.Services.Autostart;
 using rightBright.Services.LoadingState;
 using rightBright.Settings;
@@ -136,8 +137,8 @@ public partial class ApplicationViewModel : ViewModelBase
             IsUpdateAvailable = _updateService.IsUpdateAvailable;
             IsInstallingUpdate = _updateService.IsInstallingUpdate;
             AvailableUpdateVersionText = string.IsNullOrWhiteSpace(_updateService.AvailableVersion)
-                ? "Neues Update verfugbar"
-                : $"Update {_updateService.AvailableVersion} verfugbar";
+                ? Texts.UpdateAvailableGeneric
+                : Texts.Format("UpdateAvailableVersionFormat", _updateService.AvailableVersion);
         }
 
         if (Dispatcher.UIThread.CheckAccess())

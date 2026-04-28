@@ -9,6 +9,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using rightBright.Brightness;
 using rightBright.Brightness.Calculators;
+using rightBright.Localization;
 using rightBright.Services.Autostart;
 using rightBright.Services.Brightness;
 using rightBright.Services.LoadingState;
@@ -30,6 +31,14 @@ public class App : Application
 {
     public override void Initialize()
     {
+        var startupSettings = AppSettings.Load();
+        var resolvedLanguage = LocalizationService.ApplyLanguage(startupSettings.UiLanguage);
+        if (!string.Equals(startupSettings.UiLanguage, resolvedLanguage, StringComparison.OrdinalIgnoreCase))
+        {
+            startupSettings.UiLanguage = resolvedLanguage;
+            startupSettings.Save();
+        }
+
         AvaloniaXamlLoader.Load(this);
     }
 
@@ -50,6 +59,10 @@ public class App : Application
         {
             DisableAvaloniaDataAnnotationValidation();
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+            var settings = services.GetRequiredService<ISettings>();
+            settings.UiLanguage = LocalizationService.ResolveLanguageCode(settings.UiLanguage);
+            settings.Save();
 
             var appViewModel = services.GetRequiredService<ApplicationViewModel>();
             appViewModel.OnOpenMainWindow += () =>
