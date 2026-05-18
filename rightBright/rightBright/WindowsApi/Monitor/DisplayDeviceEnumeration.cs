@@ -41,7 +41,4 @@ internal static class DisplayDeviceEnumeration
         lastWin32Error = Marshal.GetLastWin32Error();
         return false;
     }
-
-    public static string ModelNameOrFallback(in DISPLAY_DEVICE dev, string monitorDeviceName) =>
-        string.IsNullOrWhiteSpace(dev.DeviceString) ? monitorDeviceName : dev.DeviceString;
 }

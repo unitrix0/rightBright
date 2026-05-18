@@ -18,7 +18,8 @@ namespace rightBright.Services.Monitors.Enummerators
         private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
         private readonly List<DisplayInfo> _displays = [];
 
-        public WinMonitorEnumService(ILogger logger, IMonitorChangedNotificationService monitorChangedNotificationService)
+        public WinMonitorEnumService(ILogger logger,
+            IMonitorChangedNotificationService monitorChangedNotificationService)
         {
             _logger = logger;
             _monitorChangedNotificationService = monitorChangedNotificationService;
@@ -35,7 +36,7 @@ namespace rightBright.Services.Monitors.Enummerators
             try
             {
                 if (_displays.Count > 0 && !forceRefresh) return _displays;
-            if (forceRefresh) _displays.Clear();
+                if (forceRefresh) _displays.Clear();
 
                 return await Task.Factory.StartNew(() =>
                 {
@@ -93,12 +94,12 @@ namespace rightBright.Services.Monitors.Enummerators
             try
             {
                 _displays.Clear();
-                
+
                 // Repopulate the cache
                 await Task.Factory.StartNew(() =>
                 {
                     WindowsMonitorApiImports.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, ResultCallback, IntPtr.Zero);
-                    
+
                     bool ResultCallback(IntPtr hMonitor, IntPtr hdcMonitor, ref RectStruct lprcMonitor, IntPtr dwData)
                     {
                         var mi = new MonitorInfoEx();
