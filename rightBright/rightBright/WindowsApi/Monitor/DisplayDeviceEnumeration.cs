@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using rightBright.WindowsApi.Monitor.Structs;
 
@@ -7,6 +8,9 @@ internal static class DisplayDeviceEnumeration
 {
     public const uint EddFlagsNone = 0;
     private const uint EddGetDeviceInterfaceName = 1;
+
+    public static bool IsWinDiscMonitorDevice(string monitorDeviceName) =>
+        string.Equals(monitorDeviceName, "WinDisc", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Fills <paramref name="dev"/> for a monitor device name from <see cref="WindowsMonitorApiImports.GetMonitorInfo"/>.
