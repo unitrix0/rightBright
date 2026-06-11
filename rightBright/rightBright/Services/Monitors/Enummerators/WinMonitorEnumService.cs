@@ -52,7 +52,8 @@ namespace rightBright.Services.Monitors.Enummerators
 
                         if (allowWinDiscRetry && sawWinDisc && _displays.Count == 0)
                         {
-                            _logger.Information("WinDisc monitor caused empty enumeration; retrying once.");
+                            _logger.Information("WinDisc monitor caused empty enumeration; waiting 2 seconds before retrying once.");
+                            Thread.Sleep(TimeSpan.FromSeconds(2));
                             _displays.Clear();
                             EnumerateDisplays(allowWinDiscRetry: false);
                         }
