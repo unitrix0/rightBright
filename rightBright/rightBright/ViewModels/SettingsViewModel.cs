@@ -41,11 +41,15 @@ public partial class SettingsViewModel : MainWindowContentViewModel
 
     [ObservableProperty] private int _updateCheckIntervalHours;
 
+    [ObservableProperty] private int _winDiscEnumerationRetryDelaySeconds;
+
     [ObservableProperty] private bool _autostartEnabled;
 
     public bool IsAutostartSupported => _autostartService.IsSupported;
 
     public bool IsUpdateCheckVisible => OperatingSystem.IsWindows();
+
+    public bool IsWinDiscRetryDelayVisible => OperatingSystem.IsWindows();
 
     public SettingsViewModel()
     {
@@ -80,6 +84,10 @@ public partial class SettingsViewModel : MainWindowContentViewModel
             ? settings.UpdateCheckIntervalHours
             : 6;
 
+        _winDiscEnumerationRetryDelaySeconds = settings.WinDiscEnumerationRetryDelaySeconds >= 0
+            ? settings.WinDiscEnumerationRetryDelaySeconds
+            : 2;
+
         _autostartEnabled = settings.AutostartEnabled;
     }
 
@@ -112,6 +120,16 @@ public partial class SettingsViewModel : MainWindowContentViewModel
         _settings.Save();
         _updateService.RestartPeriodicChecks();
         _logger.Information("[Settings] UpdateCheckIntervalHours changed to {Hours}h", value);
+    }
+
+    partial void OnWinDiscEnumerationRetryDelaySecondsChanged(int value)
+    {
+        if (_settings is null) return;
+        if (value < 0) return;
+
+        _settings.WinDiscEnumerationRetryDelaySeconds = value;
+        _settings.Save();
+        _logger.Information("[Settings] WinDiscEnumerationRetryDelaySeconds changed to {Seconds}s", value);
     }
 
     private bool _suppressAutostartSave;
@@ -165,6 +183,7 @@ public partial class SettingsViewModel : MainWindowContentViewModel
         SelectedLanguage = Languages[0];
         SelectedYapiInterval = YapiIntervalOptions[1];
         UpdateCheckIntervalHours = 6;
+        WinDiscEnumerationRetryDelaySeconds = 2;
         AutostartEnabled = false;
     }
 }

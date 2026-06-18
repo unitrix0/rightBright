@@ -30,6 +30,7 @@ namespace rightBright.Settings
 
         public bool AutostartEnabled { get; set; }
         public int DeviceChangeDebounceMilliseconds { get; set; } = 5000;
+        public int WinDiscEnumerationRetryDelaySeconds { get; set; } = 2;
 
 
         public void Save()

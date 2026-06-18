@@ -111,6 +111,9 @@
   <data name="SettingsUpdateInterval" xml:space="preserve">
     <value>Update-Prüfintervall (Stunden)</value>
   </data>
+  <data name="SettingsWinDiscRetryDelay" xml:space="preserve">
+    <value>Monitor-Erkennung Wiederholungsverzögerung (Sekunden)</value>
+  </data>
   <data name="SettingsAutostart" xml:space="preserve">
     <value>Mit System starten</value>
   </data>

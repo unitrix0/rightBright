@@ -53,6 +53,19 @@
                                HorizontalAlignment="Left" />
             </StackPanel>
 
+            <!-- WinDiscEnumerationRetryDelaySeconds (Windows only) -->
+            <StackPanel Spacing="4"
+                        IsVisible="{Binding IsWinDiscRetryDelayVisible}">
+                <TextBlock Text="{x:Static localization:Texts.SettingsWinDiscRetryDelay}" FontSize="13" />
+                <NumericUpDown Value="{Binding WinDiscEnumerationRetryDelaySeconds}"
+                               Minimum="0"
+                               Maximum="30"
+                               Increment="1"
+                               FormatString="0"
+                               Width="200"
+                               HorizontalAlignment="Left" />
+            </StackPanel>
+
             <!-- AutostartEnabled -->
             <StackPanel Spacing="4"
                         IsVisible="{Binding IsAutostartSupported}">

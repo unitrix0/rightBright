@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using rightBright.Services.SystemNotifications;
+using rightBright.Settings;
 using rightBright.WindowsApi.Monitor;
 using rightBright.WindowsApi.Monitor.Structs;
 using Serilog;
@@ -14,14 +15,16 @@ namespace rightBright.Services.Monitors.Enummerators
     public class WinMonitorEnumService : IMonitorEnummerationService
     {
         private readonly ILogger _logger;
+        private readonly ISettings _settings;
         private readonly IMonitorChangedNotificationService _monitorChangedNotificationService;
         private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
         private readonly List<DisplayInfo> _displays = [];
 
-        public WinMonitorEnumService(ILogger logger,
+        public WinMonitorEnumService(ILogger logger, ISettings settings,
             IMonitorChangedNotificationService monitorChangedNotificationService)
         {
             _logger = logger;
+            _settings = settings;
             _monitorChangedNotificationService = monitorChangedNotificationService;
             _monitorChangedNotificationService.DeviceChangedMessage += (_, _) => _ = Update();
         }
@@ -52,8 +55,20 @@ namespace rightBright.Services.Monitors.Enummerators
 
                         if (allowWinDiscRetry && sawWinDisc && _displays.Count == 0)
                         {
-                            _logger.Information("WinDisc monitor caused empty enumeration; waiting 2 seconds before retrying once.");
-                            Thread.Sleep(TimeSpan.FromSeconds(2));
+                            var retryDelaySeconds = _settings.WinDiscEnumerationRetryDelaySeconds;
+                            if (retryDelaySeconds > 0)
+                            {
+                                _logger.Information(
+                                    "WinDisc monitor caused empty enumeration; waiting {Seconds} seconds before retrying once.",
+                                    retryDelaySeconds);
+                                Thread.Sleep(TimeSpan.FromSeconds(retryDelaySeconds));
+                            }
+                            else
+                            {
+                                _logger.Information(
+                                    "WinDisc monitor caused empty enumeration; retrying once without delay.");
+                            }
+
                             _displays.Clear();
                             EnumerateDisplays(allowWinDiscRetry: false);
                         }
