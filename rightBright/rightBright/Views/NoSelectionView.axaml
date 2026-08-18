@@ -11,6 +11,11 @@
         <viewModels:NoSelectionViewModel/>
     </Design.DataContext>
     
-    <Label HorizontalAlignment="Center" VerticalAlignment="Center"
-           Content="{Binding Message}"/>
+    <TextBlock Classes="body"
+               Foreground="{DynamicResource TextSecondary}"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               TextAlignment="Center"
+               TextWrapping="Wrap"
+               MaxWidth="360"
+               Text="{Binding Message}" />
 </UserControl>

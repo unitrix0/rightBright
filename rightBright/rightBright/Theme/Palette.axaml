@@ -1,0 +1,79 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Colours are declared once here and exposed as brushes below. Custom-drawn controls
+         read the *Color keys directly; XAML consumers use the brushes. -->
+
+    <!-- Surfaces -->
+    <Color x:Key="SurfaceBaseColor">#F4F5F7</Color>
+    <Color x:Key="SurfaceCardColor">#FFFFFF</Color>
+    <Color x:Key="SurfaceSunkenColor">#EDEEF2</Color>
+
+    <!-- Borders -->
+    <Color x:Key="BorderSubtleColor">#DFE1E6</Color>
+
+    <!-- Text -->
+    <Color x:Key="TextPrimaryColor">#1D1F24</Color>
+    <Color x:Key="TextSecondaryColor">#5A5F6B</Color>
+    <Color x:Key="TextOnAccentColor">#FFFFFF</Color>
+
+    <!-- Primary ramp -->
+    <Color x:Key="PrimaryColor">#6E44FF</Color>
+    <Color x:Key="PrimaryHoverColor">#7D57FF</Color>
+    <Color x:Key="PrimarySelectedColor">#5A2FE6</Color>
+    <Color x:Key="PrimarySubtleColor">#EFE9FF</Color>
+
+    <!-- State -->
+    <Color x:Key="WarningColor">#F5B301</Color>
+    <Color x:Key="WarningTextColor">#3A2D00</Color>
+    <Color x:Key="SuccessColor">#3F9E5A</Color>
+    <Color x:Key="DangerColor">#D9534F</Color>
+
+    <!-- Chart -->
+    <Color x:Key="ChartLineColor">#6E44FF</Color>
+    <Color x:Key="ChartFillColor">#286E44FF</Color>
+    <Color x:Key="ChartGridColor">#14000000</Color>
+    <Color x:Key="ChartAxisColor">#33000000</Color>
+    <Color x:Key="ChartLabelColor">#5A5F6B</Color>
+    <Color x:Key="ChartCurrentColor">#F5B301</Color>
+    <Color x:Key="ChartSavedColor">#BDBDBD</Color>
+    <Color x:Key="ChartSavedFillColor">#28BDBDBD</Color>
+    <Color x:Key="ChartCrosshairColor">#506E44FF</Color>
+
+    <SolidColorBrush x:Key="SurfaceBase" Color="{StaticResource SurfaceBaseColor}" />
+    <SolidColorBrush x:Key="SurfaceCard" Color="{StaticResource SurfaceCardColor}" />
+    <SolidColorBrush x:Key="SurfaceSunken" Color="{StaticResource SurfaceSunkenColor}" />
+
+    <SolidColorBrush x:Key="BorderSubtle" Color="{StaticResource BorderSubtleColor}" />
+
+    <SolidColorBrush x:Key="TextPrimary" Color="{StaticResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="TextSecondary" Color="{StaticResource TextSecondaryColor}" />
+    <SolidColorBrush x:Key="TextOnAccent" Color="{StaticResource TextOnAccentColor}" />
+
+    <SolidColorBrush x:Key="Primary" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="PrimaryHover" Color="{StaticResource PrimaryHoverColor}" />
+    <SolidColorBrush x:Key="PrimarySelected" Color="{StaticResource PrimarySelectedColor}" />
+    <SolidColorBrush x:Key="PrimarySubtle" Color="{StaticResource PrimarySubtleColor}" />
+
+    <SolidColorBrush x:Key="Warning" Color="{StaticResource WarningColor}" />
+    <SolidColorBrush x:Key="WarningText" Color="{StaticResource WarningTextColor}" />
+
+    <!-- Corner radii -->
+    <CornerRadius x:Key="RadiusControl">4</CornerRadius>
+    <CornerRadius x:Key="RadiusCard">8</CornerRadius>
+
+    <!-- Margins and paddings in the views are literals snapped to a 4px grid; only the shared
+         card padding is a token, so every card breathes the same. -->
+    <Thickness x:Key="PaddingCard">12</Thickness>
+
+    <!-- Type scale -->
+    <x:Double x:Key="FontSizeCaption">12</x:Double>
+    <x:Double x:Key="FontSizeBody">14</x:Double>
+    <x:Double x:Key="FontSizeSubtitle">16</x:Double>
+    <x:Double x:Key="FontSizeTitle">20</x:Double>
+
+    <!-- Icon scale -->
+    <x:Double x:Key="IconSizeSm">16</x:Double>
+    <x:Double x:Key="IconSizeMd">20</x:Double>
+    <x:Double x:Key="IconSizeLg">32</x:Double>
+</ResourceDictionary>
