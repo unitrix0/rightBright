@@ -16,6 +16,7 @@ namespace rightBright.Services.Sensors
         private YLightSensor? _sensorDevice;
         private string _error = "";
         private bool _sensorInitialized;
+        private string? _connectedSensorFriendlyName;
         private readonly object _historyLock = new();
 
         public event EventHandler<double>? Update;
@@ -41,9 +42,15 @@ namespace rightBright.Services.Sensors
 
         public bool ConnectToSensor(string sensorFriendlyName)
         {
+            var switchingSensor = _connectedSensorFriendlyName != sensorFriendlyName;
             _sensorDevice = YLightSensor.FindLightSensor(sensorFriendlyName);
             _sensorDevice.registerTimedReportCallback(TimedReport);
-            lock (_historyLock) { ValueHistory.Clear(); }
+            if (switchingSensor)
+            {
+                lock (_historyLock) { ValueHistory.Clear(); }
+                _connectedSensorFriendlyName = sensorFriendlyName;
+            }
+
             return true;
         }
 
