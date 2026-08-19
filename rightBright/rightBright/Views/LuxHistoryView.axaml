@@ -9,6 +9,7 @@
              x:DataType="viewModels:LuxHistoryViewModel">
 
     <controls:LuxHistoryChartControl
+        Margin="8,12,8,8"
         Readings="{Binding Readings}"
         CurrentLux="{Binding CurrentLux}"
         TimeRangeStart="{Binding HistoryRangeStart}"

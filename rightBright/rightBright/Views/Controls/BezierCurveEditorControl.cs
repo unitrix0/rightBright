@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using rightBright.Localization;
+using rightBright.Theme;
 
 namespace rightBright.Views.Controls;
 
@@ -17,17 +18,18 @@ public class BezierCurveEditorControl : Control
     private const double ControlPointRadius = 7;
     private const double HitTestRadius = 14;
 
-    private static readonly Color CurveColor = Color.Parse("#5A60B4");
-    private static readonly Color CurveFill = Color.Parse("#3FBFC9FF");
-    private static readonly Color SavedCurveColor = Color.Parse("#BDBDBD");
-    private static readonly Color SavedCurveFill = Color.Parse("#3FBDBDBD");
-    private static readonly Color GridLineColor = Color.Parse("#20808080");
-    private static readonly Color AxisColor = Color.Parse("#60808080");
-    private static readonly Color LabelColor = Color.Parse("#A0A0A0");
-    private static readonly Color PointP0Color = Color.Parse("#4CAF50");
-    private static readonly Color PointP1Color = Color.Parse("#5A60B4");
-    private static readonly Color PointP2Color = Color.Parse("#E57373");
-    private static readonly Color CurrentLuxIndicatorColor = Color.Parse("#FFA726");
+    private static Color CurveColor => ThemePalette.Resolve("ChartLineColor", "#6E44FF");
+    private static Color CurveFill => ThemePalette.Resolve("ChartFillColor", "#286E44FF");
+    private static Color SavedCurveColor => ThemePalette.Resolve("ChartSavedColor", "#BDBDBD");
+    private static Color SavedCurveFill => ThemePalette.Resolve("ChartSavedFillColor", "#28BDBDBD");
+    private static Color GridLineColor => ThemePalette.Resolve("ChartGridColor", "#14000000");
+    private static Color AxisColor => ThemePalette.Resolve("ChartAxisColor", "#33000000");
+    private static Color LabelColor => ThemePalette.Resolve("ChartLabelColor", "#5A5F6B");
+    private static Color CrosshairColor => ThemePalette.Resolve("ChartCrosshairColor", "#506E44FF");
+    private static Color PointP0Color => ThemePalette.Resolve("SuccessColor", "#3F9E5A");
+    private static Color PointP1Color => ThemePalette.Resolve("PrimaryColor", "#6E44FF");
+    private static Color PointP2Color => ThemePalette.Resolve("DangerColor", "#D9534F");
+    private static Color CurrentLuxIndicatorColor => ThemePalette.Resolve("ChartCurrentColor", "#F5B301");
 
     private DragTarget _dragTarget = DragTarget.None;
     private double _maxLuxScaleDuringDrag = 0;
@@ -290,7 +292,8 @@ public class BezierCurveEditorControl : Control
         double brightness = EvaluateBrightness(lux);
         var pointPixel = ChartToPixel(chart, lux, brightness, xMax);
 
-        var indicatorPen = new Pen(new SolidColorBrush(Color.FromArgb(120, 255, 167, 38)), 1,
+        var indicatorPen = new Pen(
+            new SolidColorBrush(ThemePalette.WithAlpha(CurrentLuxIndicatorColor, 120)), 1,
             new DashStyle(new[] { 3.0, 3.0 }, 0));
 
         context.DrawLine(indicatorPen, pointPixel, new Point(pointPixel.X, chart.Bottom));
@@ -366,7 +369,7 @@ public class BezierCurveEditorControl : Control
 
         // Draw crosshairs for P1 (only towards the axes)
         var p1Pixel = ChartToPixel(chart, ControlPointX, ControlPointY, xMax);
-        var crosshairPen = new Pen(new SolidColorBrush(Color.FromArgb(80, 90, 96, 180)), 1,
+        var crosshairPen = new Pen(new SolidColorBrush(CrosshairColor), 1,
             new DashStyle(new[] { 3.0, 3.0 }, 0));
         // Horizontal line (from P1 to Y-axis)
         context.DrawLine(crosshairPen, new Point(chart.Left, p1Pixel.Y), new Point(p1Pixel.X, p1Pixel.Y));
