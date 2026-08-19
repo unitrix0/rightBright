@@ -150,7 +150,7 @@ public class App : Application
             var logger = services.GetRequiredService<ILogger>();
             var changeNotificationService = services.GetRequiredService<IMonitorChangedNotificationService>();
             return OperatingSystem.IsWindows()
-                ? new WinMonitorEnumService(logger, changeNotificationService)
+                ? new WinMonitorEnumService(logger, services.GetRequiredService<ISettings>(), changeNotificationService)
                 : new LinuxMonitorEnumService(logger, changeNotificationService);
         });
 

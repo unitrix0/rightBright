@@ -37,6 +37,7 @@ public static class Texts
     public static string SettingsLanguage => Get(nameof(SettingsLanguage));
     public static string SettingsSensorPolling => Get(nameof(SettingsSensorPolling));
     public static string SettingsUpdateInterval => Get(nameof(SettingsUpdateInterval));
+    public static string SettingsWinDiscRetryDelay => Get(nameof(SettingsWinDiscRetryDelay));
     public static string SettingsAutostart => Get(nameof(SettingsAutostart));
 
     public static string Format(string key, params object[] args)

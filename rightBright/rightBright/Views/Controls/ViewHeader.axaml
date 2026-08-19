@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="40"
+             x:Class="rightBright.Views.Controls.ViewHeader"
+             x:Name="Root">
+
+    <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Grid.Column="0"
+                   Classes="title"
+                   VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis"
+                   Text="{Binding #Root.Title}" />
+
+        <Button Grid.Column="1"
+                Classes="iconButton"
+                Command="{Binding #Root.CloseCommand}">
+            <TextBlock Classes="icon" Text="&#xE4F6;" />
+        </Button>
+    </Grid>
+</UserControl>

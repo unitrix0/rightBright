@@ -14,6 +14,7 @@ namespace rightBright.Settings
         int UpdateCheckIntervalHours { get; set; }
         bool AutostartEnabled { get; set; }
         int DeviceChangeDebounceMilliseconds { get; set; }
+        int WinDiscEnumerationRetryDelaySeconds { get; set; }
         void Save();
     }
 }

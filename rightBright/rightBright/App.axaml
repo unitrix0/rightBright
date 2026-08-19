@@ -5,7 +5,7 @@
              xmlns:localization="clr-namespace:rightBright.Localization"
              xmlns:views="clr-namespace:rightBright.Views"
              xmlns:viewModels="clr-namespace:rightBright.ViewModels"
-             RequestedThemeVariant="Default"
+             RequestedThemeVariant="Light"
              x:DataType="viewModels:ApplicationViewModel"
              x:CompileBindings="True">
     <Application.DataTemplates>
@@ -22,10 +22,14 @@
     </Application.Styles>
 
     <Application.Resources>
-        <FontFamily x:Key="PhosphorThin">/Assets/Fonts/Phosphor-Thin.ttf#Phosphor-Thin</FontFamily>
-        <FontFamily x:Key="PhosphorRegular">/Assets/Fonts/Phosphor.ttf#Phosphor</FontFamily>
-        <SolidColorBrush x:Key="PrimaryBackground">#EFF0F1</SolidColorBrush>
-        <SolidColorBrush x:Key="CustomWhite">#ECE5F0</SolidColorBrush>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://rightBright/Theme/Palette.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <FontFamily x:Key="PhosphorThin">/Assets/Fonts/Phosphor-Thin.ttf#Phosphor-Thin</FontFamily>
+            <FontFamily x:Key="PhosphorRegular">/Assets/Fonts/Phosphor.ttf#Phosphor</FontFamily>
+        </ResourceDictionary>
     </Application.Resources>
 
     <TrayIcon.Icons>

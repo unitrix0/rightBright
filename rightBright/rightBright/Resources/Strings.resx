@@ -111,6 +111,9 @@
   <data name="SettingsUpdateInterval" xml:space="preserve">
     <value>Update check interval (hours)</value>
   </data>
+  <data name="SettingsWinDiscRetryDelay" xml:space="preserve">
+    <value>Monitor enumeration retry delay (seconds)</value>
+  </data>
   <data name="SettingsAutostart" xml:space="preserve">
     <value>Start with system</value>
   </data>

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:rightBright.Views.Controls"
              xmlns:localization="clr-namespace:rightBright.Localization"
              xmlns:vm="clr-namespace:rightBright.ViewModels"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="400"
@@ -12,21 +13,15 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto, *">
-        <Grid ColumnDefinitions="*,Auto" Margin="10,10,10,0">
-            <Label FontSize="18"
-                   Content="{x:Static localization:Texts.SettingsTitle}" />
-            <Button Grid.Column="1"
-                    Command="{Binding RequestCloseCommand}"
-                    Background="Transparent">
-                <Label Classes="icon" FontWeight="Bold">&#xE4F6;</Label>
-            </Button>
-        </Grid>
+        <controls:ViewHeader Margin="16,12,12,4"
+                             Title="{x:Static localization:Texts.SettingsTitle}"
+                             CloseCommand="{Binding RequestCloseCommand}" />
 
-        <StackPanel Grid.Row="1" Margin="16,20,16,16" Spacing="18">
+        <StackPanel Grid.Row="1" Margin="16,12,16,16" Spacing="16">
 
             <!-- Language -->
             <StackPanel Spacing="4">
-                <TextBlock Text="{x:Static localization:Texts.SettingsLanguage}" FontSize="13" />
+                <TextBlock Classes="caption" Text="{x:Static localization:Texts.SettingsLanguage}" />
                 <ComboBox ItemsSource="{Binding Languages}"
                           SelectedItem="{Binding SelectedLanguage}"
                           Width="200" HorizontalAlignment="Left" />
@@ -34,7 +29,7 @@
 
             <!-- YapiEventsTimerInterval -->
             <StackPanel Spacing="4">
-                <TextBlock Text="{x:Static localization:Texts.SettingsSensorPolling}" FontSize="13" />
+                <TextBlock Classes="caption" Text="{x:Static localization:Texts.SettingsSensorPolling}" />
                 <ComboBox ItemsSource="{Binding YapiIntervalOptions}"
                           SelectedItem="{Binding SelectedYapiInterval}"
                           Width="200" HorizontalAlignment="Left" />
@@ -43,10 +38,23 @@
             <!-- UpdateCheckIntervalHours (Windows only) -->
             <StackPanel Spacing="4"
                         IsVisible="{Binding IsUpdateCheckVisible}">
-                <TextBlock Text="{x:Static localization:Texts.SettingsUpdateInterval}" FontSize="13" />
+                <TextBlock Classes="caption" Text="{x:Static localization:Texts.SettingsUpdateInterval}" />
                 <NumericUpDown Value="{Binding UpdateCheckIntervalHours}"
                                Minimum="1"
                                Maximum="168"
+                               Increment="1"
+                               FormatString="0"
+                               Width="200"
+                               HorizontalAlignment="Left" />
+            </StackPanel>
+
+            <!-- WinDiscEnumerationRetryDelaySeconds (Windows only) -->
+            <StackPanel Spacing="4"
+                        IsVisible="{Binding IsWinDiscRetryDelayVisible}">
+                <TextBlock Classes="caption" Text="{x:Static localization:Texts.SettingsWinDiscRetryDelay}" />
+                <NumericUpDown Value="{Binding WinDiscEnumerationRetryDelaySeconds}"
+                               Minimum="0"
+                               Maximum="30"
                                Increment="1"
                                FormatString="0"
                                Width="200"

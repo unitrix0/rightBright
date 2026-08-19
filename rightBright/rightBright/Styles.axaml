@@ -1,49 +1,140 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.PreviewWith>
-        <Border Padding="20"
-                Background="{DynamicResource PrimaryBackground}"
-                Width="300" Height="200">
-            <!-- Add Controls for Previewer Here -->
-            <StackPanel>
-                <Button HorizontalAlignment="Center">Lorem</Button>
+        <Border Padding="16"
+                Background="{DynamicResource SurfaceBase}"
+                Width="320" Height="260">
+            <StackPanel Spacing="12">
+                <TextBlock Classes="title" Text="Title" />
+                <TextBlock Classes="subtitle" Text="Subtitle" />
+                <TextBlock Classes="body" Text="Body" />
+                <TextBlock Classes="caption" Text="Caption" />
+                <Border Classes="card" Padding="{DynamicResource PaddingCard}">
+                    <TextBlock Classes="body" Text="Card" />
+                </Border>
+                <Border Classes="cardAccent" Padding="{DynamicResource PaddingCard}">
+                    <TextBlock Classes="body" Text="Accent card" />
+                </Border>
             </StackPanel>
-
         </Border>
     </Design.PreviewWith>
 
-    <!-- Add Styles Here -->
-    <!-- <Style Selector="Button"> -->
-    <!--     <Setter Property="Background" Value="{DynamicResource ButtonBackground}"></Setter> -->
-    <!--     <Setter Property="Foreground" Value="{DynamicResource CustomWhite}"></Setter> -->
-    <!-- </Style> -->
-    <Style Selector="Button.titleBar">
-        <Setter Property="Height" Value="45" />
-        <Setter Property="Width" Value="45" />
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="VerticalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalContentAlignment" Value="Center" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="CornerRadius" Value="0" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource CustomWhite}" />
-    </Style>
-    <Style Selector="Button.titleBar:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="#3D1F84" />
-        <Setter Property="Foreground" Value="{DynamicResource CustomWhite}" />
-    </Style>
-    <Style Selector="Button.titlebarClose:pointerover /template/ ContentPresenter">
-        <Setter Property="CornerRadius" Value="0,4,0,0" />
-        <Setter Property="Background" Value="Red" />
-        <Setter Property="Foreground" Value="{DynamicResource CustomWhite}" />
+    <!-- Type scale -->
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeTitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
     </Style>
 
-    <Style Selector="Label.icon">
-        <Setter Property="FontFamily" Value="{DynamicResource PhosphorThin}" />
+    <Style Selector="TextBlock.subtitle">
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeSubtitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
     </Style>
-    
-    <Style Selector="Label.iconRegular">
+
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeBody}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+    </Style>
+
+    <Style Selector="TextBlock.caption">
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeCaption}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondary}" />
+    </Style>
+
+    <Style Selector="TextBlock.strong">
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+    </Style>
+
+    <!-- Containers -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource SurfaceCard}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtle}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusCard}" />
+    </Style>
+
+    <Style Selector="Border.cardAccent">
+        <Setter Property="Background" Value="{DynamicResource Primary}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusCard}" />
+    </Style>
+
+    <Style Selector="Border.cardWarning">
+        <Setter Property="Background" Value="{DynamicResource Warning}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusCard}" />
+    </Style>
+
+    <!-- Icons: Phosphor glyphs rendered as text -->
+    <Style Selector="TextBlock.icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PhosphorThin}" />
+        <Setter Property="FontSize" Value="{DynamicResource IconSizeMd}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.icon.regular">
         <Setter Property="FontFamily" Value="{DynamicResource PhosphorRegular}" />
+    </Style>
+
+    <Style Selector="TextBlock.icon.sm">
+        <Setter Property="FontSize" Value="{DynamicResource IconSizeSm}" />
+    </Style>
+
+    <Style Selector="TextBlock.icon.lg">
+        <Setter Property="FontSize" Value="{DynamicResource IconSizeLg}" />
+    </Style>
+
+    <!-- Flat, square buttons that carry only an icon -->
+    <Style Selector="Button.iconButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="6" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusControl}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+    </Style>
+
+    <Style Selector="Button.iconButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource PrimarySubtle}" />
+        <Setter Property="Foreground" Value="{DynamicResource Primary}" />
+    </Style>
+
+    <Style Selector="Button.iconButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSunken}" />
+    </Style>
+
+    <!-- Text on a saturated card surface -->
+    <Style Selector="Border.cardAccent TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextOnAccent}" />
+    </Style>
+
+    <Style Selector="Border.cardWarning TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource WarningText}" />
+    </Style>
+
+    <!-- The default button chrome is a translucent overlay, which turns muddy on the amber
+         banner, so give it an opaque surface instead. -->
+    <Style Selector="Border.cardWarning Button">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusControl}" />
+        <Setter Property="Foreground" Value="{DynamicResource WarningText}" />
+    </Style>
+
+    <Style Selector="Border.cardWarning Button /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SurfaceCard}" />
+    </Style>
+
+    <Style Selector="Border.cardWarning Button:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSunken}" />
+    </Style>
+
+    <Style Selector="Border.cardWarning Button:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BorderSubtle}" />
     </Style>
 </Styles>

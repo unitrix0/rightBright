@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using rightBright.Models.Sensors;
 using rightBright.Localization;
+using rightBright.Theme;
 
 namespace rightBright.Views.Controls;
 
@@ -16,12 +17,12 @@ public class LuxHistoryChartControl : Control
     private const double PaddingTop = 20;
     private const double PaddingRight = 15;
 
-    private static readonly Color LineColor = Color.Parse("#5A60B4");
-    private static readonly Color FillColor = Color.Parse("#3FBFC9FF");
-    private static readonly Color GridLineColor = Color.Parse("#20808080");
-    private static readonly Color AxisColor = Color.Parse("#60808080");
-    private static readonly Color LabelColor = Color.Parse("#A0A0A0");
-    private static readonly Color CurrentLuxColor = Color.Parse("#FFA726");
+    private static Color LineColor => ThemePalette.Resolve("ChartLineColor", "#6E44FF");
+    private static Color FillColor => ThemePalette.Resolve("ChartFillColor", "#286E44FF");
+    private static Color GridLineColor => ThemePalette.Resolve("ChartGridColor", "#14000000");
+    private static Color AxisColor => ThemePalette.Resolve("ChartAxisColor", "#33000000");
+    private static Color LabelColor => ThemePalette.Resolve("ChartLabelColor", "#5A5F6B");
+    private static Color CurrentLuxColor => ThemePalette.Resolve("ChartCurrentColor", "#F5B301");
 
     private static readonly TimeSpan DefaultChartSpan = TimeSpan.FromHours(8);
 
